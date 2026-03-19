@@ -1,0 +1,51 @@
+{
+  "data": "2026-03-19",
+  "ultima_atualizacao": "2026-03-19T14:00:00",
+  "total_verificadas": 4,
+  "total_ok": 4,
+  "total_relancadas": 0,
+  "total_erro": 0,
+  "total_pendentes": 0,
+  "notas": [
+    {
+      "NumeroDocumento": "3136",
+      "NomeFornecedor": "FARO TECNOLOGIA EM INFORMATICA LTDA",
+      "CNPJ": "07.455.615/0001-51",
+      "TipoDocumento": "NFS-e",
+      "ValorTotal": 750.00,
+      "DataVencimento": "2026-04-01T00:00:00",
+      "DataRegistroHora": "2026-03-19T08:12:00",
+      "Status": "Processado"
+    },
+    {
+      "NumeroDocumento": "3128",
+      "NomeFornecedor": "FARO TECNOLOGIA EM INFORMATICA LTDA",
+      "CNPJ": "07.455.615/0001-51",
+      "TipoDocumento": "NFS-e",
+      "ValorTotal": 1090.00,
+      "DataVencimento": "2026-04-01T00:00:00",
+      "DataRegistroHora": "2026-03-19T08:14:00",
+      "Status": "Processado"
+    },
+    {
+      "NumeroDocumento": "1290",
+      "NomeFornecedor": "GOB SOLUCOES LTDA",
+      "CNPJ": "58.422.149/0001-49",
+      "TipoDocumento": "NFS-e",
+      "ValorTotal": 1000.00,
+      "DataVencimento": "2026-04-05T00:00:00",
+      "DataRegistroHora": "2026-03-19T09:03:00",
+      "Status": "Processado"
+    },
+    {
+      "NumeroDocumento": "58",
+      "NomeFornecedor": "GABRIELA LACERDA DE ALMEIDA",
+      "CNPJ": "51.074.446/0001-00",
+      "TipoDocumento": "NFS-e",
+      "ValorTotal": 291.00,
+      "DataVencimento": "2026-04-10T00:00:00",
+      "DataRegistroHora": "2026-03-19T09:21:00",
+      "Status": "Processado"
+    }
+  ]
+}
