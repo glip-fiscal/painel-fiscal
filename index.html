@@ -1056,8 +1056,8 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
 </script>
 
 <!-- USERS MODAL -->
-<div id="users-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:50;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;">
+<div id="users-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:50;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+  <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:600px;margin:0 auto;">
     <div style="padding:24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
       <div>
         <div style="font-size:15px;font-weight:600;" id="users-modal-title">Gerenciar Usuários</div>
@@ -1069,7 +1069,7 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
       <!-- Add user form -->
       <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px;">
         <div style="font-size:12px;font-weight:600;margin-bottom:14px;color:var(--cyan)">+ Adicionar Usuário</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:10px;">
           <div>
             <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Nome</label>
             <input id="new-nome" type="text" placeholder="Nome completo" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
@@ -1108,11 +1108,11 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
 
 
 <!-- DOCS MODAL -->
-<div id="docs-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:50;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;">
+<div id="docs-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:50;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
   <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:900px;margin:0 auto;">
     
     <!-- Header -->
-    <div style="padding:24px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--panel);z-index:1;border-radius:16px 16px 0 0;">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--panel);z-index:1;border-radius:16px 16px 0 0;gap:12px;">
       <div>
         <div style="font-size:16px;font-weight:600;">📚 Documentação do Projeto</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px;">GLIP · Extrator Fiscal Automatizado · v3.0</div>
@@ -1121,16 +1121,16 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
     </div>
 
     <!-- Tabs -->
-    <div style="display:flex;gap:4px;padding:16px 28px 0;border-bottom:1px solid var(--border);">
-      <button class="doc-tab active" onclick="showDocTab('fluxos')" id="tab-fluxos">⚡ Fluxos</button>
-      <button class="doc-tab" onclick="showDocTab('config')" id="tab-config">⚙️ Configurações</button>
-      <button class="doc-tab" onclick="showDocTab('problemas')" id="tab-problemas">🔧 Problemas</button>
-      <button class="doc-tab" onclick="showDocTab('roadmap')" id="tab-roadmap">🗺️ Roadmap</button>
-      <button class="doc-tab" onclick="showDocTab('fluxograma')" id="tab-fluxograma">📊 Fluxograma</button>
+    <div style="display:flex;gap:4px;padding:12px 16px 0;border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+      <button class="doc-tab active" onclick="showDocTab('fluxos')" id="tab-fluxos" style="white-space:nowrap;">⚡ Fluxos</button>
+      <button class="doc-tab" onclick="showDocTab('config')" id="tab-config" style="white-space:nowrap;">⚙️ Config</button>
+      <button class="doc-tab" onclick="showDocTab('problemas')" id="tab-problemas" style="white-space:nowrap;">🔧 Problemas</button>
+      <button class="doc-tab" onclick="showDocTab('roadmap')" id="tab-roadmap" style="white-space:nowrap;">🗺️ Roadmap</button>
+      <button class="doc-tab" onclick="showDocTab('fluxograma')" id="tab-fluxograma" style="white-space:nowrap;">📊 Fluxograma</button>
     </div>
 
     <!-- Content -->
-    <div style="padding:28px;">
+    <div style="padding:16px;">
 
       <!-- FLUXOS -->
       <div id="doc-fluxos" class="doc-panel">
@@ -1237,7 +1237,7 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
       <!-- ROADMAP -->
       <div id="doc-roadmap" class="doc-panel" style="display:none;">
         <div class="doc-section">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
             <div class="doc-road-card doc-road-high">
               <div class="doc-road-badge">🔴 Alta prioridade</div>
               <ul class="doc-road-list">
@@ -1382,7 +1382,13 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
 .doc-panel{}
 .doc-section{display:flex;flex-direction:column;gap:12px;}
 .doc-flow-card{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:16px;}
-.doc-flow-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.doc-flow-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+@media(max-width:700px){
+  .doc-flow-detail{font-size:10px;}
+  .doc-flow-desc{font-size:11px;}
+  .doc-road-list li{font-size:10px;}
+  .doc-group-title{font-size:11px;}
+}
 .doc-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;}
 .doc-status{font-size:11px;color:var(--green);margin-left:auto;}
 .doc-flow-desc{font-size:12px;color:var(--text);margin-bottom:10px;line-height:1.6;}
@@ -1391,7 +1397,9 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
 .doc-group{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;}
 .doc-group-title{font-size:12px;font-weight:600;margin-bottom:12px;}
 .doc-table{display:flex;flex-direction:column;gap:6px;}
-.doc-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;gap:12px;flex-wrap:wrap;}
+.doc-row{display:flex;align-items:flex-start;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;gap:8px;flex-wrap:wrap;}
+.doc-row span{color:var(--muted);flex-shrink:0;min-width:80px;}
+.doc-row code{word-break:break-all;}
 .doc-row:last-child{border-bottom:none;}
 .doc-row span{color:var(--muted);}
 .doc-row code{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--cyan-dim);padding:2px 6px;border-radius:4px;word-break:break-all;}
