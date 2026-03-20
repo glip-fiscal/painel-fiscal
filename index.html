@@ -559,9 +559,19 @@ async function doLogin() {
     errEl.style.display='none';
     currentUser = user;
     localStorage.setItem('glip-user', JSON.stringify({usuario:user.usuario,nome:user.nome,perfil:user.perfil,empresa:user.empresa}));
-    // Offer biometrics registration
-    if (window.PublicKeyCredential) {
-      localStorage.setItem('glip-bio-user', user.usuario);
+    // Save credentials for biometric unlock (PasswordCredential API)
+    if (window.PasswordCredential) {
+      try {
+        const cred = new PasswordCredential({
+          id: usuario,
+          password: senha,
+          name: user.nome
+        });
+        await navigator.credentials.store(cred);
+        localStorage.setItem('glip-bio-user', usuario);
+      } catch(e) { console.log('Credencial não salva:', e); }
+    } else {
+      localStorage.setItem('glip-bio-user', usuario);
     }
     showApp();
   } catch(e) {
@@ -575,21 +585,30 @@ async function doBiometria() {
   try {
     const savedUser = localStorage.getItem('glip-bio-user');
     if (!savedUser) return;
-    const credential = await navigator.credentials.get({
-      publicKey: {
-        challenge: crypto.getRandomValues(new Uint8Array(32)),
-        timeout: 60000,
-        userVerification: 'required'
+
+    // Try PasswordCredential first (Chrome Android/Desktop)
+    if (window.PasswordCredential) {
+      const cred = await navigator.credentials.get({
+        password: true,
+        mediation: 'required'
+      });
+      if (cred) {
+        const hash = await sha256(cred.password);
+        const resp = await fetch(`${USERS_URL}?t=${Date.now()}`);
+        const users = await resp.json();
+        const user = users.find(u => u.usuario === cred.id && u.senha === hash);
+        if (user) { currentUser = user; showApp(); return; }
       }
-    });
-    if (credential) {
-      const resp = await fetch(`${USERS_URL}?t=${Date.now()}`);
-      const users = await resp.json();
-      const user = users.find(u => u.usuario === savedUser);
-      if (user) { currentUser = user; showApp(); }
+    }
+
+    // Fallback: session still valid
+    const saved = localStorage.getItem('glip-user');
+    if (saved) {
+      currentUser = JSON.parse(saved);
+      showApp();
     }
   } catch(e) {
-    console.log('Biometria cancelada ou não disponível');
+    console.log('Biometria cancelada:', e);
   }
 }
 
@@ -635,7 +654,7 @@ function checkSession() {
   }
   document.getElementById('loading').classList.add('hidden');
   document.getElementById('login-page').style.display='flex';
-  if (window.PublicKeyCredential && localStorage.getItem('glip-bio-user') && window.innerWidth <= 700) {
+  if (localStorage.getItem('glip-bio-user') && window.innerWidth <= 700) {
     document.getElementById('btn-bio').style.display='flex';
   }
 }
