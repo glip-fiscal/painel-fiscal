@@ -5,5 +5,13 @@
     "nome": "Marcelo",
     "perfil": "admin",
     "empresa": "todas"
+  },
+  {
+    "usuario": "igor@glip.com.br",
+    "senha": "3113ef7b9cde5dde7114fe3896063bf695e8dfe17b6f56e1ec1ec698c19a8da7",
+    "nome": "Igor Yakovenko",
+    "perfil": "admin",
+    "empresa": "todas",
+    "criado": "2026-03-20T18:56:56.320Z"
   }
 ]
