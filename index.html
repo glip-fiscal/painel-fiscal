@@ -316,7 +316,11 @@ function formatMoeda(v) {
 
 function getHora(iso) {
   if (!iso) return null;
-  try { return parseInt(new Date(iso).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'numeric',hour12:false})); }
+  try {
+    const str = new Date(iso).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',hour12:false});
+    const h = parseInt(str.replace(/[^0-9]/g,''));
+    return isNaN(h) ? null : h;
+  }
   catch { return null; }
 }
 
@@ -339,10 +343,7 @@ async function loadData() {
     if (resp.ok) {
       data = await resp.json();
     } else {
-      // Fallback para dados.json se arquivo do dia não existe
-      const resp2 = await fetch(fallbackURL);
-      if (!resp2.ok) throw new Error('Nenhum dado encontrado para esta data.');
-      data = await resp2.json();
+      throw new Error(`Nenhum dado encontrado para ${selectedDate}. Os arquivos diários são gerados a partir de hoje.`);
     }
 
     const notas = (data.notas || []);
