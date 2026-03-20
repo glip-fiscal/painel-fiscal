@@ -346,7 +346,14 @@ async function loadData() {
       throw new Error(`Nenhum dado encontrado para ${selectedDate}. Os arquivos diários são gerados a partir de hoje.`);
     }
 
-    const notas = (data.notas || []);
+    // Deduplica por nf+cnpj — mantém só a primeira ocorrência
+    const seen = new Set();
+    const notas = (data.notas || []).filter(n => {
+      const key = `${n.nf}-${n.cnpj}-${(n.hora||"").substring(0,10)}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
     allNotas = notas;
 
     const ok    = notas.filter(n => n.status === 'Processado').length;
