@@ -6,132 +6,49 @@
 <title>GLIP · Painel Fiscal</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --navy:      #07071A;
-  --navy2:     #0D0D2B;
-  --panel:     #0F1128;
-  --panel2:    #131535;
-  --border:    rgba(0,180,216,0.10);
-  --border2:   rgba(0,180,216,0.20);
-  --cyan:      #00B4D8;
-  --cyan-dim:  rgba(0,180,216,0.10);
-  --green:     #22C55E;
-  --green-dim: rgba(34,197,94,0.10);
-  --amber:     #F59E0B;
-  --amber-dim: rgba(245,158,11,0.10);
-  --red:       #EF4444;
-  --red-dim:   rgba(239,68,68,0.10);
-  --text:      #E2E8F0;
-  --muted:     #4A5568;
-  --dim:       #718096;
-  --sidebar-w: 200px;
-}
-[data-theme="light"] {
-  --navy:      #F0F4F8;
-  --navy2:     #E2E8F0;
-  --panel:     #FFFFFF;
-  --panel2:    #F7FAFC;
-  --border:    rgba(0,100,150,0.12);
-  --border2:   rgba(0,100,150,0.25);
-  --cyan:      #0077A8;
-  --cyan-dim:  rgba(0,119,168,0.10);
-  --green:     #16A34A;
-  --green-dim: rgba(22,163,74,0.10);
-  --amber:     #D97706;
-  --amber-dim: rgba(217,119,6,0.10);
-  --red:       #DC2626;
-  --red-dim:   rgba(220,38,38,0.10);
-  --text:      #1A202C;
-  --muted:     #718096;
-  --dim:       #4A5568;
-}
-
+:root{--navy:#07071A;--navy2:#0D0D2B;--panel:#0F1128;--panel2:#131535;--border:rgba(0,180,216,0.10);--border2:rgba(0,180,216,0.20);--cyan:#00B4D8;--cyan-dim:rgba(0,180,216,0.10);--green:#22C55E;--green-dim:rgba(34,197,94,0.10);--amber:#F59E0B;--amber-dim:rgba(245,158,11,0.10);--red:#EF4444;--red-dim:rgba(239,68,68,0.10);--text:#E2E8F0;--muted:#4A5568;--dim:#718096;--sidebar-w:200px;}
+[data-theme="light"]{--navy:#F0F4F8;--navy2:#E2E8F0;--panel:#FFFFFF;--panel2:#F7FAFC;--border:rgba(0,100,150,0.12);--border2:rgba(0,100,150,0.25);--cyan:#0077A8;--cyan-dim:rgba(0,119,168,0.10);--green:#16A34A;--green-dim:rgba(22,163,74,0.10);--amber:#D97706;--amber-dim:rgba(217,119,6,0.10);--red:#DC2626;--red-dim:rgba(220,38,38,0.10);--text:#1A202C;--muted:#718096;--dim:#4A5568;}
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
 body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-height:100vh;display:flex;transition:background .3s,color .3s;}
-
-[data-theme="dark"] body::before{
-  content:'';position:fixed;inset:0;
-  background-image:linear-gradient(rgba(0,180,216,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,216,0.02) 1px,transparent 1px);
-  background-size:48px 48px;pointer-events:none;z-index:0;
-}
-
-/* SIDEBAR */
-.sidebar{
-  width:var(--sidebar-w);min-height:100vh;
-  background:var(--navy2);border-right:1px solid var(--border);
-  display:flex;flex-direction:column;padding:24px 16px;
-  position:fixed;top:0;left:0;bottom:0;z-index:10;
-  transition:background .3s;
-}
+[data-theme="dark"] body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,180,216,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,216,0.02) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+.sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--navy2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 16px;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s;}
 .logo-wrap{margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);text-align:center;}
 .logo-wrap img{width:90px;height:auto;display:block;margin:0 auto;}
 .logo-fallback{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--cyan);display:none;}
 .tagline{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:6px;text-align:center;}
-
 .nav-section{font-size:8px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;}
-.nav-item{
-  display:flex;align-items:center;gap:8px;padding:9px 10px;
-  border-radius:8px;font-size:12px;font-weight:500;color:var(--dim);
-  cursor:pointer;transition:all .15s;margin-bottom:2px;text-decoration:none;border:none;background:none;width:100%;
-}
-.nav-item:hover{background:var(--cyan-dim);color:var(--cyan);}
-.nav-item.active{background:var(--cyan-dim);color:var(--cyan);border-left:2px solid var(--cyan);}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;font-size:12px;font-weight:500;color:var(--dim);cursor:pointer;transition:all .15s;margin-bottom:2px;text-decoration:none;border:none;background:none;width:100%;}
+.nav-item:hover,.nav-item.active{background:var(--cyan-dim);color:var(--cyan);}
+.nav-item.active{border-left:2px solid var(--cyan);}
 .nav-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0;}
-
 .sidebar-footer{margin-top:auto;padding-top:16px;border-top:1px solid var(--border);}
 .live-badge{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--green);margin-bottom:5px;}
 .live-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .update-time{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
-
-/* THEME TOGGLE */
-.theme-btn{
-  display:flex;align-items:center;gap:6px;
-  background:var(--panel);border:1px solid var(--border);
-  color:var(--dim);border-radius:8px;padding:7px 10px;
-  font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;
-  transition:all .15s;width:100%;margin-top:8px;
-}
+.theme-btn{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);color:var(--dim);border-radius:8px;padding:7px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;width:100%;margin-top:8px;}
 .theme-btn:hover{border-color:var(--border2);color:var(--text);}
-
-/* MAIN */
 .main{margin-left:var(--sidebar-w);flex:1;padding:28px 24px;position:relative;z-index:1;min-height:100vh;}
-
-/* HEADER */
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;}
 .page-title h1{font-size:20px;font-weight:600;letter-spacing:-.3px;}
 .page-title p{font-size:12px;color:var(--muted);margin-top:2px;}
 .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-
-/* DATE FILTER */
 .date-filter{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:8px 12px;}
 .date-filter label{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;}
 .date-filter input{background:transparent;border:none;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;width:120px;}
 .date-filter input::-webkit-calendar-picker-indicator{filter:invert(0.5);cursor:pointer;}
-
-.btn{
-  display:flex;align-items:center;gap:5px;
-  border-radius:8px;padding:8px 14px;font-size:11px;font-weight:500;
-  cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;border:none;
-}
+.btn{display:flex;align-items:center;gap:5px;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;border:none;}
 .btn-cyan{background:var(--cyan-dim);border:1px solid var(--border2);color:var(--cyan);}
 .btn-cyan:hover{background:rgba(0,180,216,.2);}
 .btn-cyan.loading{opacity:.6;pointer-events:none;}
-
-/* SECTION LABEL */
 .section-label{font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;}
-
-/* KPI GRID */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
-.kpi-card{
-  background:var(--panel);border:1px solid var(--border);border-radius:12px;
-  padding:16px;position:relative;overflow:hidden;
-  transition:transform .2s,border-color .2s,box-shadow .2s;
-  animation:fadeUp .4s ease both;cursor:pointer;
-}
+.kpi-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;animation:fadeUp .4s ease both;cursor:pointer;}
 .kpi-card:hover{transform:translateY(-2px);border-color:var(--border2);box-shadow:0 4px 20px rgba(0,0,0,.2);}
-.kpi-card.active-filter{border-color:var(--accent-color)!important;box-shadow:0 0 0 2px var(--accent-color)!important;}
+.kpi-card.active-filter{border-width:2px;}
+.kpi-card.ok.active-filter{border-color:var(--green);box-shadow:0 0 0 1px var(--green);}
+.kpi-card.erro.active-filter{border-color:var(--red);box-shadow:0 0 0 1px var(--red);}
+.kpi-card.pend.active-filter{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber);}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0;}
 .kpi-card.ok::before{background:var(--green);}
 .kpi-card.erro::before{background:var(--red);}
@@ -150,23 +67,18 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 .kpi-card.pend .kpi-value{color:var(--amber);}
 .kpi-card.valor .kpi-value{color:var(--cyan);font-size:20px;}
 .kpi-label{font-size:11px;color:var(--muted);font-weight:500;}
-.kpi-card:nth-child(1){animation-delay:.05s}.kpi-card:nth-child(2){animation-delay:.1s}
-.kpi-card:nth-child(3){animation-delay:.15s}.kpi-card:nth-child(4){animation-delay:.2s}
-
-/* LAYOUT GRID */
+.kpi-card:nth-child(1){animation-delay:.05s}.kpi-card:nth-child(2){animation-delay:.1s}.kpi-card:nth-child(3){animation-delay:.15s}.kpi-card:nth-child(4){animation-delay:.2s}
 .layout-grid{display:grid;grid-template-columns:1fr 300px;gap:16px;margin-bottom:16px;}
-
-/* CARD */
 .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;animation:fadeUp .4s ease both;transition:background .3s;}
 .card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
 .card-title{font-size:13px;font-weight:600;}
 .card-sub{font-size:10px;color:var(--muted);margin-top:2px;}
 .card-badge{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);background:var(--cyan-dim);border:1px solid var(--border2);padding:3px 8px;border-radius:5px;}
-
-/* CHART */
 .chart-outer{height:180px;display:flex;align-items:flex-end;gap:3px;padding-bottom:24px;border-bottom:1px solid var(--border);position:relative;}
-.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:1px;cursor:pointer;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:1px;cursor:pointer;position:relative;}
 .bar-col:hover .bar{filter:brightness(1.3);opacity:1!important;}
+.bar-tooltip{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;font-size:9px;white-space:nowrap;color:var(--text);z-index:10;pointer-events:none;}
+.bar-col:hover .bar-tooltip{display:block;}
 .bar{width:100%;border-radius:2px 2px 0 0;transition:height .6s cubic-bezier(.34,1.56,.64,1),opacity .2s;min-height:2px;}
 .bar.ok{background:var(--green);opacity:.85;}
 .bar.erro{background:var(--red);opacity:.85;}
@@ -176,17 +88,10 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 .leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--dim);}
 .leg-dot{width:7px;height:7px;border-radius:2px;}
 .chart-empty{width:100%;text-align:center;color:var(--muted);font-size:11px;padding-bottom:24px;align-self:center;}
-
-/* NOTAS LISTA */
 .notas-lista{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow-y:auto;}
 .notas-lista::-webkit-scrollbar{width:3px;}
 .notas-lista::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-
-.nota-row{
-  display:flex;align-items:center;justify-content:space-between;
-  background:var(--panel2);border:1px solid var(--border);border-radius:8px;
-  padding:10px 14px;transition:border-color .15s;gap:8px;
-}
+.nota-row{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;transition:border-color .15s;gap:8px;}
 .nota-row:hover{border-color:var(--border2);}
 .nota-row.erro-row{border-left:2px solid var(--red);}
 .nota-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
@@ -198,8 +103,6 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 .nota-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;}
 .nota-valor{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);font-weight:600;}
 .nota-hora{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);}
-
-/* STATUS PANEL */
 .status-list{display:flex;flex-direction:column;}
 .status-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(0,180,216,.06);}
 .status-row:last-child{border-bottom:none;}
@@ -209,69 +112,29 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 .s-trig{font-size:9px;color:var(--muted);margin-top:1px;}
 .s-badge{font-size:9px;font-weight:600;padding:2px 8px;border-radius:12px;}
 .s-badge.ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);}
-
-/* PENDENTES */
-.pend-lista{display:flex;flex-direction:column;gap:5px;margin-top:4px;}
-.pend-row{
-  display:flex;align-items:flex-start;gap:6px;
-  background:var(--amber-dim);border:1px solid rgba(245,158,11,.15);
-  border-radius:7px;padding:7px 10px;font-size:10px;color:var(--amber);
-  word-break:break-all;line-height:1.4;
-}
-
-/* ERROS */
-.erro-lista{display:flex;flex-direction:column;gap:5px;margin-top:4px;}
-.erro-row{
-  display:flex;align-items:flex-start;gap:6px;
-  background:var(--red-dim);border:1px solid rgba(239,68,68,.15);
-  border-radius:7px;padding:7px 10px;font-size:10px;color:var(--red);
-  word-break:break-all;line-height:1.4;
-}
-
-/* FILTER BAR */
+.pend-lista,.erro-lista{display:flex;flex-direction:column;gap:5px;margin-top:4px;}
+.pend-row{display:flex;align-items:flex-start;gap:6px;background:var(--amber-dim);border:1px solid rgba(245,158,11,.15);border-radius:7px;padding:7px 10px;font-size:10px;color:var(--amber);word-break:break-all;line-height:1.4;}
+.erro-row{display:flex;align-items:flex-start;gap:6px;background:var(--red-dim);border:1px solid rgba(239,68,68,.15);border-radius:7px;padding:7px 10px;font-size:10px;color:var(--red);word-break:break-all;line-height:1.4;}
 .filter-bar{display:flex;gap:6px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
-.filter-bar input{
-  flex:1;min-width:160px;background:var(--panel2);border:1px solid var(--border);
-  border-radius:8px;padding:7px 10px;font-size:11px;color:var(--text);
-  font-family:'Sora',sans-serif;outline:none;transition:border-color .15s;
-}
+.filter-bar input{flex:1;min-width:160px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--text);font-family:'Sora',sans-serif;outline:none;transition:border-color .15s;}
 .filter-bar input:focus{border-color:var(--border2);}
 .filter-bar input::placeholder{color:var(--muted);}
-.fbtn{
-  font-size:10px;padding:6px 10px;border-radius:7px;
-  border:1px solid var(--border);background:transparent;color:var(--muted);
-  cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;white-space:nowrap;
-}
+.fbtn{font-size:10px;padding:6px 10px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;white-space:nowrap;}
 .fbtn:hover,.fbtn.active{background:var(--cyan-dim);color:var(--cyan);border-color:var(--border2);}
 .fbtn.active-ok{background:var(--green-dim);color:var(--green);border-color:rgba(34,197,94,.3);}
 .fbtn.active-erro{background:var(--red-dim);color:var(--red);border-color:rgba(239,68,68,.3);}
-.fbtn.active-pend{background:var(--amber-dim);color:var(--amber);border-color:rgba(245,158,11,.3);}
-
-/* EMPTY */
-.empty-msg{text-align:center;color:var(--muted);font-size:11px;padding:32px 0;}
-
-/* ERROR BANNER */
+.empty-msg{text-align:center;color:var(--muted);font-size:11px;padding:24px 0;}
 .error-banner{background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--red);margin-bottom:16px;display:none;}
-
-/* LOADING */
 .loading-overlay{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;transition:opacity .4s;}
 .loading-overlay.hidden{opacity:0;pointer-events:none;}
 .loader-logo{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:var(--cyan);margin-bottom:20px;}
 .loader-bar{width:160px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
 .loader-fill{height:100%;background:var(--cyan);animation:load 1.5s ease-in-out infinite;}
 @keyframes load{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
-.loader-text{font-size:10px;color:var(--muted);margin-top:10px;letter-spacing:1px;}
-
-/* ANIMATIONS */
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-/* RESPONSIVE */
+.full-card{margin-bottom:16px;}
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.layout-grid{grid-template-columns:1fr}}
 @media(max-width:700px){.sidebar{display:none}.main{margin-left:0}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-
-.full-card{margin-bottom:16px;}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-@media(max-width:900px){.two-col{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -282,7 +145,6 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
   <div class="loader-text">Carregando painel fiscal...</div>
 </div>
 
-<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="logo-wrap">
     <img src="https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/logo.png"
@@ -290,15 +152,20 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
     <div id="logo-fb" class="logo-fallback">glip</div>
     <div class="tagline">Automação Fiscal</div>
   </div>
-
   <div class="nav-section">Painel</div>
-  <a class="nav-item active" href="#"><span class="nav-icon">📊</span> Visão Geral</a>
-  <a class="nav-item" href="#section-notas"><span class="nav-icon">📄</span> Notas Fiscais</a>
-  <a class="nav-item" href="#section-pendentes"><span class="nav-icon">⚠️</span> Pendentes</a>
-
+  <a class="nav-item active" href="#">
+    <span class="nav-icon">📊</span> Visão Geral
+  </a>
+  <a class="nav-item" href="#section-notas">
+    <span class="nav-icon">📄</span> Notas Fiscais
+  </a>
+  <a class="nav-item" href="#section-pendentes">
+    <span class="nav-icon">⚠️</span> Pendentes
+  </a>
   <div class="nav-section">Sistema</div>
-  <a class="nav-item" href="#section-fluxos"><span class="nav-icon">⚙️</span> Fluxos</a>
-
+  <a class="nav-item" href="#section-fluxos">
+    <span class="nav-icon">⚙️</span> Fluxos
+  </a>
   <div class="sidebar-footer">
     <div class="live-badge"><div class="live-dot"></div> Ao vivo</div>
     <div class="update-time" id="update-time">—</div>
@@ -309,11 +176,9 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
   </div>
 </aside>
 
-<!-- MAIN -->
 <main class="main">
   <div class="error-banner" id="error-banner">⚠️ <span id="error-msg"></span></div>
 
-  <!-- HEADER -->
   <div class="page-header">
     <div class="page-title">
       <h1>Painel Fiscal</h1>
@@ -328,20 +193,19 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
     </div>
   </div>
 
-  <!-- KPIs -->
   <div class="section-label">Resumo</div>
   <div class="kpi-grid">
-    <div class="kpi-card ok" onclick="setFilter('Processado')" title="Clique para filtrar">
+    <div class="kpi-card ok" onclick="setFilter('Processado')">
       <div class="kpi-top"><span class="kpi-icon">✅</span><span class="kpi-badge">IMPORTADAS</span></div>
       <div class="kpi-value" id="k-ok">—</div>
       <div class="kpi-label">Notas importadas</div>
     </div>
-    <div class="kpi-card erro" onclick="setFilter('Erro')" title="Clique para filtrar">
+    <div class="kpi-card erro" onclick="setFilter('Erro')">
       <div class="kpi-top"><span class="kpi-icon">❌</span><span class="kpi-badge">ERROS</span></div>
       <div class="kpi-value" id="k-err">—</div>
       <div class="kpi-label">Com erro no Omie</div>
     </div>
-    <div class="kpi-card pend" onclick="setFilter('Pendente')" title="Clique para filtrar">
+    <div class="kpi-card pend" onclick="setFilter('Pendente')">
       <div class="kpi-top"><span class="kpi-icon">⚠️</span><span class="kpi-badge">PENDENTES</span></div>
       <div class="kpi-value" id="k-pend">—</div>
       <div class="kpi-label">PDFs não processados</div>
@@ -354,7 +218,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
   </div>
 
   <!-- GRÁFICO -->
-  <div class="full-card card" id="section-grafico">
+  <div class="full-card card">
     <div class="card-header">
       <div><div class="card-title">Notas por Hora</div><div class="card-sub" id="chart-sub">Importadas e erros ao longo do dia</div></div>
       <div class="card-badge" id="ciclo-chip">—</div>
@@ -368,9 +232,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
     </div>
   </div>
 
-  <!-- NOTAS + FLUXOS -->
   <div class="layout-grid">
-
     <!-- NOTAS -->
     <div class="card" id="section-notas">
       <div class="card-header">
@@ -387,10 +249,8 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
       </div>
     </div>
 
-    <!-- PAINEL DIREITO -->
+    <!-- DIREITA -->
     <div style="display:flex;flex-direction:column;gap:16px;">
-
-      <!-- FLUXOS -->
       <div class="card" id="section-fluxos">
         <div class="card-header"><div><div class="card-title">Status dos Fluxos</div><div class="card-sub">Power Automate · GLIP</div></div></div>
         <div class="status-list">
@@ -401,37 +261,24 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
         </div>
       </div>
 
-      <!-- PENDENTES -->
       <div class="card" id="section-pendentes">
-        <div class="card-header"><div><div class="card-title">PDFs Pendentes</div><div class="card-sub">Não processados · pasta /Pendentes</div></div></div>
-        <div class="pend-lista" id="pend-lista">
-          <div class="empty-msg">Nenhum pendente</div>
-        </div>
+        <div class="card-header"><div><div class="card-title">PDFs Pendentes</div><div class="card-sub">Pasta /Pendentes</div></div></div>
+        <div class="pend-lista" id="pend-lista"><div class="empty-msg">Nenhum pendente ✅</div></div>
       </div>
 
-      <!-- ERROS -->
-      <div class="card" id="section-erros">
-        <div class="card-header"><div><div class="card-title">Notas com Erro</div><div class="card-sub">Falha no lançamento Omie</div></div></div>
-        <div class="erro-lista" id="erro-lista">
-          <div class="empty-msg">Nenhum erro</div>
-        </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Notas com Erro</div><div class="card-sub">Falha no lançamento</div></div></div>
+        <div class="erro-lista" id="erro-lista"><div class="empty-msg">Nenhum erro ✅</div></div>
       </div>
-
     </div>
   </div>
-
 </main>
 
 <script>
-const GITHUB_USER = 'glip-fiscal';
-const GITHUB_REPO = 'painel-fiscal';
-
+const GH = 'https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main';
 let allNotas = [];
 let activeFilter = 'todos';
-let activeKPI = null;
-let currentData = null;
 
-// ── THEME ──
 function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.getAttribute('data-theme') === 'dark';
@@ -448,9 +295,8 @@ function initTheme() {
   document.getElementById('theme-label').textContent = saved === 'dark' ? 'Tema claro' : 'Tema escuro';
 }
 
-// ── HELPERS ──
 function todayStr() {
-  return new Date().toLocaleDateString('pt-BR', {timeZone:'America/Sao_Paulo'}).split('/').reverse().join('-');
+  return new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}).split('/').reverse().join('-');
 }
 
 function nowBrasilia() {
@@ -464,18 +310,16 @@ function formatHora(iso) {
 }
 
 function formatMoeda(v) {
-  if (!v && v !== 0) return '—';
-  return 'R$ ' + parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  if (!v && v!==0) return '—';
+  return 'R$ '+parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2});
 }
 
 function getHora(iso) {
   if (!iso) return null;
-  try {
-    return parseInt(new Date(iso).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'numeric',hour12:false}));
-  } catch { return null; }
+  try { return parseInt(new Date(iso).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'numeric',hour12:false})); }
+  catch { return null; }
 }
 
-// ── LOAD ──
 async function loadData() {
   const btn = document.getElementById('btn-refresh');
   btn.classList.add('loading'); btn.textContent = '↻ Carregando...';
@@ -485,41 +329,38 @@ async function loadData() {
   const selectedDate = datePicker.value || todayStr();
   if (!datePicker.value) datePicker.value = selectedDate;
 
-  // Monta URL do arquivo JSON do dia ou dados.json para hoje
-  const isToday = selectedDate === todayStr();
-  const jsonURL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/dados.json?t=${Date.now()}`;
+  // Tenta carregar o arquivo do dia, fallback para dados.json
+  const dayURL = `${GH}/${selectedDate}.json?t=${Date.now()}`;
+  const fallbackURL = `${GH}/dados.json?t=${Date.now()}`;
 
   try {
-    const resp = await fetch(jsonURL);
-    if (!resp.ok) throw new Error('Arquivo não encontrado.');
-    const data = await resp.json();
-    currentData = data;
+    let data;
+    const resp = await fetch(dayURL);
+    if (resp.ok) {
+      data = await resp.json();
+    } else {
+      // Fallback para dados.json se arquivo do dia não existe
+      const resp2 = await fetch(fallbackURL);
+      if (!resp2.ok) throw new Error('Nenhum dado encontrado para esta data.');
+      data = await resp2.json();
+    }
 
-    // Filtra notas pela data selecionada
-    const notas = (data.notas || []).filter(n => {
-      if (!n.hora) return isToday;
-      return n.hora.startsWith(selectedDate);
-    });
-
+    const notas = (data.notas || []);
     allNotas = notas;
 
-    // KPIs
     const ok    = notas.filter(n => n.status === 'Processado').length;
     const erro  = notas.filter(n => n.status === 'Erro').length;
     const pend  = data.total_pendentes || 0;
-    const valor = notas.filter(n => n.status === 'Processado').reduce((s,n) => s + parseFloat(n.valor||0), 0);
+    const valor = notas.filter(n => n.status === 'Processado').reduce((s,n) => s+parseFloat(n.valor||0), 0);
 
-    document.getElementById('k-ok').textContent   = ok;
-    document.getElementById('k-err').textContent  = erro;
-    document.getElementById('k-pend').textContent = pend;
+    document.getElementById('k-ok').textContent    = ok;
+    document.getElementById('k-err').textContent   = erro;
+    document.getElementById('k-pend').textContent  = pend;
     document.getElementById('k-valor').textContent = formatMoeda(valor);
-
-    // Header
-    const now = nowBrasilia();
-    document.getElementById('update-time').textContent = now;
-    document.getElementById('ciclo-chip').textContent = `Ciclo ${data.ciclo || '—'}`;
-    document.getElementById('chart-sub').textContent = `${selectedDate} · importadas e erros por hora`;
-    document.getElementById('page-sub').textContent = `${ok} importadas · ${erro} erros · ${pend} pendentes · ${selectedDate}`;
+    document.getElementById('ciclo-chip').textContent = `Ciclo ${data.ciclo||'—'}`;
+    document.getElementById('chart-sub').textContent  = `${selectedDate} · importadas e erros por hora`;
+    document.getElementById('page-sub').textContent   = `${ok} importadas · ${erro} erros · ${pend} pendentes · ${selectedDate}`;
+    document.getElementById('update-time').textContent = nowBrasilia();
 
     renderChart(notas);
     renderNotas();
@@ -529,84 +370,63 @@ async function loadData() {
   } catch(err) {
     document.getElementById('error-banner').style.display = 'block';
     document.getElementById('error-msg').textContent = err.message;
+    document.getElementById('notas-lista').innerHTML = '<div class="empty-msg">Nenhuma nota para esta data</div>';
   } finally {
     btn.classList.remove('loading'); btn.textContent = '↻ Atualizar';
     document.getElementById('loading').classList.add('hidden');
   }
 }
 
-// ── CHART ──
 function renderChart(notas) {
   const horas = {};
   for (let h=7;h<=20;h++) horas[h]={ok:0,erro:0};
-
   notas.forEach(n => {
     const h = getHora(n.hora);
-    if (h !== null && horas[h] !== undefined) {
-      if (n.status === 'Processado') horas[h].ok++;
-      else if (n.status === 'Erro')  horas[h].erro++;
+    if (h!==null && horas[h]!==undefined) {
+      if (n.status==='Processado') horas[h].ok++;
+      else if (n.status==='Erro') horas[h].erro++;
     }
   });
-
-  const maxVal = Math.max(...Object.values(horas).map(v=>v.ok+v.erro), 1);
+  const maxVal = Math.max(...Object.values(horas).map(v=>v.ok+v.erro),1);
   const maxH = 140;
   const temDados = Object.values(horas).some(v=>v.ok+v.erro>0);
-
   if (!temDados) {
     document.getElementById('chart-wrap').innerHTML = '<div class="chart-empty">Nenhuma nota encontrada para esta data</div>';
     return;
   }
-
   document.getElementById('chart-wrap').innerHTML = Object.entries(horas).map(([h,v]) => `
-    <div class="bar-col" title="${h}h: ${v.ok} importada(s), ${v.erro} erro(s)">
-      ${v.erro>0 ? `<div class="bar erro" style="height:${Math.round(v.erro/maxVal*maxH)}px"></div>` : ''}
-      ${v.ok>0
-        ? `<div class="bar ok" style="height:${Math.round(v.ok/maxVal*maxH)}px"></div>`
-        : `<div class="bar-empty"></div>`}
+    <div class="bar-col">
+      <div class="bar-tooltip">${h}h: ${v.ok} importada(s)${v.erro>0?`, ${v.erro} erro(s)`:''}</div>
+      ${v.erro>0?`<div class="bar erro" style="height:${Math.round(v.erro/maxVal*maxH)}px"></div>`:''}
+      ${v.ok>0?`<div class="bar ok" style="height:${Math.round(v.ok/maxVal*maxH)}px"></div>`:`<div class="bar-empty"></div>`}
       <div class="bar-lbl">${h}h</div>
     </div>`).join('');
 }
 
-// ── NOTAS ──
 function setFilter(f) {
   activeFilter = f;
-  activeKPI = f === 'todos' ? null : f;
-
-  // Botões filtro
   ['todos','Processado','Erro'].forEach(s => {
     const id = s==='todos'?'f-todos':s==='Processado'?'f-ok':'f-erro';
     const btn = document.getElementById(id);
     if (!btn) return;
-    btn.className = 'fbtn' + (s===f ? (s==='Processado'?' active-ok':s==='Erro'?' active-erro':' active') : '');
+    btn.className = 'fbtn'+(s===f?(s==='Processado'?' active-ok':s==='Erro'?' active-erro':' active'):'');
   });
-
-  // KPI cards
   document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active-filter'));
-  if (f === 'Processado') { document.querySelector('.kpi-card.ok').classList.add('active-filter'); document.querySelector('.kpi-card.ok').style.setProperty('--accent-color','var(--green)'); }
-  if (f === 'Erro')       { document.querySelector('.kpi-card.erro').classList.add('active-filter'); document.querySelector('.kpi-card.erro').style.setProperty('--accent-color','var(--red)'); }
-
+  if (f==='Processado') document.querySelector('.kpi-card.ok').classList.add('active-filter');
+  if (f==='Erro') document.querySelector('.kpi-card.erro').classList.add('active-filter');
+  if (f==='Pendente') document.querySelector('.kpi-card.pend').classList.add('active-filter');
   renderNotas();
 }
 
 function renderNotas() {
   const search = (document.getElementById('search').value||'').toLowerCase();
   let items = allNotas;
-  if (activeFilter !== 'todos') items = items.filter(n => n.status === activeFilter);
-  if (search) items = items.filter(n =>
-    (n.nome||'').toLowerCase().includes(search) ||
-    (n.nf||'').toLowerCase().includes(search) ||
-    (n.cnpj||'').toLowerCase().includes(search)
-  );
-
+  if (activeFilter!=='todos') items = items.filter(n=>n.status===activeFilter);
+  if (search) items = items.filter(n=>(n.nome||'').toLowerCase().includes(search)||(n.nf||'').toLowerCase().includes(search)||(n.cnpj||'').toLowerCase().includes(search));
   document.getElementById('notas-sub').textContent = `${items.length} nota${items.length!==1?'s':''} encontrada${items.length!==1?'s':''}`;
-
-  if (!items.length) {
-    document.getElementById('notas-lista').innerHTML = '<div class="empty-msg">Nenhuma nota encontrada</div>';
-    return;
-  }
-
+  if (!items.length) { document.getElementById('notas-lista').innerHTML = '<div class="empty-msg">Nenhuma nota encontrada</div>'; return; }
   document.getElementById('notas-lista').innerHTML = items.map(n => {
-    const isErro = n.status === 'Erro';
+    const isErro = n.status==='Erro';
     return `<div class="nota-row${isErro?' erro-row':''}">
       <div class="nota-left">
         <span class="nota-nf${isErro?' erro':''}">NF ${n.nf||'—'}</span>
@@ -623,34 +443,23 @@ function renderNotas() {
   }).join('');
 }
 
-// ── PENDENTES ──
 function renderPendentes(raw) {
-  const linhas = raw.split('\n').map(l => l.replace(/⚠️\s*/,'').replace(/<br>/g,'').trim()).filter(Boolean);
-  if (!linhas.length) {
-    document.getElementById('pend-lista').innerHTML = '<div class="empty-msg">Nenhum pendente ✅</div>';
-    return;
-  }
-  document.getElementById('pend-lista').innerHTML = linhas.map(l =>
-    `<div class="pend-row">⚠️ ${l}</div>`
-  ).join('');
+  const linhas = raw.split('\n').map(l=>l.replace(/⚠️\s*/,'').replace(/<br>/g,'').trim()).filter(Boolean);
+  document.getElementById('pend-lista').innerHTML = linhas.length
+    ? linhas.map(l=>`<div class="pend-row">⚠️ ${l}</div>`).join('')
+    : '<div class="empty-msg">Nenhum pendente ✅</div>';
 }
 
-// ── ERROS ──
 function renderErros(erros) {
-  if (!erros.length) {
-    document.getElementById('erro-lista').innerHTML = '<div class="empty-msg">Nenhum erro ✅</div>';
-    return;
-  }
-  document.getElementById('erro-lista').innerHTML = erros.map(n =>
-    `<div class="erro-row">❌ NF ${n.nf||'—'} · ${n.nome||'—'} · ${formatMoeda(n.valor)}</div>`
-  ).join('');
+  document.getElementById('erro-lista').innerHTML = erros.length
+    ? erros.map(n=>`<div class="erro-row">❌ NF ${n.nf||'—'} · ${n.nome||'—'} · ${formatMoeda(n.valor)}</div>`).join('')
+    : '<div class="empty-msg">Nenhum erro ✅</div>';
 }
 
-// ── INIT ──
 initTheme();
 document.getElementById('date-picker').value = todayStr();
 loadData();
-setInterval(loadData, 5 * 60 * 1000);
+setInterval(loadData, 5*60*1000);
 </script>
 </body>
 </html>
