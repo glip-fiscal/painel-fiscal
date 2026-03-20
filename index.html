@@ -2,16 +2,46 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>GLIP · Painel Fiscal</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--navy:#07071A;--navy2:#0D0D2B;--panel:#0F1128;--panel2:#131535;--border:rgba(0,180,216,0.10);--border2:rgba(0,180,216,0.20);--cyan:#00B4D8;--cyan-dim:rgba(0,180,216,0.10);--green:#22C55E;--green-dim:rgba(34,197,94,0.10);--amber:#F59E0B;--amber-dim:rgba(245,158,11,0.10);--red:#EF4444;--red-dim:rgba(239,68,68,0.10);--text:#E2E8F0;--muted:#4A5568;--dim:#718096;--sidebar-w:200px;}
 [data-theme="light"]{--navy:#F0F4F8;--navy2:#E2E8F0;--panel:#FFFFFF;--panel2:#F7FAFC;--border:rgba(0,100,150,0.12);--border2:rgba(0,100,150,0.25);--cyan:#0077A8;--cyan-dim:rgba(0,119,168,0.10);--green:#16A34A;--green-dim:rgba(22,163,74,0.10);--amber:#D97706;--amber-dim:rgba(217,119,6,0.10);--red:#DC2626;--red-dim:rgba(220,38,38,0.10);--text:#1A202C;--muted:#718096;--dim:#4A5568;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-height:100vh;display:flex;transition:background .3s,color .3s;}
+body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-height:100vh;transition:background .3s,color .3s;}
 [data-theme="dark"] body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,180,216,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,216,0.02) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
-.sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--navy2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 16px;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s;}
+
+/* LOGIN */
+.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;position:relative;z-index:1;}
+.login-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:420px;animation:fadeUp .4s ease;}
+.login-logo{text-align:center;margin-bottom:32px;}
+.login-logo img{width:100px;height:auto;margin-bottom:12px;}
+.login-logo .fallback{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--cyan);}
+.login-logo p{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+.login-title{font-size:18px;font-weight:600;margin-bottom:6px;text-align:center;}
+.login-sub{font-size:12px;color:var(--muted);text-align:center;margin-bottom:28px;}
+.input-group{margin-bottom:16px;}
+.input-group label{font-size:11px;font-weight:600;color:var(--dim);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.input-group input{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--text);font-family:'Sora',sans-serif;outline:none;transition:border-color .15s;}
+.input-group input:focus{border-color:var(--border2);}
+.input-group input::placeholder{color:var(--muted);}
+.btn-login{width:100%;background:var(--cyan);border:none;color:white;border-radius:10px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;margin-top:8px;}
+.btn-login:hover{opacity:.9;transform:translateY(-1px);}
+.btn-login:disabled{opacity:.6;pointer-events:none;}
+.btn-bio{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;margin-top:10px;display:none;align-items:center;justify-content:center;gap:8px;}
+.btn-bio:hover{border-color:var(--border2);}
+.login-error{background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:16px;display:none;}
+.login-lang{display:flex;justify-content:center;gap:8px;margin-top:24px;}
+.lang-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;}
+.lang-btn:hover,.lang-btn.active{background:var(--cyan-dim);color:var(--cyan);border-color:var(--border2);}
+.login-theme{position:absolute;top:20px;right:20px;}
+.login-theme button{background:var(--panel);border:1px solid var(--border);color:var(--dim);border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:'Sora',sans-serif;}
+
+/* MAIN APP */
+.app{display:none;}
+.app.visible{display:flex;}
+.sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--navy2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 16px;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s,transform .3s;}
 .logo-wrap{margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);text-align:center;}
 .logo-wrap img{width:90px;height:auto;display:block;margin:0 auto;}
 .logo-fallback{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--cyan);display:none;}
@@ -22,12 +52,16 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 .nav-item.active{border-left:2px solid var(--cyan);}
 .nav-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0;}
 .sidebar-footer{margin-top:auto;padding-top:16px;border-top:1px solid var(--border);}
+.user-info{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.user-avatar{width:28px;height:28px;background:var(--cyan-dim);border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--cyan);flex-shrink:0;}
+.user-name{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-role{font-size:9px;color:var(--muted);}
 .live-badge{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--green);margin-bottom:5px;}
 .live-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.update-time{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
-.theme-btn{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);color:var(--dim);border-radius:8px;padding:7px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;width:100%;margin-top:8px;}
-.theme-btn:hover{border-color:var(--border2);color:var(--text);}
+.update-time{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:6px;}
+.theme-btn{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);color:var(--dim);border-radius:8px;padding:7px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;width:100%;margin-bottom:6px;}
+.logout-btn{display:flex;align-items:center;gap:6px;background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:7px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;width:100%;}
 .main{margin-left:var(--sidebar-w);flex:1;padding:28px 24px;position:relative;z-index:1;min-height:100vh;}
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;}
 .page-title h1{font-size:20px;font-weight:600;letter-spacing:-.3px;}
@@ -37,18 +71,18 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 .date-filter label{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;}
 .date-filter input{background:transparent;border:none;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;width:120px;}
 .date-filter input::-webkit-calendar-picker-indicator{filter:invert(0.5);cursor:pointer;}
+.empresa-select{background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 12px;font-size:11px;font-family:'Sora',sans-serif;outline:none;cursor:pointer;}
 .btn{display:flex;align-items:center;gap:5px;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;border:none;}
 .btn-cyan{background:var(--cyan-dim);border:1px solid var(--border2);color:var(--cyan);}
 .btn-cyan:hover{background:rgba(0,180,216,.2);}
 .btn-cyan.loading{opacity:.6;pointer-events:none;}
 .section-label{font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
-.kpi-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;animation:fadeUp .4s ease both;cursor:pointer;}
-.kpi-card:hover{transform:translateY(-2px);border-color:var(--border2);box-shadow:0 4px 20px rgba(0,0,0,.2);}
-.kpi-card.active-filter{border-width:2px;}
-.kpi-card.ok.active-filter{border-color:var(--green);box-shadow:0 0 0 1px var(--green);}
-.kpi-card.erro.active-filter{border-color:var(--red);box-shadow:0 0 0 1px var(--red);}
-.kpi-card.pend.active-filter{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber);}
+.kpi-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s;animation:fadeUp .4s ease both;cursor:pointer;}
+.kpi-card:hover{transform:translateY(-2px);border-color:var(--border2);}
+.kpi-card.active-filter.ok{border-color:var(--green);box-shadow:0 0 0 1px var(--green);}
+.kpi-card.active-filter.erro{border-color:var(--red);box-shadow:0 0 0 1px var(--red);}
+.kpi-card.active-filter.pend{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber);}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0;}
 .kpi-card.ok::before{background:var(--green);}
 .kpi-card.erro::before{background:var(--red);}
@@ -74,12 +108,12 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 .card-title{font-size:13px;font-weight:600;}
 .card-sub{font-size:10px;color:var(--muted);margin-top:2px;}
 .card-badge{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);background:var(--cyan-dim);border:1px solid var(--border2);padding:3px 8px;border-radius:5px;}
-.chart-outer{height:180px;display:flex;align-items:flex-end;gap:3px;padding-bottom:24px;border-bottom:1px solid var(--border);position:relative;}
+.chart-outer{height:180px;display:flex;align-items:flex-end;gap:3px;padding-bottom:24px;border-bottom:1px solid var(--border);}
 .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:1px;cursor:pointer;position:relative;}
 .bar-col:hover .bar{filter:brightness(1.3);opacity:1!important;}
-.bar-tooltip{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;font-size:9px;white-space:nowrap;color:var(--text);z-index:10;pointer-events:none;}
+.bar-tooltip{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;font-size:9px;white-space:nowrap;color:var(--text);z-index:10;}
 .bar-col:hover .bar-tooltip{display:block;}
-.bar{width:100%;border-radius:2px 2px 0 0;transition:height .6s cubic-bezier(.34,1.56,.64,1),opacity .2s;min-height:2px;}
+.bar{width:100%;border-radius:2px 2px 0 0;transition:height .6s cubic-bezier(.34,1.56,.64,1);min-height:2px;}
 .bar.ok{background:var(--green);opacity:.85;}
 .bar.erro{background:var(--red);opacity:.85;}
 .bar-empty{height:3px;width:100%;background:var(--border);border-radius:2px;}
@@ -114,9 +148,9 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 .s-badge.ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);}
 .pend-lista,.erro-lista{display:flex;flex-direction:column;gap:5px;margin-top:4px;}
 .pend-row{display:flex;align-items:flex-start;gap:6px;background:var(--amber-dim);border:1px solid rgba(245,158,11,.15);border-radius:7px;padding:7px 10px;font-size:10px;color:var(--amber);word-break:break-all;line-height:1.4;}
-.erro-row{display:flex;align-items:flex-start;gap:6px;background:var(--red-dim);border:1px solid rgba(239,68,68,.15);border-radius:7px;padding:7px 10px;font-size:10px;color:var(--red);word-break:break-all;line-height:1.4;}
+.erro-row-item{display:flex;align-items:flex-start;gap:6px;background:var(--red-dim);border:1px solid rgba(239,68,68,.15);border-radius:7px;padding:7px 10px;font-size:10px;color:var(--red);word-break:break-all;line-height:1.4;}
 .filter-bar{display:flex;gap:6px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
-.filter-bar input{flex:1;min-width:160px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--text);font-family:'Sora',sans-serif;outline:none;transition:border-color .15s;}
+.filter-bar input{flex:1;min-width:160px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--text);font-family:'Sora',sans-serif;outline:none;}
 .filter-bar input:focus{border-color:var(--border2);}
 .filter-bar input::placeholder{color:var(--muted);}
 .fbtn{font-size:10px;padding:6px 10px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;white-space:nowrap;}
@@ -133,23 +167,22 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 @keyframes load{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .full-card{margin-bottom:16px;}
+.mobile-menu-btn{display:none;position:fixed;top:16px;left:16px;z-index:20;background:var(--cyan);border:none;color:white;width:36px;height:36px;border-radius:8px;font-size:16px;cursor:pointer;align-items:center;justify-content:center;}
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.layout-grid{grid-template-columns:1fr}}
 @media(max-width:700px){
-  .sidebar{transform:translateX(-100%);transition:transform .3s;}
+  .sidebar{transform:translateX(-100%);}
   .sidebar.open{transform:translateX(0);}
-  .main{margin-left:0;padding:16px;}
+  .main{margin-left:0;padding:60px 16px 16px;}
   .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
   .page-header{flex-direction:column;align-items:flex-start;}
   .header-right{width:100%;flex-wrap:wrap;}
   .date-filter{flex:1;}
-  .date-filter input{width:100px;}
-  #empresa-select{width:100%;}
+  .empresa-select{width:100%;}
   .mobile-menu-btn{display:flex!important;}
   .chart-outer{height:120px;}
-  .nota-nome{max-width:160px;}
+  .nota-nome{max-width:140px;}
+  .layout-grid{grid-template-columns:1fr;}
 }
-.mobile-menu-btn{display:none;position:fixed;top:16px;left:16px;z-index:20;background:var(--cyan);border:none;color:white;width:36px;height:36px;border-radius:8px;font-size:16px;cursor:pointer;align-items:center;justify-content:center;}
-@media(max-width:700px){.sidebar{display:none}.main{margin-left:0}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -157,348 +190,580 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 <div class="loading-overlay" id="loading">
   <div class="loader-logo">glip</div>
   <div class="loader-bar"><div class="loader-fill"></div></div>
-  <div class="loader-text">Carregando painel fiscal...</div>
+  <div class="loader-text" id="loader-text">Carregando...</div>
 </div>
 
-<button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
-<aside class="sidebar">
-  <div class="logo-wrap">
-    <img src="https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/logo.png"
-         onerror="this.style.display='none';document.getElementById('logo-fb').style.display='block'" alt="GLIP">
-    <div id="logo-fb" class="logo-fallback">glip</div>
-    <div class="tagline">Automação Fiscal</div>
+<!-- LOGIN -->
+<div class="login-page" id="login-page" style="display:none">
+  <div class="login-theme">
+    <button onclick="toggleTheme()"><span id="login-theme-icon">☀️</span></button>
   </div>
-  <div class="nav-section">Painel</div>
-  <a class="nav-item active" href="#">
-    <span class="nav-icon">📊</span> Visão Geral
-  </a>
-  <a class="nav-item" href="#section-notas">
-    <span class="nav-icon">📄</span> Notas Fiscais
-  </a>
-  <a class="nav-item" href="#section-pendentes">
-    <span class="nav-icon">⚠️</span> Pendentes
-  </a>
-  <div class="nav-section">Sistema</div>
-  <a class="nav-item" href="#section-fluxos">
-    <span class="nav-icon">⚙️</span> Fluxos
-  </a>
-  <div class="sidebar-footer">
-    <div class="live-badge"><div class="live-dot"></div> Ao vivo</div>
-    <div class="update-time" id="update-time">—</div>
-    <button class="theme-btn" onclick="toggleTheme()">
-      <span id="theme-icon">☀️</span>
-      <span id="theme-label">Tema claro</span>
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/logo.png"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="GLIP">
+      <div class="fallback" style="display:none">glip</div>
+      <p id="login-tagline">Automação Fiscal</p>
+    </div>
+    <div class="login-error" id="login-error"></div>
+    <div class="input-group">
+      <label id="lbl-usuario">Usuário</label>
+      <input type="email" id="input-usuario" placeholder="seu@email.com" autocomplete="email">
+    </div>
+    <div class="input-group">
+      <label id="lbl-senha">Senha</label>
+      <input type="password" id="input-senha" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" id="btn-login" onclick="doLogin()">
+      <span id="btn-login-txt">Entrar</span>
     </button>
-  </div>
-</aside>
-
-<main class="main">
-  <div class="error-banner" id="error-banner">⚠️ <span id="error-msg"></span></div>
-
-  <div class="page-header">
-    <div class="page-title">
-      <h1>Painel Fiscal</h1>
-      <p id="page-sub">Selecione uma data para visualizar</p>
-    </div>
-    <div class="header-right">
-      <div class="date-filter">
-        <label>Data</label>
-        <input type="date" id="date-picker" onchange="loadData()" id="date-picker">
-      </div>
-      <select id="empresa-select" onchange="setEmpresa(this.value)" style="background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 12px;font-size:11px;font-family:'Sora',sans-serif;outline:none;cursor:pointer;">
-        <option value="todas">Todas as empresas</option>
-      </select>
-      <button class="btn btn-cyan" id="btn-refresh" onclick="loadData()">↻ Atualizar</button>
+    <button class="btn-bio" id="btn-bio" onclick="doBiometria()">
+      👆 <span id="btn-bio-txt">Entrar com biometria</span>
+    </button>
+    <div class="login-lang">
+      <button class="lang-btn active" onclick="setLang('pt')" id="lang-pt">PT</button>
+      <button class="lang-btn" onclick="setLang('en')" id="lang-en">EN</button>
+      <button class="lang-btn" onclick="setLang('es')" id="lang-es">ES</button>
+      <button class="lang-btn" onclick="setLang('it')" id="lang-it">IT</button>
     </div>
   </div>
+</div>
 
-  <div class="section-label">Resumo</div>
-  <div class="kpi-grid">
-    <div class="kpi-card ok" onclick="setFilter('Processado')">
-      <div class="kpi-top"><span class="kpi-icon">✅</span><span class="kpi-badge">IMPORTADAS</span></div>
-      <div class="kpi-value" id="k-ok">—</div>
-      <div class="kpi-label">Notas importadas</div>
-    </div>
-    <div class="kpi-card erro" onclick="setFilter('Erro')">
-      <div class="kpi-top"><span class="kpi-icon">❌</span><span class="kpi-badge">ERROS</span></div>
-      <div class="kpi-value" id="k-err">—</div>
-      <div class="kpi-label">Com erro no Omie</div>
-    </div>
-    <div class="kpi-card pend" onclick="setFilter('Pendente')">
-      <div class="kpi-top"><span class="kpi-icon">⚠️</span><span class="kpi-badge">PENDENTES</span></div>
-      <div class="kpi-value" id="k-pend">—</div>
-      <div class="kpi-label">PDFs não processados</div>
-    </div>
-    <div class="kpi-card valor">
-      <div class="kpi-top"><span class="kpi-icon">💰</span><span class="kpi-badge">TOTAL R$</span></div>
-      <div class="kpi-value" id="k-valor">—</div>
-      <div class="kpi-label">Valor total importado</div>
-    </div>
-  </div>
+<!-- APP -->
+<div class="app" id="app">
+  <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
 
-  <!-- GRÁFICO -->
-  <div class="full-card card">
-    <div class="card-header">
-      <div><div class="card-title">Notas por Hora</div><div class="card-sub" id="chart-sub">Importadas e erros ao longo do dia</div></div>
-      <div class="card-badge" id="ciclo-chip">—</div>
+  <aside class="sidebar">
+    <div class="logo-wrap">
+      <img src="https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/logo.png"
+           onerror="this.style.display='none';document.getElementById('logo-fb').style.display='block'" alt="GLIP">
+      <div id="logo-fb" class="logo-fallback">glip</div>
+      <div class="tagline" id="nav-tagline">Automação Fiscal</div>
     </div>
-    <div class="chart-outer" id="chart-wrap">
-      <div class="chart-empty">Aguardando dados...</div>
-    </div>
-    <div class="chart-legend">
-      <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Importadas</div>
-      <div class="leg"><div class="leg-dot" style="background:var(--red)"></div>Erros</div>
-    </div>
-  </div>
-
-  <div class="layout-grid">
-    <!-- NOTAS -->
-    <div class="card" id="section-notas">
-      <div class="card-header">
-        <div><div class="card-title">Notas Fiscais</div><div class="card-sub" id="notas-sub">—</div></div>
-      </div>
-      <div class="filter-bar">
-        <input type="text" id="search" placeholder="Buscar fornecedor ou NF..." oninput="renderNotas()">
-        <button class="fbtn active" id="f-todos" onclick="setFilter('todos')">Todos</button>
-        <button class="fbtn" id="f-ok" onclick="setFilter('Processado')">✅ OK</button>
-        <button class="fbtn" id="f-erro" onclick="setFilter('Erro')">❌ Erro</button>
-      </div>
-      <div class="notas-lista" id="notas-lista">
-        <div class="empty-msg">Carregando...</div>
-      </div>
-    </div>
-
-    <!-- DIREITA -->
-    <div style="display:flex;flex-direction:column;gap:16px;">
-      <div class="card" id="section-fluxos">
-        <div class="card-header"><div><div class="card-title">Status dos Fluxos</div><div class="card-sub">Power Automate · GLIP</div></div></div>
-        <div class="status-list">
-          <div class="status-row"><div class="status-info"><span class="s-num">F1</span><div><div class="s-name">Salvar PDF</div><div class="s-trig">e-mail recebido</div></div></div><span class="s-badge ok">● Ativo</span></div>
-          <div class="status-row"><div class="status-info"><span class="s-num">F2</span><div><div class="s-name">Extrair com Claude AI</div><div class="s-trig">PDF em /Pendentes</div></div></div><span class="s-badge ok">● Ativo</span></div>
-          <div class="status-row"><div class="status-info"><span class="s-num">F3</span><div><div class="s-name">Integração Omie</div><div class="s-trig">item na lista</div></div></div><span class="s-badge ok">● Ativo</span></div>
-          <div class="status-row"><div class="status-info"><span class="s-num">F4</span><div><div class="s-name">Reconciliação Horária</div><div class="s-trig">a cada 1 hora</div></div></div><span class="s-badge ok">● Ativo</span></div>
+    <div class="nav-section" id="nav-painel">Painel</div>
+    <a class="nav-item active" href="#"><span class="nav-icon">📊</span> <span id="nav-visao">Visão Geral</span></a>
+    <a class="nav-item" href="#section-notas"><span class="nav-icon">📄</span> <span id="nav-notas">Notas Fiscais</span></a>
+    <a class="nav-item" href="#section-pendentes"><span class="nav-icon">⚠️</span> <span id="nav-pendentes">Pendentes</span></a>
+    <div class="nav-section" id="nav-sistema">Sistema</div>
+    <a class="nav-item" href="#section-fluxos"><span class="nav-icon">⚙️</span> <span id="nav-fluxos">Fluxos</span></a>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">M</div>
+        <div>
+          <div class="user-name" id="user-name">Marcelo</div>
+          <div class="user-role" id="user-role">Admin</div>
         </div>
       </div>
+      <div class="live-badge"><div class="live-dot"></div> <span id="nav-live">Ao vivo</span></div>
+      <div class="update-time" id="update-time">—</div>
+      <button class="theme-btn" onclick="toggleTheme()"><span id="theme-icon">☀️</span> <span id="theme-label">Tema claro</span></button>
+      <button class="logout-btn" onclick="doLogout()">🚪 <span id="btn-logout">Sair</span></button>
+    </div>
+  </aside>
 
-      <div class="card" id="section-pendentes">
-        <div class="card-header"><div><div class="card-title">PDFs Pendentes</div><div class="card-sub">Pasta /Pendentes</div></div></div>
-        <div class="pend-lista" id="pend-lista"><div class="empty-msg">Nenhum pendente ✅</div></div>
+  <main class="main">
+    <div class="error-banner" id="error-banner">⚠️ <span id="error-msg"></span></div>
+    <div class="page-header">
+      <div class="page-title">
+        <h1 id="page-h1">Painel Fiscal</h1>
+        <p id="page-sub">—</p>
       </div>
-
-      <div class="card">
-        <div class="card-header"><div><div class="card-title">Notas com Erro</div><div class="card-sub">Falha no lançamento</div></div></div>
-        <div class="erro-lista" id="erro-lista"><div class="empty-msg">Nenhum erro ✅</div></div>
+      <div class="header-right">
+        <div class="date-filter">
+          <label id="lbl-data">Data</label>
+          <input type="date" id="date-picker" onchange="loadData()">
+        </div>
+        <select class="empresa-select" id="empresa-select" onchange="setEmpresa(this.value)">
+          <option value="todas" id="opt-todas">Todas as empresas</option>
+        </select>
+        <button class="btn btn-cyan" id="btn-refresh" onclick="loadData()">↻ <span id="btn-atualizar">Atualizar</span></button>
       </div>
     </div>
-  </div>
-</main>
+
+    <div class="section-label" id="lbl-resumo">Resumo</div>
+    <div class="kpi-grid">
+      <div class="kpi-card ok" onclick="setFilter('Processado')">
+        <div class="kpi-top"><span class="kpi-icon">✅</span><span class="kpi-badge" id="kpi-badge-ok">IMPORTADAS</span></div>
+        <div class="kpi-value" id="k-ok">—</div>
+        <div class="kpi-label" id="kpi-lbl-ok">Notas importadas</div>
+      </div>
+      <div class="kpi-card erro" onclick="setFilter('Erro')">
+        <div class="kpi-top"><span class="kpi-icon">❌</span><span class="kpi-badge" id="kpi-badge-err">ERROS</span></div>
+        <div class="kpi-value" id="k-err">—</div>
+        <div class="kpi-label" id="kpi-lbl-err">Com erro no Omie</div>
+      </div>
+      <div class="kpi-card pend" onclick="setFilter('Pendente')">
+        <div class="kpi-top"><span class="kpi-icon">⚠️</span><span class="kpi-badge" id="kpi-badge-pend">PENDENTES</span></div>
+        <div class="kpi-value" id="k-pend">—</div>
+        <div class="kpi-label" id="kpi-lbl-pend">PDFs não processados</div>
+      </div>
+      <div class="kpi-card valor">
+        <div class="kpi-top"><span class="kpi-icon">💰</span><span class="kpi-badge" id="kpi-badge-valor">TOTAL R$</span></div>
+        <div class="kpi-value" id="k-valor">—</div>
+        <div class="kpi-label" id="kpi-lbl-valor">Valor total importado</div>
+      </div>
+    </div>
+
+    <div class="full-card card">
+      <div class="card-header">
+        <div><div class="card-title" id="chart-title">Notas por Hora</div><div class="card-sub" id="chart-sub">—</div></div>
+        <div class="card-badge" id="ciclo-chip">—</div>
+      </div>
+      <div class="chart-outer" id="chart-wrap"><div class="chart-empty" id="chart-empty-msg">Aguardando dados...</div></div>
+      <div class="chart-legend">
+        <div class="leg"><div class="leg-dot" style="background:var(--green)"></div><span id="leg-ok">Importadas</span></div>
+        <div class="leg"><div class="leg-dot" style="background:var(--red)"></div><span id="leg-err">Erros</span></div>
+      </div>
+    </div>
+
+    <div class="layout-grid">
+      <div class="card" id="section-notas">
+        <div class="card-header">
+          <div><div class="card-title" id="notas-title">Notas Fiscais</div><div class="card-sub" id="notas-sub">—</div></div>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="search" placeholder="..." oninput="renderNotas()">
+          <button class="fbtn active" id="f-todos" onclick="setFilter('todos')" id="fbtn-todos">Todos</button>
+          <button class="fbtn" id="f-ok" onclick="setFilter('Processado')">✅ OK</button>
+          <button class="fbtn" id="f-erro" onclick="setFilter('Erro')">❌ Erro</button>
+        </div>
+        <div class="notas-lista" id="notas-lista"><div class="empty-msg">Carregando...</div></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="card" id="section-fluxos">
+          <div class="card-header"><div><div class="card-title" id="fluxos-title">Status dos Fluxos</div><div class="card-sub">Power Automate · GLIP</div></div></div>
+          <div class="status-list">
+            <div class="status-row"><div class="status-info"><span class="s-num">F1</span><div><div class="s-name" id="f1-name">Salvar PDF</div><div class="s-trig" id="f1-trig">e-mail recebido</div></div></div><span class="s-badge ok">● <span id="f-ativo">Ativo</span></span></div>
+            <div class="status-row"><div class="status-info"><span class="s-num">F2</span><div><div class="s-name" id="f2-name">Extrair com Claude AI</div><div class="s-trig" id="f2-trig">PDF em /Pendentes</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
+            <div class="status-row"><div class="status-info"><span class="s-num">F3</span><div><div class="s-name" id="f3-name">Integração Omie</div><div class="s-trig" id="f3-trig">item na lista</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
+            <div class="status-row"><div class="status-info"><span class="s-num">F4</span><div><div class="s-name" id="f4-name">Reconciliação Horária</div><div class="s-trig" id="f4-trig">a cada 1 hora</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
+          </div>
+        </div>
+        <div class="card" id="section-pendentes">
+          <div class="card-header"><div><div class="card-title" id="pend-title">PDFs Pendentes</div><div class="card-sub" id="pend-sub">Pasta /Pendentes</div></div></div>
+          <div class="pend-lista" id="pend-lista"><div class="empty-msg">—</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title" id="err-title">Notas com Erro</div><div class="card-sub" id="err-sub">Falha no lançamento</div></div></div>
+          <div class="erro-lista" id="erro-lista"><div class="empty-msg">—</div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
 
 <script>
 const GH = 'https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main';
+const USERS_URL = `${GH}/users.json`;
+
 let allNotas = [];
 let activeFilter = 'todos';
 let activeEmpresa = 'todas';
-let empresas = [];
+let currentUser = null;
+let currentLang = 'pt';
 
+// ── TRANSLATIONS ──
+const T = {
+  pt: {
+    tagline:'Automação Fiscal', login_title:'Bem-vindo', login_sub:'Acesse o painel fiscal',
+    usuario:'Usuário', senha:'Senha', entrar:'Entrar', bio:'Entrar com biometria',
+    erro_login:'Usuário ou senha incorretos', data:'Data', todas:'Todas as empresas',
+    atualizar:'Atualizar', resumo:'Resumo', importadas:'IMPORTADAS', erros:'ERROS',
+    pendentes:'PENDENTES', total:'TOTAL R$', notas_imp:'Notas importadas',
+    notas_err:'Com erro no Omie', pdfs_pend:'PDFs não processados', valor_total:'Valor total importado',
+    notas_hora:'Notas por Hora', imp_err:'Importadas e erros ao longo do dia',
+    notas_fiscais:'Notas Fiscais', status_fluxos:'Status dos Fluxos', pdfs_pendentes:'PDFs Pendentes',
+    notas_erro:'Notas com Erro', falha:'Falha no lançamento', pasta_pend:'Pasta /Pendentes',
+    ao_vivo:'Ao vivo', tema_claro:'Tema claro', tema_escuro:'Tema escuro', sair:'Sair',
+    admin:'Admin', vis:'Visualizador', buscar:'Buscar fornecedor ou NF...',
+    nenhuma:'Nenhuma nota encontrada', nenhum_pend:'Nenhum pendente ✅', nenhum_err:'Nenhum erro ✅',
+    visao:'Visão Geral', nav_notas:'Notas Fiscais', nav_pend:'Pendentes', sistema:'Sistema', fluxos:'Fluxos',
+    painel:'Painel Fiscal', ativo:'Ativo', leg_ok:'Importadas', leg_err:'Erros',
+    aguardando:'Nenhuma nota encontrada para esta data', carregando:'Carregando...'
+  },
+  en: {
+    tagline:'Fiscal Automation', login_title:'Welcome', login_sub:'Access the fiscal dashboard',
+    usuario:'Username', senha:'Password', entrar:'Sign In', bio:'Sign in with biometrics',
+    erro_login:'Invalid username or password', data:'Date', todas:'All companies',
+    atualizar:'Refresh', resumo:'Summary', importadas:'IMPORTED', erros:'ERRORS',
+    pendentes:'PENDING', total:'TOTAL R$', notas_imp:'Imported invoices',
+    notas_err:'Omie error', pdfs_pend:'Unprocessed PDFs', valor_total:'Total imported value',
+    notas_hora:'Invoices by Hour', imp_err:'Imported and errors throughout the day',
+    notas_fiscais:'Invoices', status_fluxos:'Flow Status', pdfs_pendentes:'Pending PDFs',
+    notas_erro:'Error Invoices', falha:'Launch failure', pasta_pend:'Folder /Pending',
+    ao_vivo:'Live', tema_claro:'Light theme', tema_escuro:'Dark theme', sair:'Sign Out',
+    admin:'Admin', vis:'Viewer', buscar:'Search supplier or invoice...',
+    nenhuma:'No invoices found', nenhum_pend:'No pending ✅', nenhum_err:'No errors ✅',
+    visao:'Overview', nav_notas:'Invoices', nav_pend:'Pending', sistema:'System', fluxos:'Flows',
+    painel:'Fiscal Dashboard', ativo:'Active', leg_ok:'Imported', leg_err:'Errors',
+    aguardando:'No data found for this date', carregando:'Loading...'
+  },
+  es: {
+    tagline:'Automatización Fiscal', login_title:'Bienvenido', login_sub:'Accede al panel fiscal',
+    usuario:'Usuario', senha:'Contraseña', entrar:'Ingresar', bio:'Ingresar con biometría',
+    erro_login:'Usuario o contraseña incorrectos', data:'Fecha', todas:'Todas las empresas',
+    atualizar:'Actualizar', resumo:'Resumen', importadas:'IMPORTADAS', erros:'ERRORES',
+    pendentes:'PENDIENTES', total:'TOTAL R$', notas_imp:'Facturas importadas',
+    notas_err:'Error en Omie', pdfs_pend:'PDFs no procesados', valor_total:'Valor total importado',
+    notas_hora:'Facturas por Hora', imp_err:'Importadas y errores durante el día',
+    notas_fiscais:'Facturas', status_fluxos:'Estado de Flujos', pdfs_pendentes:'PDFs Pendientes',
+    notas_erro:'Facturas con Error', falha:'Fallo en lanzamiento', pasta_pend:'Carpeta /Pendientes',
+    ao_vivo:'En vivo', tema_claro:'Tema claro', tema_escuro:'Tema oscuro', sair:'Salir',
+    admin:'Admin', vis:'Visualizador', buscar:'Buscar proveedor o factura...',
+    nenhuma:'No se encontraron facturas', nenhum_pend:'Sin pendientes ✅', nenhum_err:'Sin errores ✅',
+    visao:'Vista General', nav_notas:'Facturas', nav_pend:'Pendientes', sistema:'Sistema', fluxos:'Flujos',
+    painel:'Panel Fiscal', ativo:'Activo', leg_ok:'Importadas', leg_err:'Errores',
+    aguardando:'No hay datos para esta fecha', carregando:'Cargando...'
+  },
+  it: {
+    tagline:'Automazione Fiscale', login_title:'Benvenuto', login_sub:'Accedi al pannello fiscale',
+    usuario:'Utente', senha:'Password', entrar:'Accedi', bio:'Accedi con biometria',
+    erro_login:'Utente o password errati', data:'Data', todas:'Tutte le aziende',
+    atualizar:'Aggiorna', resumo:'Riepilogo', importadas:'IMPORTATE', erros:'ERRORI',
+    pendentes:'IN ATTESA', total:'TOTALE R$', notas_imp:'Fatture importate',
+    notas_err:'Errore Omie', pdfs_pend:'PDF non elaborati', valor_total:'Valore totale importato',
+    notas_hora:'Fatture per Ora', imp_err:'Importate ed errori nel corso della giornata',
+    notas_fiscais:'Fatture', status_fluxos:'Stato Flussi', pdfs_pendentes:'PDF in Attesa',
+    notas_erro:'Fatture con Errore', falha:'Errore lancio', pasta_pend:'Cartella /Attesa',
+    ao_vivo:'In diretta', tema_claro:'Tema chiaro', tema_escuro:'Tema scuro', sair:'Esci',
+    admin:'Admin', vis:'Visualizzatore', buscar:'Cerca fornitore o fattura...',
+    nenhuma:'Nessuna fattura trovata', nenhum_pend:'Nessun pendente ✅', nenhum_err:'Nessun errore ✅',
+    visao:'Panoramica', nav_notas:'Fatture', nav_pend:'In Attesa', sistema:'Sistema', fluxos:'Flussi',
+    painel:'Pannello Fiscale', ativo:'Attivo', leg_ok:'Importate', leg_err:'Errori',
+    aguardando:'Nessun dato per questa data', carregando:'Caricamento...'
+  }
+};
+
+function t(key) { return T[currentLang][key] || T.pt[key] || key; }
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('glip-lang', lang);
+  ['pt','en','es','it'].forEach(l => document.getElementById('lang-'+l)?.classList.toggle('active', l===lang));
+  applyTranslations();
+}
+
+function applyTranslations() {
+  const ids = {
+    'login-tagline':'tagline','lbl-usuario':'usuario','lbl-senha':'senha',
+    'btn-login-txt':'entrar','btn-bio-txt':'bio','nav-tagline':'tagline',
+    'nav-painel':'Painel','nav-visao':'visao','nav-notas':'nav_notas',
+    'nav-pendentes':'nav_pend','nav-sistema':'sistema','nav-fluxos':'fluxos',
+    'nav-live':'ao_vivo','theme-label':'tema_claro','btn-logout':'sair',
+    'page-h1':'painel','lbl-data':'data','lbl-resumo':'resumo',
+    'kpi-badge-ok':'importadas','kpi-lbl-ok':'notas_imp',
+    'kpi-badge-err':'erros','kpi-lbl-err':'notas_err',
+    'kpi-badge-pend':'pendentes','kpi-lbl-pend':'pdfs_pend',
+    'kpi-badge-valor':'total','kpi-lbl-valor':'valor_total',
+    'chart-title':'notas_hora','notas-title':'notas_fiscais',
+    'fluxos-title':'status_fluxos','pend-title':'pdfs_pendentes',
+    'pend-sub':'pasta_pend','err-title':'notas_erro','err-sub':'falha',
+    'f1-name':'Salvar PDF','f2-name':'Extrair com Claude AI',
+    'f3-name':'Integração Omie','f4-name':'Reconciliação Horária',
+    'f-ativo':'ativo','leg-ok':'leg_ok','leg-err':'leg_err',
+    'btn-atualizar':'atualizar','loader-text':'carregando',
+    'opt-todas':'todas'
+  };
+  Object.entries(ids).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t(key);
+  });
+  document.querySelectorAll('.f-ativo-ref').forEach(el => el.textContent = t('ativo'));
+  const searchEl = document.getElementById('search');
+  if (searchEl) searchEl.placeholder = t('buscar');
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const themeEl = document.getElementById('theme-label');
+  if (themeEl) themeEl.textContent = isDark ? t('tema_claro') : t('tema_escuro');
+}
+
+// ── THEME ──
 function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.getAttribute('data-theme') === 'dark';
   html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
-  document.getElementById('theme-label').textContent = isDark ? 'Tema escuro' : 'Tema claro';
+  ['theme-icon','login-theme-icon'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = isDark ? '🌙' : '☀️';
+  });
   localStorage.setItem('glip-theme', isDark ? 'light' : 'dark');
+  applyTranslations();
 }
 
 function initTheme() {
   const saved = localStorage.getItem('glip-theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
-  document.getElementById('theme-icon').textContent = saved === 'dark' ? '☀️' : '🌙';
-  document.getElementById('theme-label').textContent = saved === 'dark' ? 'Tema claro' : 'Tema escuro';
+  ['theme-icon','login-theme-icon'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = saved === 'dark' ? '☀️' : '🌙';
+  });
 }
 
+// ── HELPERS ──
 function todayStr() {
   return new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}).split('/').reverse().join('-');
 }
-
 function nowBrasilia() {
   return new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 }
-
 function formatHora(iso) {
   if (!iso) return '';
   try { return new Date(iso).toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}); }
   catch { return ''; }
 }
-
 function formatMoeda(v) {
   if (!v && v!==0) return '—';
   return 'R$ '+parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2});
 }
-
 function getHora(iso) {
   if (!iso) return null;
   try {
     const str = new Date(iso).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',hour12:false});
     const h = parseInt(str.replace(/[^0-9]/g,''));
     return isNaN(h) ? null : h;
-  }
-  catch { return null; }
+  } catch { return null; }
 }
 
+// ── AUTH ──
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin() {
+  const usuario = document.getElementById('input-usuario').value.trim();
+  const senha = document.getElementById('input-senha').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('btn-login');
+  if (!usuario || !senha) { errEl.textContent = t('erro_login'); errEl.style.display='block'; return; }
+  btn.disabled = true;
+  try {
+    const hash = await sha256(senha);
+    const resp = await fetch(`${USERS_URL}?t=${Date.now()}`);
+    const users = await resp.json();
+    const user = users.find(u => u.usuario === usuario && u.senha === hash);
+    if (!user) { errEl.textContent = t('erro_login'); errEl.style.display='block'; btn.disabled=false; return; }
+    errEl.style.display='none';
+    currentUser = user;
+    localStorage.setItem('glip-user', JSON.stringify({usuario:user.usuario,nome:user.nome,perfil:user.perfil,empresa:user.empresa}));
+    // Offer biometrics registration
+    if (window.PublicKeyCredential) {
+      localStorage.setItem('glip-bio-user', user.usuario);
+    }
+    showApp();
+  } catch(e) {
+    errEl.textContent = 'Erro ao verificar credenciais.';
+    errEl.style.display='block';
+    btn.disabled=false;
+  }
+}
+
+async function doBiometria() {
+  try {
+    const savedUser = localStorage.getItem('glip-bio-user');
+    if (!savedUser) return;
+    const credential = await navigator.credentials.get({
+      publicKey: {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        timeout: 60000,
+        userVerification: 'required'
+      }
+    });
+    if (credential) {
+      const resp = await fetch(`${USERS_URL}?t=${Date.now()}`);
+      const users = await resp.json();
+      const user = users.find(u => u.usuario === savedUser);
+      if (user) { currentUser = user; showApp(); }
+    }
+  } catch(e) {
+    console.log('Biometria cancelada ou não disponível');
+  }
+}
+
+function doLogout() {
+  currentUser = null;
+  localStorage.removeItem('glip-user');
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-page').style.display='flex';
+  document.getElementById('input-senha').value='';
+}
+
+function showApp() {
+  document.getElementById('login-page').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  const u = currentUser;
+  document.getElementById('user-name').textContent = u.nome;
+  document.getElementById('user-role').textContent = u.perfil === 'admin' ? t('admin') : t('vis');
+  document.getElementById('user-avatar').textContent = u.nome.charAt(0).toUpperCase();
+  applyTranslations();
+  const dp = document.getElementById('date-picker');
+  dp.value = todayStr();
+  dp.max = todayStr();
+  loadData();
+}
+
+function checkSession() {
+  const saved = localStorage.getItem('glip-user');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      document.getElementById('loading').classList.add('hidden');
+      showApp();
+      // Show biometrics button if available
+      if (window.PublicKeyCredential && localStorage.getItem('glip-bio-user')) {
+        document.getElementById('btn-bio').style.display='flex';
+      }
+      return;
+    } catch(e) {}
+  }
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('login-page').style.display='flex';
+  if (window.PublicKeyCredential && localStorage.getItem('glip-bio-user')) {
+    document.getElementById('btn-bio').style.display='flex';
+  }
+}
+
+// ── DATA ──
 async function loadData() {
   const btn = document.getElementById('btn-refresh');
-  btn.classList.add('loading'); btn.textContent = '↻ Carregando...';
-  document.getElementById('error-banner').style.display = 'none';
-
-  const datePicker = document.getElementById('date-picker');
-  const selectedDate = datePicker.value || todayStr();
-  if (!datePicker.value) datePicker.value = selectedDate;
-
-  // Tenta carregar o arquivo do dia, fallback para dados.json
+  btn.classList.add('loading');
+  btn.querySelector('span').textContent = '...';
+  document.getElementById('error-banner').style.display='none';
+  const selectedDate = document.getElementById('date-picker').value || todayStr();
   const dayURL = `${GH}/${selectedDate}.json?t=${Date.now()}`;
-  const fallbackURL = `${GH}/dados.json?t=${Date.now()}`;
-
   try {
-    let data;
     const resp = await fetch(dayURL);
-    if (resp.ok) {
-      data = await resp.json();
-    } else {
-      throw new Error(`Nenhum dado encontrado para ${selectedDate}. Os arquivos diários são gerados a partir de hoje.`);
-    }
+    if (!resp.ok) throw new Error(t('aguardando'));
+    const data = await resp.json();
 
-    // Deduplica por nf+cnpj — mantém só a primeira ocorrência
+    // Deduplica por nf+cnpj+data
     const seen = new Set();
-    const notas = (data.notas || []).filter(n => {
-      const key = `${n.nf}-${n.cnpj}-${(n.hora||"").substring(0,10)}`;
+    const notas = (data.notas||[]).filter(n => {
+      const key = `${n.nf}-${n.cnpj}-${(n.hora||'').substring(0,10)}`;
       if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
+      seen.add(key); return true;
     });
     allNotas = notas;
 
-    // Detecta empresas pelo cnpj_tomador
+    // Empresas
     const empMap = {};
-    notas.forEach(n => {
-      if (n.cnpj_tomador && !empMap[n.cnpj_tomador]) {
-        empMap[n.cnpj_tomador] = n.empresa || n.cnpj_tomador;
-      }
-    });
-    empresas = Object.entries(empMap);
+    notas.forEach(n => { if (n.cnpj_tomador && !empMap[n.cnpj_tomador]) empMap[n.cnpj_tomador] = n.empresa||n.cnpj_tomador; });
     const sel = document.getElementById('empresa-select');
     const prev = sel.value;
-    sel.innerHTML = '<option value="todas">Todas as empresas</option>';
-    empresas.forEach(([cnpj, nome]) => {
+    sel.innerHTML = `<option value="todas">${t('todas')}</option>`;
+    // Se usuário tem empresa restrita, só mostra a dele
+    const empFiltro = currentUser?.empresa;
+    Object.entries(empMap).forEach(([cnpj, nome]) => {
+      if (empFiltro && empFiltro !== 'todas' && cnpj !== empFiltro) return;
       const opt = document.createElement('option');
       opt.value = cnpj;
-      opt.textContent = cnpj === '09197874000155' ? 'GLIP OFFICE' : (nome.substring(0,25)+'...');
+      opt.textContent = nome.length > 28 ? nome.substring(0,28)+'...' : nome;
       sel.appendChild(opt);
     });
-    if (prev) sel.value = prev;
+    if (prev && sel.querySelector(`option[value="${prev}"]`)) sel.value = prev;
+    if (empFiltro && empFiltro !== 'todas') { sel.value = empFiltro; activeEmpresa = empFiltro; }
 
-    const ok    = notas.filter(n => n.status === 'Processado').length;
-    const erro  = notas.filter(n => n.status === 'Erro').length;
-    const pend  = data.total_pendentes || 0;
-    const valor = notas.filter(n => n.status === 'Processado').reduce((s,n) => s+parseFloat(n.valor||0), 0);
-
-    document.getElementById('k-ok').textContent    = ok;
-    document.getElementById('k-err').textContent   = erro;
-    document.getElementById('k-pend').textContent  = pend;
-    document.getElementById('k-valor').textContent = formatMoeda(valor);
-    document.getElementById('ciclo-chip').textContent = `Ciclo ${data.ciclo||'—'}`;
-    document.getElementById('chart-sub').textContent  = `${selectedDate} · importadas e erros por hora`;
-    document.getElementById('page-sub').textContent   = `${ok} importadas · ${erro} erros · ${pend} pendentes · ${selectedDate.split('-').reverse().join('/')}`;
-    document.getElementById('update-time').textContent = nowBrasilia();
-
-    renderChart(notas);
+    updateKPIs(notas, data.total_pendentes||0);
+    renderChart(getFilteredNotas(notas));
     renderNotas();
-    renderPendentes(data.pendentes || '');
-    renderErros(notas.filter(n => n.status === 'Erro'));
+    renderPendentes(data.pendentes||'');
+    renderErros(getFilteredNotas(notas).filter(n=>n.status==='Erro'));
 
+    document.getElementById('ciclo-chip').textContent = `Ciclo ${data.ciclo||'—'}`;
+    document.getElementById('chart-sub').textContent = `${selectedDate} · ${t('imp_err')}`;
+    const filtered = getFilteredNotas(notas);
+    const ok = filtered.filter(n=>n.status==='Processado').length;
+    const err = filtered.filter(n=>n.status==='Erro').length;
+    document.getElementById('page-sub').textContent = `${ok} ${t('importadas').toLowerCase()} · ${err} ${t('erros').toLowerCase()} · ${selectedDate.split('-').reverse().join('/')}`;
+    document.getElementById('update-time').textContent = nowBrasilia();
   } catch(err) {
-    document.getElementById('error-banner').style.display = 'block';
+    document.getElementById('error-banner').style.display='block';
     document.getElementById('error-msg').textContent = err.message;
-    // Clear all data
-    document.getElementById('k-ok').textContent = '0';
-    document.getElementById('k-err').textContent = '0';
-    document.getElementById('k-pend').textContent = '0';
-    document.getElementById('k-valor').textContent = 'R$ 0,00';
-    document.getElementById('ciclo-chip').textContent = '—';
-    document.getElementById('chart-wrap').innerHTML = '<div class="chart-empty">Nenhuma nota para esta data</div>';
-    document.getElementById('notas-lista').innerHTML = '<div class="empty-msg">Nenhuma nota para esta data</div>';
-    document.getElementById('pend-lista').innerHTML = '<div class="empty-msg">Nenhum pendente ✅</div>';
-    document.getElementById('erro-lista').innerHTML = '<div class="empty-msg">Nenhum erro ✅</div>';
-    allNotas = [];
+    clearData();
   } finally {
-    btn.classList.remove('loading'); btn.textContent = '↻ Atualizar';
-    document.getElementById('loading').classList.add('hidden');
+    btn.classList.remove('loading');
+    btn.querySelector('span').textContent = t('atualizar');
   }
+}
+
+function getFilteredNotas(notas) {
+  if (!notas) notas = allNotas;
+  return activeEmpresa === 'todas' ? notas : notas.filter(n=>n.cnpj_tomador===activeEmpresa);
+}
+
+function updateKPIs(notas, pend) {
+  const filtered = getFilteredNotas(notas);
+  const ok    = filtered.filter(n=>n.status==='Processado').length;
+  const erro  = filtered.filter(n=>n.status==='Erro').length;
+  const valor = filtered.filter(n=>n.status==='Processado').reduce((s,n)=>s+parseFloat(n.valor||0),0);
+  document.getElementById('k-ok').textContent    = ok;
+  document.getElementById('k-err').textContent   = erro;
+  document.getElementById('k-pend').textContent  = pend;
+  document.getElementById('k-valor').textContent = formatMoeda(valor);
+}
+
+function clearData() {
+  ['k-ok','k-err','k-pend','k-valor'].forEach(id=>document.getElementById(id).textContent='0');
+  document.getElementById('k-valor').textContent='R$ 0,00';
+  document.getElementById('ciclo-chip').textContent='—';
+  document.getElementById('chart-wrap').innerHTML=`<div class="chart-empty">${t('aguardando')}</div>`;
+  document.getElementById('notas-lista').innerHTML=`<div class="empty-msg">${t('nenhuma')}</div>`;
+  document.getElementById('pend-lista').innerHTML=`<div class="empty-msg">${t('nenhum_pend')}</div>`;
+  document.getElementById('erro-lista').innerHTML=`<div class="empty-msg">${t('nenhum_err')}</div>`;
+  allNotas=[];
+}
+
+function setEmpresa(cnpj) {
+  activeEmpresa = cnpj;
+  updateKPIs(allNotas, parseInt(document.getElementById('k-pend').textContent)||0);
+  renderChart(getFilteredNotas());
+  renderNotas();
 }
 
 function renderChart(notas) {
   const horas = {};
   for (let h=7;h<=20;h++) horas[h]={ok:0,erro:0};
-  notas.forEach(n => {
-    const h = getHora(n.hora);
-    if (h!==null && horas[h]!==undefined) {
-      if (n.status==='Processado') horas[h].ok++;
-      else if (n.status==='Erro') horas[h].erro++;
-    }
+  (notas||[]).forEach(n=>{
+    const h=getHora(n.hora);
+    if(h!==null&&horas[h]!==undefined){if(n.status==='Processado')horas[h].ok++;else if(n.status==='Erro')horas[h].erro++;}
   });
-  const maxVal = Math.max(...Object.values(horas).map(v=>v.ok+v.erro),1);
-  const maxH = 140;
-  const temDados = Object.values(horas).some(v=>v.ok+v.erro>0);
-  if (!temDados) {
-    document.getElementById('chart-wrap').innerHTML = '<div class="chart-empty">Nenhuma nota encontrada para esta data</div>';
-    return;
-  }
-  document.getElementById('chart-wrap').innerHTML = Object.entries(horas).map(([h,v]) => `
+  const maxVal=Math.max(...Object.values(horas).map(v=>v.ok+v.erro),1);
+  const maxH=140;
+  const temDados=Object.values(horas).some(v=>v.ok+v.erro>0);
+  if(!temDados){document.getElementById('chart-wrap').innerHTML=`<div class="chart-empty">${t('aguardando')}</div>`;return;}
+  document.getElementById('chart-wrap').innerHTML=Object.entries(horas).map(([h,v])=>`
     <div class="bar-col">
-      <div class="bar-tooltip">${h}h: ${v.ok} importada(s)${v.erro>0?`, ${v.erro} erro(s)`:''}</div>
+      <div class="bar-tooltip">${h}h: ${v.ok} ${t('leg_ok').toLowerCase()}${v.erro>0?`, ${v.erro} ${t('leg_err').toLowerCase()}`:''}</div>
       ${v.erro>0?`<div class="bar erro" style="height:${Math.round(v.erro/maxVal*maxH)}px"></div>`:''}
       ${v.ok>0?`<div class="bar ok" style="height:${Math.round(v.ok/maxVal*maxH)}px"></div>`:`<div class="bar-empty"></div>`}
       <div class="bar-lbl">${h}h</div>
     </div>`).join('');
 }
 
-function setEmpresa(cnpj) {
-  activeEmpresa = cnpj;
-  renderNotas();
-  // Recalculate KPIs for selected empresa
-  const filtered = activeEmpresa === 'todas' ? allNotas : allNotas.filter(n => n.cnpj_tomador === activeEmpresa);
-  const ok    = filtered.filter(n => n.status === 'Processado').length;
-  const erro  = filtered.filter(n => n.status === 'Erro').length;
-  const valor = filtered.filter(n => n.status === 'Processado').reduce((s,n) => s+parseFloat(n.valor||0), 0);
-  document.getElementById('k-ok').textContent    = ok;
-  document.getElementById('k-err').textContent   = erro;
-  document.getElementById('k-valor').textContent = formatMoeda(valor);
-  renderChart(filtered);
-}
-
 function setFilter(f) {
-  activeFilter = f;
-  ['todos','Processado','Erro'].forEach(s => {
-    const id = s==='todos'?'f-todos':s==='Processado'?'f-ok':'f-erro';
-    const btn = document.getElementById(id);
-    if (!btn) return;
-    btn.className = 'fbtn'+(s===f?(s==='Processado'?' active-ok':s==='Erro'?' active-erro':' active'):'');
+  activeFilter=f;
+  ['todos','Processado','Erro'].forEach(s=>{
+    const id=s==='todos'?'f-todos':s==='Processado'?'f-ok':'f-erro';
+    const btn=document.getElementById(id);
+    if(!btn)return;
+    btn.className='fbtn'+(s===f?(s==='Processado'?' active-ok':s==='Erro'?' active-erro':' active'):'');
   });
-  document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active-filter'));
-  if (f==='Processado') document.querySelector('.kpi-card.ok').classList.add('active-filter');
-  if (f==='Erro') document.querySelector('.kpi-card.erro').classList.add('active-filter');
-  if (f==='Pendente') document.querySelector('.kpi-card.pend').classList.add('active-filter');
+  document.querySelectorAll('.kpi-card').forEach(c=>c.classList.remove('active-filter'));
+  if(f==='Processado')document.querySelector('.kpi-card.ok').classList.add('active-filter');
+  if(f==='Erro')document.querySelector('.kpi-card.erro').classList.add('active-filter');
+  if(f==='Pendente')document.querySelector('.kpi-card.pend').classList.add('active-filter');
   renderNotas();
 }
 
 function renderNotas() {
-  const search = (document.getElementById('search').value||'').toLowerCase();
-  let items = activeEmpresa === 'todas' ? allNotas : allNotas.filter(n => n.cnpj_tomador === activeEmpresa);
-  if (activeFilter!=='todos') items = items.filter(n=>n.status===activeFilter);
-  if (search) items = items.filter(n=>(n.nome||'').toLowerCase().includes(search)||(n.nf||'').toLowerCase().includes(search)||(n.cnpj||'').toLowerCase().includes(search));
-  document.getElementById('notas-sub').textContent = `${items.length} nota${items.length!==1?'s':''} encontrada${items.length!==1?'s':''}`;
-  if (!items.length) { document.getElementById('notas-lista').innerHTML = '<div class="empty-msg">Nenhuma nota encontrada</div>'; return; }
-  document.getElementById('notas-lista').innerHTML = items.map(n => {
-    const isErro = n.status==='Erro';
+  const search=(document.getElementById('search')?.value||'').toLowerCase();
+  let items=getFilteredNotas();
+  if(activeFilter!=='todos')items=items.filter(n=>n.status===activeFilter);
+  if(search)items=items.filter(n=>(n.nome||'').toLowerCase().includes(search)||(n.nf||'').toLowerCase().includes(search)||(n.cnpj||'').toLowerCase().includes(search));
+  document.getElementById('notas-sub').textContent=`${items.length} ${items.length!==1?'notas':'nota'}`;
+  if(!items.length){document.getElementById('notas-lista').innerHTML=`<div class="empty-msg">${t('nenhuma')}</div>`;return;}
+  document.getElementById('notas-lista').innerHTML=items.map(n=>{
+    const isErro=n.status==='Erro';
     return `<div class="nota-row${isErro?' erro-row':''}">
       <div class="nota-left">
         <span class="nota-nf${isErro?' erro':''}">NF ${n.nf||'—'}</span>
@@ -516,24 +781,26 @@ function renderNotas() {
 }
 
 function renderPendentes(raw) {
-  const linhas = raw.split('\n').map(l=>l.replace(/⚠️\s*/,'').replace(/<br>/g,'').trim()).filter(Boolean);
-  document.getElementById('pend-lista').innerHTML = linhas.length
-    ? linhas.map(l=>`<div class="pend-row">⚠️ ${l}</div>`).join('')
-    : '<div class="empty-msg">Nenhum pendente ✅</div>';
+  const linhas=raw.split('\n').map(l=>l.replace(/⚠️\s*/,'').replace(/<br>/g,'').trim()).filter(Boolean);
+  document.getElementById('pend-lista').innerHTML=linhas.length
+    ?linhas.map(l=>`<div class="pend-row">⚠️ ${l}</div>`).join('')
+    :`<div class="empty-msg">${t('nenhum_pend')}</div>`;
 }
 
 function renderErros(erros) {
-  document.getElementById('erro-lista').innerHTML = erros.length
-    ? erros.map(n=>`<div class="erro-row">❌ NF ${n.nf||'—'} · ${n.nome||'—'} · ${formatMoeda(n.valor)}</div>`).join('')
-    : '<div class="empty-msg">Nenhum erro ✅</div>';
+  document.getElementById('erro-lista').innerHTML=erros.length
+    ?erros.map(n=>`<div class="erro-row-item">❌ NF ${n.nf||'—'} · ${n.nome||'—'} · ${formatMoeda(n.valor)}</div>`).join('')
+    :`<div class="empty-msg">${t('nenhum_err')}</div>`;
 }
 
+// ── INIT ──
 initTheme();
-const dp = document.getElementById('date-picker');
-dp.value = todayStr();
-dp.max = todayStr();
-loadData();
-setInterval(loadData, 5*60*1000);
+const savedLang = localStorage.getItem('glip-lang') || 'pt';
+currentLang = savedLang;
+['pt','en','es','it'].forEach(l=>document.getElementById('lang-'+l)?.classList.toggle('active',l===savedLang));
+applyTranslations();
+checkSession();
+setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
 </script>
 </body>
 </html>
