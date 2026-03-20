@@ -187,7 +187,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
     <div class="header-right">
       <div class="date-filter">
         <label>Data</label>
-        <input type="date" id="date-picker" onchange="loadData()">
+        <input type="date" id="date-picker" onchange="loadData()" id="date-picker">
       </div>
       <button class="btn btn-cyan" id="btn-refresh" onclick="loadData()">↻ Atualizar</button>
     </div>
@@ -360,7 +360,7 @@ async function loadData() {
     document.getElementById('k-valor').textContent = formatMoeda(valor);
     document.getElementById('ciclo-chip').textContent = `Ciclo ${data.ciclo||'—'}`;
     document.getElementById('chart-sub').textContent  = `${selectedDate} · importadas e erros por hora`;
-    document.getElementById('page-sub').textContent   = `${ok} importadas · ${erro} erros · ${pend} pendentes · ${selectedDate}`;
+    document.getElementById('page-sub').textContent   = `${ok} importadas · ${erro} erros · ${pend} pendentes · ${selectedDate.split('-').reverse().join('/')}`;
     document.getElementById('update-time').textContent = nowBrasilia();
 
     renderChart(notas);
@@ -371,7 +371,17 @@ async function loadData() {
   } catch(err) {
     document.getElementById('error-banner').style.display = 'block';
     document.getElementById('error-msg').textContent = err.message;
+    // Clear all data
+    document.getElementById('k-ok').textContent = '0';
+    document.getElementById('k-err').textContent = '0';
+    document.getElementById('k-pend').textContent = '0';
+    document.getElementById('k-valor').textContent = 'R$ 0,00';
+    document.getElementById('ciclo-chip').textContent = '—';
+    document.getElementById('chart-wrap').innerHTML = '<div class="chart-empty">Nenhuma nota para esta data</div>';
     document.getElementById('notas-lista').innerHTML = '<div class="empty-msg">Nenhuma nota para esta data</div>';
+    document.getElementById('pend-lista').innerHTML = '<div class="empty-msg">Nenhum pendente ✅</div>';
+    document.getElementById('erro-lista').innerHTML = '<div class="empty-msg">Nenhum erro ✅</div>';
+    allNotas = [];
   } finally {
     btn.classList.remove('loading'); btn.textContent = '↻ Atualizar';
     document.getElementById('loading').classList.add('hidden');
@@ -458,7 +468,9 @@ function renderErros(erros) {
 }
 
 initTheme();
-document.getElementById('date-picker').value = todayStr();
+const dp = document.getElementById('date-picker');
+dp.value = todayStr();
+dp.max = todayStr();
 loadData();
 setInterval(loadData, 5*60*1000);
 </script>
