@@ -1011,15 +1011,38 @@ async function removeUser(idx) {
 async function saveUsers() {
   const token = localStorage.getItem(GH_TOKEN_KEY);
   if (!token) { promptToken(); return; }
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2))));
-  const body = JSON.stringify({ message:'Atualizar users.json', content, sha: usersSHA });
-  const resp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/users.json', {
-    method:'PUT',
-    headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
-    body
-  });
-  const data = await resp.json();
-  usersSHA = data.content?.sha || usersSHA;
+
+  const errEl = document.getElementById('users-error');
+  try {
+    // Always fetch fresh SHA before saving
+    const getResp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/users.json', {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    const getData = await getResp.json();
+    usersSHA = getData.sha;
+
+    // Save
+    const fileContent = btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2))));
+    const body = JSON.stringify({ message: 'Atualizar users.json', content: fileContent, sha: usersSHA });
+    const putResp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/users.json', {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body
+    });
+    const putData = await putResp.json();
+
+    if (!putResp.ok) {
+      throw new Error(putData.message || `Erro ${putResp.status}`);
+    }
+
+    usersSHA = putData.content?.sha || usersSHA;
+    if (errEl) { errEl.textContent = '✅ Salvo com sucesso!'; errEl.style.display = 'block'; errEl.style.color = 'var(--green)'; }
+    setTimeout(() => { if (errEl) errEl.style.display = 'none'; }, 3000);
+
+  } catch(e) {
+    console.error('Erro ao salvar:', e);
+    if (errEl) { errEl.textContent = `❌ Erro ao salvar: ${e.message}`; errEl.style.display = 'block'; errEl.style.color = 'var(--red)'; }
+  }
 }
 
 // ── INIT ──
