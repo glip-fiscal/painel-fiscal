@@ -200,8 +200,8 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
   </div>
   <div class="login-card">
     <div class="login-logo">
-      <img src="https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/logo.png"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="GLIP">
+      <img id="login-logo-img" src="https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/logo-dark.png"
+           onerror="this.src='https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/logo.png';this.onerror=null;" alt="GLIP">
       <div class="fallback" style="display:none">glip</div>
       <p id="login-tagline">Automação Fiscal</p>
     </div>
@@ -221,10 +221,10 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
       👆 <span id="btn-bio-txt">Entrar com biometria</span>
     </button>
     <div class="login-lang">
-      <button class="lang-btn active" onclick="setLang('pt')" id="lang-pt">PT</button>
-      <button class="lang-btn" onclick="setLang('en')" id="lang-en">EN</button>
-      <button class="lang-btn" onclick="setLang('es')" id="lang-es">ES</button>
-      <button class="lang-btn" onclick="setLang('it')" id="lang-it">IT</button>
+      <button class="lang-btn active" onclick="setLang('pt')" id="lang-pt" title="Português">🇧🇷</button>
+      <button class="lang-btn" onclick="setLang('en')" id="lang-en" title="English">🇺🇸</button>
+      <button class="lang-btn" onclick="setLang('es')" id="lang-es" title="Español">🇪🇸</button>
+      <button class="lang-btn" onclick="setLang('it')" id="lang-it" title="Italiano">🇮🇹</button>
     </div>
   </div>
 </div>
@@ -235,8 +235,8 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 
   <aside class="sidebar">
     <div class="logo-wrap">
-      <img src="https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/logo.png"
-           onerror="this.style.display='none';document.getElementById('logo-fb').style.display='block'" alt="GLIP">
+      <img id="app-logo-img" src="https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/logo-dark.png"
+           onerror="this.src='https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/logo.png';this.onerror=null;" alt="GLIP">
       <div id="logo-fb" class="logo-fallback">glip</div>
       <div class="tagline" id="nav-tagline">Automação Fiscal</div>
     </div>
@@ -246,6 +246,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
     <a class="nav-item" href="#section-pendentes"><span class="nav-icon">⚠️</span> <span id="nav-pendentes">Pendentes</span></a>
     <div class="nav-section" id="nav-sistema">Sistema</div>
     <a class="nav-item" href="#section-fluxos"><span class="nav-icon">⚙️</span> <span id="nav-fluxos">Fluxos</span></a>
+    <a class="nav-item admin-only" href="#" onclick="showUsers()" id="nav-users-btn" style="display:none"><span class="nav-icon">👥</span> <span id="nav-users">Usuários</span></a>
     <div class="sidebar-footer">
       <div class="user-info">
         <div class="user-avatar" id="user-avatar">M</div>
@@ -486,8 +487,18 @@ function toggleTheme() {
     const el = document.getElementById(id);
     if (el) el.textContent = isDark ? '🌙' : '☀️';
   });
+  updateLogos(isDark ? 'light' : 'dark');
   localStorage.setItem('glip-theme', isDark ? 'light' : 'dark');
   applyTranslations();
+}
+
+function updateLogos(theme) {
+  const logoFile = theme === 'dark' ? 'logo-dark.png' : 'logo-light.png';
+  const url = `${GH}/${logoFile}`;
+  ['login-logo-img','app-logo-img'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.src = url;
+  });
 }
 
 function initTheme() {
@@ -497,6 +508,7 @@ function initTheme() {
     const el = document.getElementById(id);
     if (el) el.textContent = saved === 'dark' ? '☀️' : '🌙';
   });
+  updateLogos(saved);
 }
 
 // ── HELPERS ──
@@ -594,6 +606,10 @@ function showApp() {
   const u = currentUser;
   document.getElementById('user-name').textContent = u.nome;
   document.getElementById('user-role').textContent = u.perfil === 'admin' ? t('admin') : t('vis');
+  // Show admin-only items
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = u.perfil === 'admin' ? 'flex' : 'none';
+  });
   document.getElementById('user-avatar').textContent = u.nome.charAt(0).toUpperCase();
   applyTranslations();
   const dp = document.getElementById('date-picker');
@@ -793,6 +809,107 @@ function renderErros(erros) {
     :`<div class="empty-msg">${t('nenhum_err')}</div>`;
 }
 
+
+// ── USERS MANAGEMENT ──
+let usersData = [];
+let usersSHA = '';
+const GH_TOKEN_KEY = 'glip-gh-token';
+
+async function showUsers() {
+  document.getElementById('users-modal').style.display = 'flex';
+  await loadUsers();
+}
+
+function closeUsers() {
+  document.getElementById('users-modal').style.display = 'none';
+}
+
+async function loadUsers() {
+  try {
+    const token = localStorage.getItem(GH_TOKEN_KEY);
+    if (!token) { promptToken(); return; }
+    const resp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/users.json', {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    const data = await resp.json();
+    usersSHA = data.sha;
+    usersData = JSON.parse(atob(data.content.replace(/\n/g,'')));
+    renderUsersList();
+  } catch(e) {
+    document.getElementById('users-list').innerHTML = '<div style="color:var(--red);font-size:12px;">Erro ao carregar usuários. Verifique o token.</div>';
+  }
+}
+
+function promptToken() {
+  const token = prompt('Cole seu GitHub Token (será salvo localmente):');
+  if (token) {
+    localStorage.setItem(GH_TOKEN_KEY, token);
+    loadUsers();
+  }
+}
+
+function renderUsersList() {
+  if (!usersData.length) { document.getElementById('users-list').innerHTML = '<div style="color:var(--muted);font-size:12px;">Nenhum usuário cadastrado.</div>'; return; }
+  document.getElementById('users-list').innerHTML = usersData.map((u,i) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;background:var(--cyan-dim);border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--cyan);">${u.nome.charAt(0).toUpperCase()}</div>
+        <div>
+          <div style="font-size:12px;font-weight:500;">${u.nome}</div>
+          <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;">${u.usuario}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:10px;padding:2px 8px;border-radius:12px;${u.perfil==='admin'?'background:var(--cyan-dim);color:var(--cyan);':'background:var(--panel);color:var(--muted);border:1px solid var(--border);'}">${u.perfil}</span>
+        <span style="font-size:10px;color:var(--muted);">${u.empresa==='todas'?'Todas':u.empresa}</span>
+        ${u.usuario !== currentUser?.usuario ? `<button onclick="removeUser(${i})" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;font-family:'Sora',sans-serif;">Remover</button>` : '<span style="font-size:10px;color:var(--muted);">você</span>'}
+      </div>
+    </div>`).join('');
+}
+
+async function addUser() {
+  const nome   = document.getElementById('new-nome').value.trim();
+  const email  = document.getElementById('new-email').value.trim();
+  const senha  = document.getElementById('new-senha').value;
+  const perfil = document.getElementById('new-perfil').value;
+  const empresa = document.getElementById('new-empresa').value.trim() || 'todas';
+  const errEl  = document.getElementById('users-error');
+
+  if (!nome||!email||!senha) { errEl.textContent='Preencha todos os campos.'; errEl.style.display='block'; return; }
+  if (usersData.find(u=>u.usuario===email)) { errEl.textContent='Este e-mail já está cadastrado.'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+
+  const hash = await sha256(senha);
+  usersData.push({ usuario:email, senha:hash, nome, perfil, empresa });
+  await saveUsers();
+  document.getElementById('new-nome').value='';
+  document.getElementById('new-email').value='';
+  document.getElementById('new-senha').value='';
+  document.getElementById('new-empresa').value='todas';
+  renderUsersList();
+}
+
+async function removeUser(idx) {
+  if (!confirm('Remover este usuário?')) return;
+  usersData.splice(idx, 1);
+  await saveUsers();
+  renderUsersList();
+}
+
+async function saveUsers() {
+  const token = localStorage.getItem(GH_TOKEN_KEY);
+  if (!token) { promptToken(); return; }
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2))));
+  const body = JSON.stringify({ message:'Atualizar users.json', content, sha: usersSHA });
+  const resp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/users.json', {
+    method:'PUT',
+    headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+    body
+  });
+  const data = await resp.json();
+  usersSHA = data.content?.sha || usersSHA;
+}
+
 // ── INIT ──
 initTheme();
 const savedLang = localStorage.getItem('glip-lang') || 'pt';
@@ -802,5 +919,55 @@ applyTranslations();
 checkSession();
 setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
 </script>
+
+<!-- USERS MODAL -->
+<div id="users-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:50;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;">
+    <div style="padding:24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:15px;font-weight:600;" id="users-modal-title">Gerenciar Usuários</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Apenas administradores</div>
+      </div>
+      <button onclick="closeUsers()" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'Sora',sans-serif;">✕ Fechar</button>
+    </div>
+    <div style="padding:24px;">
+      <!-- Add user form -->
+      <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:600;margin-bottom:14px;color:var(--cyan)">+ Adicionar Usuário</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Nome</label>
+            <input id="new-nome" type="text" placeholder="Nome completo" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">E-mail</label>
+            <input id="new-email" type="email" placeholder="email@empresa.com" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Senha</label>
+            <input id="new-senha" type="password" placeholder="Senha inicial" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Perfil</label>
+            <select id="new-perfil" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+              <option value="visualizador">Visualizador</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div style="grid-column:span 2;">
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Empresa (CNPJ ou "todas")</label>
+            <input id="new-empresa" type="text" placeholder="todas" value="todas" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+          </div>
+        </div>
+        <div id="users-error" style="color:var(--red);font-size:11px;margin-bottom:8px;display:none;"></div>
+        <button onclick="addUser()" style="background:var(--cyan);border:none;color:white;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">Adicionar</button>
+      </div>
+      <!-- Users list -->
+      <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Usuários cadastrados</div>
+      <div id="users-list"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
