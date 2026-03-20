@@ -30,6 +30,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 .btn-login:hover{opacity:.9;transform:translateY(-1px);}
 .btn-login:disabled{opacity:.6;pointer-events:none;}
 .btn-bio{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;margin-top:10px;display:none;align-items:center;justify-content:center;gap:8px;}
+@media(min-width:701px){.btn-bio{display:none!important;}}
 .btn-bio:hover{border-color:var(--border2);}
 .login-error{background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:16px;display:none;}
 .login-lang{display:flex;justify-content:center;gap:8px;margin-top:24px;}
@@ -634,7 +635,7 @@ function checkSession() {
   }
   document.getElementById('loading').classList.add('hidden');
   document.getElementById('login-page').style.display='flex';
-  if (window.PublicKeyCredential && localStorage.getItem('glip-bio-user')) {
+  if (window.PublicKeyCredential && localStorage.getItem('glip-bio-user') && window.innerWidth <= 700) {
     document.getElementById('btn-bio').style.display='flex';
   }
 }
@@ -817,6 +818,17 @@ const GH_TOKEN_KEY = 'glip-gh-token';
 
 async function showUsers() {
   document.getElementById('users-modal').style.display = 'flex';
+  // Populate empresa select from loaded notas
+  const empSel = document.getElementById('new-empresa');
+  empSel.innerHTML = '<option value="todas">Todas as empresas</option>';
+  const empMap = {};
+  allNotas.forEach(n => { if (n.cnpj_tomador && !empMap[n.cnpj_tomador]) empMap[n.cnpj_tomador] = n.empresa||n.cnpj_tomador; });
+  Object.entries(empMap).forEach(([cnpj, nome]) => {
+    const opt = document.createElement('option');
+    opt.value = cnpj;
+    opt.textContent = nome.length > 35 ? nome.substring(0,35)+'...' : nome;
+    empSel.appendChild(opt);
+  });
   await loadUsers();
 }
 
@@ -955,8 +967,10 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
             </select>
           </div>
           <div style="grid-column:span 2;">
-            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Empresa (CNPJ ou "todas")</label>
-            <input id="new-empresa" type="text" placeholder="todas" value="todas" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Empresa</label>
+            <select id="new-empresa" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+              <option value="todas">Todas as empresas</option>
+            </select>
           </div>
         </div>
         <div id="users-error" style="color:var(--red);font-size:11px;margin-bottom:8px;display:none;"></div>
