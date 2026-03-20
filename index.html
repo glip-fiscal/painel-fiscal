@@ -892,30 +892,91 @@ async function loadUsers() {
 }
 
 function promptToken() {
-  const token = prompt('Cole seu GitHub Token (será salvo localmente):');
-  if (token) {
-    localStorage.setItem(GH_TOKEN_KEY, token);
-    loadUsers();
-  }
+  // Show inline token input instead of ugly prompt
+  document.getElementById('users-list').innerHTML = `
+    <div style="background:var(--panel2);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:12px;">
+      <div style="font-size:12px;font-weight:600;color:var(--cyan);margin-bottom:8px;">🔑 Configure o GitHub Token</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.6;">
+        Necessário para salvar usuários. Cole o token com permissão <code style="color:var(--cyan);font-family:'JetBrains Mono',monospace;">repo</code>.
+        Ele fica salvo apenas neste navegador.
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input id="token-input" type="password" placeholder="ghp_..." 
+          style="flex:1;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+        <button onclick="saveToken()" 
+          style="background:var(--cyan);border:none;color:white;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">
+          Salvar
+        </button>
+      </div>
+    </div>`;
+}
+
+function saveToken() {
+  const token = document.getElementById('token-input')?.value?.trim();
+  if (!token) return;
+  localStorage.setItem(GH_TOKEN_KEY, token);
+  loadUsers();
 }
 
 function renderUsersList() {
-  if (!usersData.length) { document.getElementById('users-list').innerHTML = '<div style="color:var(--muted);font-size:12px;">Nenhum usuário cadastrado.</div>'; return; }
-  document.getElementById('users-list').innerHTML = usersData.map((u,i) => `
-    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:32px;height:32px;background:var(--cyan-dim);border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--cyan);">${u.nome.charAt(0).toUpperCase()}</div>
-        <div>
-          <div style="font-size:12px;font-weight:500;">${u.nome}</div>
-          <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;">${u.usuario}</div>
+  if (!usersData.length) {
+    document.getElementById('users-list').innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px;">Nenhum usuário cadastrado.</div>';
+    return;
+  }
+
+  // Add clear token button at top
+  const tokenBtn = `<div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+    <button onclick="clearToken()" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Sora',sans-serif;">🔑 Trocar token</button>
+  </div>`;
+
+  const rows = usersData.map((u,i) => {
+    const isMe = u.usuario === currentUser?.usuario;
+    const empresaNome = u.empresa === 'todas' ? 'Todas as empresas' : (u.empresa.length > 20 ? u.empresa.substring(0,20)+'...' : u.empresa);
+    const criado = u.criado ? new Date(u.criado).toLocaleDateString('pt-BR') : '—';
+    const perfilColor = u.perfil === 'admin' ? 'background:var(--cyan-dim);color:var(--cyan);' : 'background:var(--amber-dim);color:var(--amber);';
+
+    return `
+    <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:36px;height:36px;background:var(--cyan-dim);border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--cyan);flex-shrink:0;">
+            ${u.nome.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;">${u.nome} ${isMe ? '<span style="font-size:9px;color:var(--muted);">(você)</span>' : ''}</div>
+            <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:1px;">${u.usuario}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:10px;padding:3px 9px;border-radius:12px;font-weight:600;${perfilColor}">${u.perfil}</span>
+          ${!isMe ? `
+            <button onclick="resetPassword(${i})" style="background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);color:var(--amber);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;font-family:'Sora',sans-serif;">🔑 Senha</button>
+            <button onclick="removeUser(${i})" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;font-family:'Sora',sans-serif;">✕ Remover</button>
+          ` : ''}
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:10px;padding:2px 8px;border-radius:12px;${u.perfil==='admin'?'background:var(--cyan-dim);color:var(--cyan);':'background:var(--panel);color:var(--muted);border:1px solid var(--border);'}">${u.perfil}</span>
-        <span style="font-size:10px;color:var(--muted);">${u.empresa==='todas'?'Todas':u.empresa}</span>
-        ${u.usuario !== currentUser?.usuario ? `<button onclick="removeUser(${i})" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;font-family:'Sora',sans-serif;">Remover</button>` : '<span style="font-size:10px;color:var(--muted);">você</span>'}
+      <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;">
+        <div style="font-size:10px;color:var(--muted);">🏢 <span style="color:var(--dim);">${empresaNome}</span></div>
+        <div style="font-size:10px;color:var(--muted);">📅 Criado: <span style="color:var(--dim);">${criado}</span></div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+
+  document.getElementById('users-list').innerHTML = tokenBtn + rows;
+}
+
+function clearToken() {
+  localStorage.removeItem(GH_TOKEN_KEY);
+  promptToken();
+}
+
+async function resetPassword(idx) {
+  const novaSenha = prompt(`Nova senha para ${usersData[idx].nome}:`);
+  if (!novaSenha || novaSenha.length < 6) { alert('Senha deve ter pelo menos 6 caracteres.'); return; }
+  const hash = await sha256(novaSenha);
+  usersData[idx].senha = hash;
+  await saveUsers();
+  alert(`Senha de ${usersData[idx].nome} redefinida com sucesso!`);
 }
 
 async function addUser() {
@@ -931,7 +992,7 @@ async function addUser() {
   errEl.style.display='none';
 
   const hash = await sha256(senha);
-  usersData.push({ usuario:email, senha:hash, nome, perfil, empresa });
+  usersData.push({ usuario:email, senha:hash, nome, perfil, empresa, criado: new Date().toISOString() });
   await saveUsers();
   document.getElementById('new-nome').value='';
   document.getElementById('new-email').value='';
@@ -1053,7 +1114,7 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
         <div class="doc-section">
           <div class="doc-flow-card" style="border-left:3px solid var(--cyan);">
             <div class="doc-flow-header"><span class="doc-badge" style="background:var(--cyan-dim);color:var(--cyan);">F1</span><strong>Salvar PDF no SharePoint</strong><span class="doc-status">✅ Ativo</span></div>
-            <div class="doc-flow-desc">Monitora <code>marcelo@glip.com.br</code> em tempo real. Ao receber e-mail, verifica os anexos e salva PDFs em <code>/E-mails/Pendentes</code>.</div>
+            <div class="doc-flow-desc">Monitora <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="660b071405030a0926010a0f164805090b480414">[email&#160;protected]</a></code> em tempo real. Ao receber e-mail, verifica os anexos e salva PDFs em <code>/E-mails/Pendentes</code>.</div>
             <div class="doc-flow-detail"><strong>Trigger:</strong> Novo e-mail recebido (Outlook V3)<br><strong>Ação:</strong> Loop nos anexos → verifica se é PDF → salva com nome original</div>
           </div>
           <div class="doc-flow-card" style="border-left:3px solid var(--green);">
@@ -1080,7 +1141,7 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
           <div class="doc-group">
             <div class="doc-group-title">🔵 Microsoft 365</div>
             <div class="doc-table">
-              <div class="doc-row"><span>E-mail monitorado</span><code>marcelo@glip.com.br</code></div>
+              <div class="doc-row"><span>E-mail monitorado</span><code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bed3dfccdddbd2d1fed9d2d7ce90ddd1d390dccc">[email&#160;protected]</a></code></div>
               <div class="doc-row"><span>SharePoint Site</span><code>https://glipoffice.sharepoint.com/sites/Automatizao-E-mail</code></div>
               <div class="doc-row"><span>Biblioteca</span><code>Documentos</code></div>
               <div class="doc-row"><span>Lista fiscal</span><code>Lancamentos</code></div>
@@ -1317,10 +1378,4 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
 .doc-problem-solution code{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:10px;}
 .doc-road-card{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px;}
 .doc-road-badge{font-size:11px;font-weight:600;margin-bottom:10px;}
-.doc-road-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
-.doc-road-list li{font-size:11px;color:var(--muted);padding-left:12px;position:relative;line-height:1.5;}
-.doc-road-list li::before{content:'→';position:absolute;left:0;color:var(--cyan);}
-</style>
-
-</body>
-</html>
+.doc-road-list{list-style:none;display:flex;flex-
