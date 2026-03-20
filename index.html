@@ -134,6 +134,21 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .full-card{margin-bottom:16px;}
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.layout-grid{grid-template-columns:1fr}}
+@media(max-width:700px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s;}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;padding:16px;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .page-header{flex-direction:column;align-items:flex-start;}
+  .header-right{width:100%;flex-wrap:wrap;}
+  .date-filter{flex:1;}
+  .date-filter input{width:100px;}
+  #empresa-select{width:100%;}
+  .mobile-menu-btn{display:flex!important;}
+  .chart-outer{height:120px;}
+  .nota-nome{max-width:160px;}
+}
+.mobile-menu-btn{display:none;position:fixed;top:16px;left:16px;z-index:20;background:var(--cyan);border:none;color:white;width:36px;height:36px;border-radius:8px;font-size:16px;cursor:pointer;align-items:center;justify-content:center;}
 @media(max-width:700px){.sidebar{display:none}.main{margin-left:0}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -145,6 +160,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
   <div class="loader-text">Carregando painel fiscal...</div>
 </div>
 
+<button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
 <aside class="sidebar">
   <div class="logo-wrap">
     <img src="https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/logo.png"
@@ -189,6 +205,9 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
         <label>Data</label>
         <input type="date" id="date-picker" onchange="loadData()" id="date-picker">
       </div>
+      <select id="empresa-select" onchange="setEmpresa(this.value)" style="background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 12px;font-size:11px;font-family:'Sora',sans-serif;outline:none;cursor:pointer;">
+        <option value="todas">Todas as empresas</option>
+      </select>
       <button class="btn btn-cyan" id="btn-refresh" onclick="loadData()">↻ Atualizar</button>
     </div>
   </div>
@@ -278,6 +297,8 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 const GH = 'https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main';
 let allNotas = [];
 let activeFilter = 'todos';
+let activeEmpresa = 'todas';
+let empresas = [];
 
 function toggleTheme() {
   const html = document.documentElement;
@@ -356,6 +377,25 @@ async function loadData() {
     });
     allNotas = notas;
 
+    // Detecta empresas pelo cnpj_tomador
+    const empMap = {};
+    notas.forEach(n => {
+      if (n.cnpj_tomador && !empMap[n.cnpj_tomador]) {
+        empMap[n.cnpj_tomador] = n.empresa || n.cnpj_tomador;
+      }
+    });
+    empresas = Object.entries(empMap);
+    const sel = document.getElementById('empresa-select');
+    const prev = sel.value;
+    sel.innerHTML = '<option value="todas">Todas as empresas</option>';
+    empresas.forEach(([cnpj, nome]) => {
+      const opt = document.createElement('option');
+      opt.value = cnpj;
+      opt.textContent = cnpj === '09197874000155' ? 'GLIP OFFICE' : (nome.substring(0,25)+'...');
+      sel.appendChild(opt);
+    });
+    if (prev) sel.value = prev;
+
     const ok    = notas.filter(n => n.status === 'Processado').length;
     const erro  = notas.filter(n => n.status === 'Erro').length;
     const pend  = data.total_pendentes || 0;
@@ -421,6 +461,20 @@ function renderChart(notas) {
     </div>`).join('');
 }
 
+function setEmpresa(cnpj) {
+  activeEmpresa = cnpj;
+  renderNotas();
+  // Recalculate KPIs for selected empresa
+  const filtered = activeEmpresa === 'todas' ? allNotas : allNotas.filter(n => n.cnpj_tomador === activeEmpresa);
+  const ok    = filtered.filter(n => n.status === 'Processado').length;
+  const erro  = filtered.filter(n => n.status === 'Erro').length;
+  const valor = filtered.filter(n => n.status === 'Processado').reduce((s,n) => s+parseFloat(n.valor||0), 0);
+  document.getElementById('k-ok').textContent    = ok;
+  document.getElementById('k-err').textContent   = erro;
+  document.getElementById('k-valor').textContent = formatMoeda(valor);
+  renderChart(filtered);
+}
+
 function setFilter(f) {
   activeFilter = f;
   ['todos','Processado','Erro'].forEach(s => {
@@ -438,7 +492,7 @@ function setFilter(f) {
 
 function renderNotas() {
   const search = (document.getElementById('search').value||'').toLowerCase();
-  let items = allNotas;
+  let items = activeEmpresa === 'todas' ? allNotas : allNotas.filter(n => n.cnpj_tomador === activeEmpresa);
   if (activeFilter!=='todos') items = items.filter(n=>n.status===activeFilter);
   if (search) items = items.filter(n=>(n.nome||'').toLowerCase().includes(search)||(n.nf||'').toLowerCase().includes(search)||(n.cnpj||'').toLowerCase().includes(search));
   document.getElementById('notas-sub').textContent = `${items.length} nota${items.length!==1?'s':''} encontrada${items.length!==1?'s':''}`;
