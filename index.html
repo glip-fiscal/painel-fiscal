@@ -708,7 +708,21 @@ async function loadData() {
     renderChart(getFilteredNotas(notas));
     renderNotas();
     renderPendentes(data.pendentes||'');
-    renderErros(getFilteredNotas(notas).filter(n=>n.status==='Erro'));
+
+    // Busca erros.json separado para o quadro "Notas com Erro"
+    try {
+      const errosResp = await fetch(`${GH}/erros.json?t=${Date.now()}`);
+      if (errosResp.ok) {
+        const errosData = await errosResp.json();
+        const todosErros = (errosData.erros||[]);
+        const errosFiltrados = activeEmpresa === 'todas' ? todosErros : todosErros.filter(n=>n.cnpj_tomador===activeEmpresa);
+        renderErros(errosFiltrados);
+      } else {
+        renderErros([]);
+      }
+    } catch(e) {
+      renderErros([]);
+    }
 
     document.getElementById('ciclo-chip').textContent = `Ciclo ${data.ciclo||'—'}`;
     document.getElementById('chart-sub').textContent = `${selectedDate} · ${t('imp_err')}`;
