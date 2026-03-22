@@ -362,6 +362,7 @@ const GH = 'https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main';
 const USERS_URL = `${GH}/users.json`;
 
 let allNotas = [];
+let allEmpresas = {};
 let activeFilter = 'todos';
 let activeEmpresa = 'todas';
 let currentUser = null;
@@ -481,7 +482,35 @@ function applyTranslations() {
   if (themeEl) themeEl.textContent = isDark ? t('tema_claro') : t('tema_escuro');
 }
 
-// ── THEME ──
+async function loadEmpresas() {
+  try {
+    const resp = await fetch(`${GH}/glip.json?t=${Date.now()}`);
+    if (!resp.ok) return;
+    const data = await resp.json();
+    allEmpresas = {};
+    (Array.isArray(data) ? data : []).forEach(e => {
+      if (e.cnpj && e.nome) allEmpresas[e.cnpj] = e.nome;
+    });
+    populateEmpresaSelect();
+  } catch(e) {}
+}
+
+function populateEmpresaSelect() {
+  const sel = document.getElementById('empresa-select');
+  if (!sel) return;
+  const prev = activeEmpresa !== 'todas' ? activeEmpresa : sel.value;
+  const empFiltro = currentUser?.empresa;
+  sel.innerHTML = `<option value="todas">${t('todas')}</option>`;
+  Object.entries(allEmpresas).forEach(([cnpj, nome]) => {
+    if (empFiltro && empFiltro !== 'todas' && cnpj !== empFiltro) return;
+    const opt = document.createElement('option');
+    opt.value = cnpj;
+    opt.textContent = nome.length > 28 ? nome.substring(0,28)+'...' : nome;
+    sel.appendChild(opt);
+  });
+  if (prev && sel.querySelector(`option[value="${prev}"]`)) { sel.value = prev; activeEmpresa = prev; }
+  if (empFiltro && empFiltro !== 'todas') { sel.value = empFiltro; activeEmpresa = empFiltro; }
+}
 function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.getAttribute('data-theme') === 'dark';
@@ -641,6 +670,7 @@ function showApp() {
   const dp = document.getElementById('date-picker');
   dp.value = todayStr();
   dp.max = todayStr();
+  loadEmpresas();
   loadData();
 }
 
@@ -694,7 +724,7 @@ async function loadData() {
     const prev = activeEmpresa !== 'todas' ? activeEmpresa : sel.value;
     sel.innerHTML = `<option value="todas">${t('todas')}</option>`;
     const empFiltro = currentUser?.empresa;
-    Object.entries(empMap).forEach(([cnpj, nome]) => {
+    Object.entries(allEmpresas && Object.keys(allEmpresas).length ? allEmpresas : empMap).forEach(([cnpj, nome]) => {
       if (empFiltro && empFiltro !== 'todas' && cnpj !== empFiltro) return;
       const opt = document.createElement('option');
       opt.value = cnpj;
