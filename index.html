@@ -249,6 +249,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
     <div class="nav-section" id="nav-sistema">Sistema</div>
     <a class="nav-item" href="#section-fluxos"><span class="nav-icon">⚙️</span> <span id="nav-fluxos">Fluxos</span></a>
     <a class="nav-item admin-only" href="#" onclick="showUsers()" id="nav-users-btn" style="display:none"><span class="nav-icon">👥</span> <span id="nav-users">Usuários</span></a>
+    <a class="nav-item admin-only" href="#" onclick="showEmpresas()" id="nav-empresas-btn" style="display:none"><span class="nav-icon">🏢</span> <span>Empresas</span></a>
     <a class="nav-item admin-only" href="#" onclick="showDocs()" id="nav-docs-btn" style="display:none"><span class="nav-icon">📚</span> <span id="nav-docs">Documentação</span></a>
     <div class="sidebar-footer">
       <div class="user-info">
@@ -664,6 +665,8 @@ function showApp() {
   if (u.perfil === 'admin') {
     const docsBtn = document.getElementById('nav-docs-btn');
     if (docsBtn) docsBtn.style.display = 'flex';
+    const empBtn = document.getElementById('nav-empresas-btn');
+    if (empBtn) empBtn.style.display = 'flex';
   }
   document.getElementById('user-avatar').textContent = u.nome.charAt(0).toUpperCase();
   applyTranslations();
@@ -1172,7 +1175,144 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
 </div>
 
 
-<!-- DOCS MODAL -->
+<!-- EMPRESAS MODAL -->
+<div id="empresas-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:50;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+  <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:640px;margin:0 auto;">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:15px;font-weight:600;">🏢 Gerenciar Empresas</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Empresas cadastradas no glip.json</div>
+      </div>
+      <button onclick="closeEmpresas()" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'Sora',sans-serif;">✕ Fechar</button>
+    </div>
+    <div style="padding:24px;">
+      <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:600;margin-bottom:14px;color:var(--cyan)">+ Adicionar Empresa</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:10px;">
+          <div style="grid-column:span 2;">
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Nome da Empresa</label>
+            <input id="emp-nome" type="text" placeholder="Razão social completa" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">CNPJ</label>
+            <input id="emp-cnpj" type="text" placeholder="00000000000000" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Omie App Key</label>
+            <input id="emp-appkey" type="text" placeholder="App Key do Omie" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+          </div>
+          <div style="grid-column:span 2;">
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Omie App Secret</label>
+            <input id="emp-appsecret" type="text" placeholder="App Secret do Omie" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+          </div>
+        </div>
+        <div id="emp-error" style="color:var(--red);font-size:11px;margin-bottom:8px;display:none;"></div>
+        <button onclick="addEmpresa()" style="background:var(--cyan);border:none;color:white;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">Adicionar</button>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Empresas cadastradas</div>
+      <div id="empresas-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let empresasData = [];
+let empresasSHA = '';
+
+async function showEmpresas() {
+  document.getElementById('empresas-modal').style.display = 'flex';
+  await loadEmpresas2();
+}
+
+function closeEmpresas() {
+  document.getElementById('empresas-modal').style.display = 'none';
+}
+
+async function loadEmpresas2() {
+  const token = localStorage.getItem(GH_TOKEN_KEY);
+  if (!token) {
+    document.getElementById('empresas-list').innerHTML = '<div style="color:var(--red);font-size:12px;">Token GitHub não configurado. Configure em Usuários primeiro.</div>';
+    return;
+  }
+  try {
+    const resp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/glip.json', {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    const data = await resp.json();
+    empresasSHA = data.sha;
+    empresasData = JSON.parse(atob(data.content.replace(/\n/g,'')));
+    renderEmpresasList();
+  } catch(e) {
+    document.getElementById('empresas-list').innerHTML = '<div style="color:var(--red);font-size:12px;">Erro ao carregar empresas.</div>';
+  }
+}
+
+function renderEmpresasList() {
+  const el = document.getElementById('empresas-list');
+  if (!empresasData.length) { el.innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px;">Nenhuma empresa cadastrada</div>'; return; }
+  el.innerHTML = empresasData.map((e,i) => `
+    <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <div style="min-width:0;flex:1;">
+        <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.empresa||e.nome||'—'}</div>
+        <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px;">${e.cnpj||'—'}</div>
+        <div style="font-size:10px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-top:1px;">Key: ${(e.omie_app_key||'').substring(0,8)}...</div>
+      </div>
+      <button onclick="removeEmpresa(${i})" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;flex-shrink:0;">Remover</button>
+    </div>`).join('');
+}
+
+async function addEmpresa() {
+  const nome = document.getElementById('emp-nome').value.trim();
+  const cnpj = document.getElementById('emp-cnpj').value.trim().replace(/\D/g,'');
+  const appKey = document.getElementById('emp-appkey').value.trim();
+  const appSecret = document.getElementById('emp-appsecret').value.trim();
+  const errEl = document.getElementById('emp-error');
+  if (!nome||!cnpj||!appKey||!appSecret) { errEl.textContent='Preencha todos os campos.'; errEl.style.display='block'; return; }
+  if (empresasData.find(e=>e.cnpj===cnpj)) { errEl.textContent='CNPJ já cadastrado.'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+  empresasData.push({ empresa: nome, cnpj, omie_app_key: appKey, omie_app_secret: appSecret });
+  await saveEmpresas();
+  document.getElementById('emp-nome').value='';
+  document.getElementById('emp-cnpj').value='';
+  document.getElementById('emp-appkey').value='';
+  document.getElementById('emp-appsecret').value='';
+  await loadEmpresas();
+  renderEmpresasList();
+}
+
+async function removeEmpresa(idx) {
+  if (!confirm('Remover esta empresa?')) return;
+  empresasData.splice(idx, 1);
+  await saveEmpresas();
+  await loadEmpresas();
+  renderEmpresasList();
+}
+
+async function saveEmpresas() {
+  const token = localStorage.getItem(GH_TOKEN_KEY);
+  if (!token) return;
+  const errEl = document.getElementById('emp-error');
+  try {
+    const getResp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/glip.json', {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    const getData = await getResp.json();
+    empresasSHA = getData.sha;
+    const fileContent = btoa(unescape(encodeURIComponent(JSON.stringify(empresasData, null, 2))));
+    const body = JSON.stringify({ message: 'Atualizar glip.json', content: fileContent, sha: empresasSHA });
+    const putResp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/glip.json', {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body
+    });
+    if (!putResp.ok) throw new Error('Erro ao salvar');
+    if (errEl) { errEl.textContent='✅ Salvo com sucesso!'; errEl.style.display='block'; errEl.style.color='var(--green)'; }
+    setTimeout(()=>{ if(errEl) errEl.style.display='none'; }, 3000);
+  } catch(e) {
+    if (errEl) { errEl.textContent=`❌ Erro: ${e.message}`; errEl.style.display='block'; errEl.style.color='var(--red)'; }
+  }
+}
+</script>
 <div id="docs-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:50;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
   <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:900px;margin:0 auto;">
     
