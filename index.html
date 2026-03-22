@@ -777,7 +777,7 @@ function setEmpresa(cnpj) {
 
 function renderChart(notas) {
   const horas = {};
-  for (let h=7;h<=20;h++) horas[h]={ok:0,erro:0};
+  for (let h=7;h<=23;h++) horas[h]={ok:0,erro:0};
   (notas||[]).forEach(n=>{
     const h=getHora(n.hora);
     if(h!==null&&horas[h]!==undefined){if(n.status==='Processado')horas[h].ok++;else if(n.status==='Erro')horas[h].erro++;}
