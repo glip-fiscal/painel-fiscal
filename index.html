@@ -463,7 +463,7 @@ function applyTranslations() {
     'kpi-badge-valor':'total','kpi-lbl-valor':'valor_total',
     'chart-title':'notas_hora','notas-title':'notas_fiscais',
     'fluxos-title':'status_fluxos','pend-title':'pdfs_pendentes',
-    'err-title':'notas_erro',
+    'pend-sub':'pasta_pend','err-title':'notas_erro','err-sub':'falha',
     'f1-name':'Salvar PDF','f2-name':'Extrair com Claude AI',
     'f3-name':'Integração Omie','f4-name':'Reconciliação Horária',
     'f-ativo':'ativo','leg-ok':'leg_ok','leg-err':'leg_err',
@@ -1268,6 +1268,7 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
       <!-- PROBLEMAS -->
       <div id="doc-problemas" class="doc-panel" style="display:none;">
         <div class="doc-section">
+          <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">Resolvidos anteriormente</div>
           <div class="doc-problem">
             <div class="doc-problem-title">🔧 Claude retornava JSON com marcadores ```json</div>
             <div class="doc-problem-solution"><strong>Solução:</strong> Adicionar ação Redigir antes do Analisar JSON com:<br><code>replace(replace(body('HTTP')?['content'][0]['text'], '```json', ''), '```', '')</code></div>
@@ -1296,45 +1297,104 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
             <div class="doc-problem-title">🔧 trim() não suportado com 2 parâmetros no Power Automate</div>
             <div class="doc-problem-solution"><strong>Solução:</strong> Substituir por <code>substring(var, 0, sub(length(var), 1))</code> para remover última vírgula do array</div>
           </div>
+
+          <div style="font-size:10px;font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:2px;margin:16px 0 10px;">Resolvidos em 21–22/03/2026</div>
+
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 Fluxo 3 — multi-empresa: loop parava na 1ª iteração</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> Condição A (<code>varEncontrado = false</code>) estava dentro do "Aplicar a cada 1", bloqueando a 2ª iteração.<br><strong>Solução:</strong> Mover a Condição A para depois do loop interno. Adicionar "Definir varEncontrado = false" antes do loop para reset a cada arquivo.</div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 Fluxo 3 — arquivo não encontrado ao reprocessar nota com erro</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> "Mover arquivo" sempre buscava de /Pendentes, mas nota reprocessada estava em /Erro.<br><strong>Solução:</strong> Trocar caminho fixo por <code>concat('/E-mails/', if(greater(length(body('Obter_itens')?['value']),0),'Erro','Pendentes'), '/', NomeArquivo)</code></div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 Fluxo 3 — item com Erro permanecia na lista após reprocessamento</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> Ao reprocessar com sucesso, o item antigo com Status=Erro não era removido da lista Lancamentos.<br><strong>Solução:</strong> Após mover o PDF de /Erro para /Processados, adicionar "Excluir item" usando o ID do item com Erro retornado pelo "Obter itens".</div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 Fluxo 3 — nota lançada duas vezes no Omie (duplicata)</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> HTTP do Omie com timeout ativava retentativa automática do Power Automate.<br><strong>Solução:</strong> No bloco HTTP do Omie → Configurações → Política de repetição = Nenhuma.</div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 Painel — arquivo JSON criado com data errada após meia-noite</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> <code>varDataHoraAtual</code> usava <code>utcNow()</code> — após 21h de Brasília já virava o dia seguinte em UTC.<br><strong>Solução:</strong> Trocar por <code>convertTimeZone(utcNow(), 'UTC', 'E. South America Standard Time', 'yyyy-MM-ddTHH:mm:ss')</code></div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 Painel — erros de dias anteriores somiam ao filtrar por data</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> Quadro "Notas com Erro" lia do array <code>notas</code> do JSON diário, filtrado por data.<br><strong>Solução:</strong> Criar <code>erros.json</code> separado, mantido pelo Fluxo 4 com todos os erros em aberto. Painel lê desse arquivo independente da data selecionada.</div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 Painel — filtro de empresa zerava ao trocar de data sem lançamentos</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> Dropdown de empresas era populado pelas notas do dia — dias sem lançamento ficavam sem opções.<br><strong>Solução:</strong> Criar <code>glip.json</code> no GitHub com lista de empresas cadastradas. Painel carrega empresas desse arquivo ao iniciar.</div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 Painel — PDFs pendentes sumiam ao trocar de data</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> Quadro "PDFs Pendentes" lia do JSON do dia selecionado.<br><strong>Solução:</strong> Criar <code>pendentes.json</code> separado, mantido pelo Fluxo 4 com estado atual da pasta /Pendentes. Painel lê desse arquivo independente da data.</div>
+          </div>
         </div>
       </div>
 
       <!-- ROADMAP -->
       <div id="doc-roadmap" class="doc-panel" style="display:none;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">Clique em um item para marcar como concluído. Items concluídos ficam riscados.</div>
         <div class="doc-section">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
+
             <div class="doc-road-card doc-road-high">
               <div class="doc-road-badge">🔴 Alta prioridade</div>
-              <ul class="doc-road-list">
-                <li>Categoria automática por fornecedor no Omie</li>
-                <li>Conta corrente automática por empresa</li>
-                <li>Corrigir chave NF-e — extrair 44 chars corretos</li>
+              <ul class="doc-road-list" id="road-high">
+                <li class="road-item" onclick="toggleRoadItem(this)">Tela de cadastro de empresa no painel</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Tela de cadastro de categoria por empresa</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Categoria automática por fornecedor no Omie</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Conta corrente automática por empresa</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Corrigir chave NF-e — extrair 44 chars corretos</li>
               </ul>
             </div>
+
             <div class="doc-road-card doc-road-med">
               <div class="doc-road-badge">🟡 Médio prazo</div>
-              <ul class="doc-road-list">
-                <li>Biometria real (migrar para Netlify + Supabase)</li>
-                <li>Backup automático mensal da lista Lancamentos</li>
-                <li>Notificação no Teams em caso de erro</li>
+              <ul class="doc-road-list" id="road-med">
+                <li class="road-item" onclick="toggleRoadItem(this)">Fluxograma interativo e moderno no painel</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Biometria real (migrar para Netlify + Supabase)</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Backup automático mensal da lista Lancamentos</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Notificação no Teams em caso de erro</li>
               </ul>
             </div>
+
             <div class="doc-road-card doc-road-low">
               <div class="doc-road-badge">🟢 Qualidade de vida</div>
-              <ul class="doc-road-list">
-                <li>Dashboard de KPIs históricos por mês</li>
-                <li>Exportar relatório em PDF ou Excel</li>
-                <li>Suporte a múltiplos e-mails monitorados</li>
+              <ul class="doc-road-list" id="road-low">
+                <li class="road-item" onclick="toggleRoadItem(this)">Dashboard de KPIs históricos por mês</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Exportar relatório em PDF ou Excel</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Suporte a múltiplos e-mails monitorados</li>
               </ul>
             </div>
+
             <div class="doc-road-card doc-road-scale">
               <div class="doc-road-badge">🔵 Escala</div>
-              <ul class="doc-road-list">
-                <li>Multi-tenant — múltiplas empresas independentes</li>
-                <li>App mobile nativo (PWA)</li>
-                <li>Integração com outros ERPs além do Omie</li>
+              <ul class="doc-road-list" id="road-scale">
+                <li class="road-item" onclick="toggleRoadItem(this)">Multi-tenant — múltiplas empresas independentes</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">App mobile nativo (PWA)</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Integração com outros ERPs além do Omie</li>
               </ul>
             </div>
+
+            <div class="doc-road-card" style="border-color:var(--green);grid-column:span 2;">
+              <div class="doc-road-badge" style="color:var(--green);">✅ Concluídos</div>
+              <ul class="doc-road-list" id="road-done">
+                <li class="road-item road-done">Suporte multi-empresa no Fluxo 3 (21/03/2026)</li>
+                <li class="road-item road-done">Limpeza automática de erros — excluir item Erro após reprocessamento (22/03/2026)</li>
+                <li class="road-item road-done">Correção de duplicata no Omie — política de repetição (22/03/2026)</li>
+                <li class="road-item road-done">Painel — erros.json separado para quadro "Ao vivo" (22/03/2026)</li>
+                <li class="road-item road-done">Painel — pendentes.json separado para quadro "Ao vivo" (22/03/2026)</li>
+                <li class="road-item road-done">Painel — filtro de empresa via glip.json, sempre visível (22/03/2026)</li>
+                <li class="road-item road-done">Painel — borda verde em notas importadas (22/03/2026)</li>
+                <li class="road-item road-done">Painel — gráfico de horas estendido até 23h (22/03/2026)</li>
+                <li class="road-item road-done">Painel — fuso horário Brasília no arquivo diário (22/03/2026)</li>
+              </ul>
+            </div>
+
           </div>
         </div>
       </div>
@@ -1474,4 +1534,21 @@ setInterval(()=>{ if(currentUser) loadData(); }, 5*60*1000);
 .doc-problem-solution code{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:10px;}
 .doc-road-card{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px;}
 .doc-road-badge{font-size:11px;font-weight:600;margin-bottom:10px;}
-.doc-road-list{list-style:none;display:flex;flex-
+.doc-road-list{list-style:none;display:flex;flex-direction:column;gap:4px;padding:0;margin:0;}
+.road-item{font-size:11px;color:var(--muted);padding:5px 0;border-bottom:1px solid var(--border);line-height:1.5;cursor:pointer;transition:all .15s;user-select:none;list-style:none;}
+.road-item:last-child{border-bottom:none;}
+.road-item:hover:not(.road-done){color:var(--text);}
+.road-item.road-done{text-decoration:line-through;opacity:0.5;cursor:default;}
+</style>
+<script>
+function toggleRoadItem(el) {
+  if (el.classList.contains('road-done')) return;
+  el.classList.add('road-done');
+  const date = new Date().toLocaleDateString('pt-BR');
+  el.textContent = el.textContent + ' (' + date + ')';
+  const done = document.getElementById('road-done');
+  if (done) { const li = document.createElement('li'); li.className='road-item road-done'; li.textContent=el.textContent; done.appendChild(li); }
+}
+</script>
+</body>
+</html>
