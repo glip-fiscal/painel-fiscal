@@ -129,6 +129,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 .nota-row{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;transition:border-color .15s;gap:8px;}
 .nota-row:hover{border-color:var(--border2);}
 .nota-row.erro-row{border-left:2px solid var(--red);}
+.nota-row.ok-row{border-left:2px solid var(--green);}
 .nota-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
 .nota-nf{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--cyan);background:var(--cyan-dim);padding:2px 6px;border-radius:4px;white-space:nowrap;flex-shrink:0;}
 .nota-nf.erro{color:var(--red);background:var(--red-dim);}
@@ -686,13 +687,12 @@ async function loadData() {
     });
     allNotas = notas;
 
-    // Empresas
+    // Empresas — persiste seleção ao trocar de dia
     const empMap = {};
     notas.forEach(n => { if (n.cnpj_tomador && !empMap[n.cnpj_tomador]) empMap[n.cnpj_tomador] = n.empresa||n.cnpj_tomador; });
     const sel = document.getElementById('empresa-select');
-    const prev = sel.value;
+    const prev = activeEmpresa !== 'todas' ? activeEmpresa : sel.value;
     sel.innerHTML = `<option value="todas">${t('todas')}</option>`;
-    // Se usuário tem empresa restrita, só mostra a dele
     const empFiltro = currentUser?.empresa;
     Object.entries(empMap).forEach(([cnpj, nome]) => {
       if (empFiltro && empFiltro !== 'todas' && cnpj !== empFiltro) return;
@@ -701,15 +701,17 @@ async function loadData() {
       opt.textContent = nome.length > 28 ? nome.substring(0,28)+'...' : nome;
       sel.appendChild(opt);
     });
-    if (prev && sel.querySelector(`option[value="${prev}"]`)) sel.value = prev;
+    if (prev && sel.querySelector(`option[value="${prev}"]`)) { sel.value = prev; activeEmpresa = prev; }
     if (empFiltro && empFiltro !== 'todas') { sel.value = empFiltro; activeEmpresa = empFiltro; }
 
     updateKPIs(notas, data.total_pendentes||0);
     renderChart(getFilteredNotas(notas));
     renderNotas();
+
+    // Pendentes — sempre mostra no quadrinho independente do dia (item 4)
     renderPendentes(data.pendentes||'');
 
-    // Busca erros.json separado para o quadro "Notas com Erro"
+    // Erros — lê do erros.json separado, filtrado por empresa (itens 3 e 4)
     try {
       const errosResp = await fetch(`${GH}/erros.json?t=${Date.now()}`);
       if (errosResp.ok) {
@@ -773,6 +775,13 @@ function setEmpresa(cnpj) {
   updateKPIs(allNotas, parseInt(document.getElementById('k-pend').textContent)||0);
   renderChart(getFilteredNotas());
   renderNotas();
+  // Re-filtra erros por empresa
+  fetch(`${GH}/erros.json?t=${Date.now()}`).then(r=>r.ok?r.json():null).then(data=>{
+    if(!data) return;
+    const erros = (data.erros||[]);
+    const filtrados = cnpj === 'todas' ? erros : erros.filter(n=>n.cnpj_tomador===cnpj);
+    renderErros(filtrados);
+  }).catch(()=>{});
 }
 
 function renderChart(notas) {
@@ -819,7 +828,8 @@ function renderNotas() {
   if(!items.length){document.getElementById('notas-lista').innerHTML=`<div class="empty-msg">${t('nenhuma')}</div>`;return;}
   document.getElementById('notas-lista').innerHTML=items.map(n=>{
     const isErro=n.status==='Erro';
-    return `<div class="nota-row${isErro?' erro-row':''}">
+    const isOk=n.status==='Processado';
+    return `<div class="nota-row${isErro?' erro-row':isOk?' ok-row':''}">
       <div class="nota-left">
         <span class="nota-nf${isErro?' erro':''}">NF ${n.nf||'—'}</span>
         <div class="nota-info">
