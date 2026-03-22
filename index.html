@@ -739,7 +739,18 @@ async function loadData() {
     renderNotas();
 
     // Pendentes — sempre mostra no quadrinho independente do dia (item 4)
-    renderPendentes(data.pendentes||'');
+    // Busca pendentes.json separado com estado atual da pasta
+    try {
+      const pendResp = await fetch(`${GH}/pendentes.json?t=${Date.now()}`);
+      if (pendResp.ok) {
+        const pendData = await pendResp.json();
+        renderPendentes(pendData.pendentes||'');
+      } else {
+        renderPendentes(data.pendentes||'');
+      }
+    } catch(e) {
+      renderPendentes(data.pendentes||'');
+    }
 
     // Erros — lê do erros.json separado, filtrado por empresa (itens 3 e 4)
     try {
