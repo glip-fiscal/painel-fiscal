@@ -489,7 +489,7 @@ async function loadEmpresas() {
     const data = await resp.json();
     allEmpresas = {};
     (Array.isArray(data) ? data : []).forEach(e => {
-      if (e.cnpj && e.nome) allEmpresas[e.cnpj] = e.nome;
+      if (e.cnpj && e.empresa) allEmpresas[e.cnpj] = e.empresa;
     });
     populateEmpresaSelect();
   } catch(e) {}
