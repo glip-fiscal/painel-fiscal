@@ -464,7 +464,7 @@ function applyTranslations() {
     'kpi-badge-valor':'total','kpi-lbl-valor':'valor_total',
     'chart-title':'notas_hora','notas-title':'notas_fiscais',
     'fluxos-title':'status_fluxos','pend-title':'pdfs_pendentes',
-    'err-title':'notas_erro',
+    'pend-sub':'pasta_pend','err-title':'notas_erro','err-sub':'falha',
     'f1-name':'Salvar PDF','f2-name':'Extrair com Claude AI',
     'f3-name':'Integração Omie','f4-name':'Reconciliação Horária',
     'f-ativo':'ativo','leg-ok':'leg_ok','leg-err':'leg_err',
@@ -1438,7 +1438,7 @@ async function saveEmpresas() {
             <div class="doc-problem-solution"><strong>Solução:</strong> Substituir por <code>substring(var, 0, sub(length(var), 1))</code> para remover última vírgula do array</div>
           </div>
 
-          <div style="font-size:10px;font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:2px;margin:16px 0 10px;">Resolvidos em 21–22/03/2026</div>
+          <div style="font-size:10px;font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:2px;margin:16px 0 10px;">Resolvidos em 21–23/03/2026</div>
 
           <div class="doc-problem">
             <div class="doc-problem-title">🔧 Fluxo 3 — multi-empresa: loop parava na 1ª iteração</div>
@@ -1472,6 +1472,14 @@ async function saveEmpresas() {
             <div class="doc-problem-title">🔧 Painel — PDFs pendentes sumiam ao trocar de data</div>
             <div class="doc-problem-solution"><strong>Causa:</strong> Quadro "PDFs Pendentes" lia do JSON do dia selecionado.<br><strong>Solução:</strong> Criar <code>pendentes.json</code> separado, mantido pelo Fluxo 4 com estado atual da pasta /Pendentes. Painel lê desse arquivo independente da data.</div>
           </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 Fluxo 3 — razao_social com mais de 60 caracteres causa erro 502 vazio (23/03/2026)</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> Omie limita razao_social a 60 caracteres. Quando excede, retorna <code>SOAP-ENV:Client-7002</code> via 502 com body vazio, deixando varCodigoFornecedor vazio e quebrando o HTTP 2 com InvalidTemplate.<br><strong>Solução:</strong> No body do HTTP 1, usar <code>substring(triggerBody()?['NomeFornecedor'], 0, min(length(triggerBody()?['NomeFornecedor']), 60))</code></div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 Fluxo 3 — glip.json no SharePoint não sincronizado com painel (23/03/2026)</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> Empresas cadastradas no painel salvavam no GitHub mas o Fluxo 3 lia do SharePoint — dois arquivos diferentes.<br><strong>Solução:</strong> Substituir "Enviar uma solicitação HTTP ao SharePoint" por HTTP GET simples para <code>https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/glip.json</code>. Atualizar Analisar JSON 1 para usar <code>body('HTTP')</code>.</div>
+          </div>
         </div>
       </div>
 
@@ -1484,8 +1492,10 @@ async function saveEmpresas() {
             <div class="doc-road-card doc-road-high">
               <div class="doc-road-badge">🔴 Alta prioridade</div>
               <ul class="doc-road-list" id="road-high">
-                <li class="road-item" onclick="toggleRoadItem(this)">Tela de cadastro de empresa no painel</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Tela de cadastro de categoria por empresa</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Criar fluxo "GLIP - Criar Categoria Omie" + tela no painel</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Tornar codigo_categoria dinâmico no Fluxo 3 via glip.json</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Filtrar boletos — subir apenas notas fiscais (Fluxo 2)</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">Notas que chegam como link no email — pesquisar solução</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Categoria automática por fornecedor no Omie</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Conta corrente automática por empresa</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Corrigir chave NF-e — extrair 44 chars corretos</li>
@@ -1532,6 +1542,9 @@ async function saveEmpresas() {
                 <li class="road-item road-done">Painel — borda verde em notas importadas (22/03/2026)</li>
                 <li class="road-item road-done">Painel — gráfico de horas estendido até 23h (22/03/2026)</li>
                 <li class="road-item road-done">Painel — fuso horário Brasília no arquivo diário (22/03/2026)</li>
+                <li class="road-item road-done">Tela de cadastro de empresa no painel (23/03/2026)</li>
+                <li class="road-item road-done">Fluxo 3 — razao_social limitada a 60 chars (23/03/2026)</li>
+                <li class="road-item road-done">Fluxo 3 — leitura do glip.json via GitHub em vez do SharePoint (23/03/2026)</li>
               </ul>
             </div>
 
