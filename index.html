@@ -1262,7 +1262,7 @@ function renderEmpresasList() {
     <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
         <div style="min-width:0;flex:1;">
-          <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.empresa||e.nome||'—'}</div>
+          <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${decodeURIComponent(escape(e.empresa||e.nome||'—'))}</div>
           <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px;">${e.cnpj||'—'}</div>
           <div style="font-size:10px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-top:1px;">Key: ${(e.omie_app_key||'').substring(0,8)}...</div>
           ${categoriaBadge}
@@ -1278,18 +1278,30 @@ function renderEmpresasList() {
 
 const SETUP_CATEGORIA_URL = 'https://default24f64a5704b94099b493b15cb6c1f2.81.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6005e981db8048b68de705cc130f4fd1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6SuuY-5jDwtw6M5oTeyS3-osrEoFdm-A2Sic5-c8IiE';
 
-async function setupCategoria(cnpj, idx) {
+function setupCategoria(cnpj, idx) {
   const emp = empresasData[idx];
-  if (!confirm(`Criar categoria "A Classificar" no Omie para:\n${emp.empresa||emp.nome}\nCNPJ: ${cnpj}\n\nContinuar?`)) return;
+  const nome = emp.empresa || emp.nome || '—';
+  document.getElementById('setup-cat-nome').textContent = nome;
+  document.getElementById('setup-cat-cnpj').textContent = cnpj;
+  document.getElementById('setup-cat-modal').style.display = 'flex';
+  document.getElementById('setup-cat-modal').dataset.cnpj = cnpj;
+  document.getElementById('setup-cat-modal').dataset.idx = idx;
+}
 
-  // Mostra loading no botão
-  const btn = event.target;
-  const originalText = btn.innerHTML;
-  btn.innerHTML = '⏳ Aguarde...';
-  btn.disabled = true;
-  btn.style.opacity = '0.6';
+function closeSetupCatModal() {
+  document.getElementById('setup-cat-modal').style.display = 'none';
+}
 
+async function confirmarSetupCategoria() {
+  const modal = document.getElementById('setup-cat-modal');
+  const cnpj = modal.dataset.cnpj;
+  const idx = modal.dataset.idx;
   const errEl = document.getElementById('emp-error');
+
+  // Fecha modal e mostra loading
+  modal.style.display = 'none';
+  const btns = document.querySelectorAll(`[onclick*="setupCategoria('${cnpj}'"]`);
+  btns.forEach(b => { b.innerHTML = '⏳ Criando...'; b.disabled = true; b.style.opacity = '0.6'; });
 
   try {
     const resp = await fetch(SETUP_CATEGORIA_URL, {
@@ -1310,9 +1322,7 @@ async function setupCategoria(cnpj, idx) {
       throw new Error(data.mensagem || 'Resposta inesperada do fluxo');
     }
   } catch(e) {
-    btn.innerHTML = originalText;
-    btn.disabled = false;
-    btn.style.opacity = '1';
+    await loadEmpresas2();
     errEl.textContent = `❌ Erro: ${e.message}`;
     errEl.style.display = 'block';
     errEl.style.color = 'var(--red)';
@@ -1371,6 +1381,33 @@ async function saveEmpresas() {
   }
 }
 </script>
+<!-- SETUP CATEGORIA MODAL -->
+<div id="setup-cat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:60;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:420px;animation:fadeUp .2s ease;">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+      <span style="font-size:20px;">⚙️</span>
+      <div>
+        <div style="font-size:14px;font-weight:600;">Setup de Categoria</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Criar categoria "A Classificar" no Omie</div>
+      </div>
+    </div>
+    <div style="padding:20px 24px;">
+      <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Empresa</div>
+        <div style="font-size:13px;font-weight:600;" id="setup-cat-nome">—</div>
+        <div style="font-size:11px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-top:4px;" id="setup-cat-cnpj">—</div>
+      </div>
+      <div style="background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--amber);margin-bottom:20px;line-height:1.6;">
+        ⚠️ O fluxo irá buscar um slot disponível nas categorias de <strong>Despesa</strong> do Omie e renomear para <strong>"A Classificar"</strong>. O código será salvo no glip.json.
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="closeSetupCatModal()" style="flex:1;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;font-size:12px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;">Cancelar</button>
+        <button onclick="confirmarSetupCategoria()" style="flex:1;background:var(--cyan);border:none;color:white;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">✅ Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="docs-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:50;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
   <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:900px;margin:0 auto;">
     
