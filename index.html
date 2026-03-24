@@ -1499,6 +1499,10 @@ async function saveEmpresas() {
                 <li class="road-item" onclick="toggleRoadItem(this)">Categoria automática por fornecedor no Omie</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Conta corrente automática por empresa</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Corrigir chave NF-e — extrair 44 chars corretos</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Filtro de tipo de documento por empresa no glip.json (NF-e, NFS-e, Boleto) — Fluxo 1/2</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Detecção de fraude — validar CNPJ, valor e fornecedor antes de subir para o Omie</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Limites de caracteres Omie — mapear todos os campos e aplicar substring preventivo</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Multi-email — suporte a vários e-mails monitorados, um por empresa (Fluxo 1 robusto)</li>
               </ul>
             </div>
 
@@ -1509,6 +1513,8 @@ async function saveEmpresas() {
                 <li class="road-item" onclick="toggleRoadItem(this)">Biometria real (migrar para Netlify + Supabase)</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Backup automático mensal da lista Lancamentos</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Notificação no Teams em caso de erro</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Provisões — cruzar nota real recebida com provisão lançada no Omie pelo CNPJ+mês+valor</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Provisões — tela no painel para gerenciar e vincular notas reais a provisões existentes</li>
               </ul>
             </div>
 
@@ -1527,6 +1533,19 @@ async function saveEmpresas() {
                 <li class="road-item" onclick="toggleRoadItem(this)">Multi-tenant — múltiplas empresas independentes</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">App mobile nativo (PWA)</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Integração com outros ERPs além do Omie</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Fluxo 1 multi-email — um endereço central direciona para N empresas automaticamente</li>
+              </ul>
+            </div>
+
+            <div class="doc-road-card" style="border-color:#A78BFA;grid-column:span 2;">
+              <div class="doc-road-badge" style="color:#A78BFA;">🧠 Ideias em discussão — precisam de decisão de arquitetura</div>
+              <ul class="doc-road-list">
+                <li class="road-item" onclick="toggleRoadItem(this)">💡 Provisões: estratégia A — consultar Omie pela API (ConsultarContaPagar por CNPJ+competência) e marcar como "nota real recebida" ao encontrar correspondência</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">💡 Provisões: estratégia B — criar campo "TipoLancamento" na lista Lancamentos (Provisão / Nota Real) e cruzar internamente pelo Fluxo 4</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">💡 Fraude: estratégia A — Claude AI analisa o PDF e retorna score de confiança antes de subir ao Omie</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">💡 Fraude: estratégia B — whitelist de CNPJs por empresa no glip.json — só sobe fornecedores cadastrados</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">💡 Multi-email: estratégia A — um e-mail único por empresa (ex: nf-glip@glip.com.br, nf-nano@glip.com.br)</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">💡 Multi-email: estratégia B — um e-mail central que identifica a empresa pelo remetente ou pelo CNPJ tomador da nota</li>
               </ul>
             </div>
 
