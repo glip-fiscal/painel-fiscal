@@ -1250,15 +1250,73 @@ async function loadEmpresas2() {
 function renderEmpresasList() {
   const el = document.getElementById('empresas-list');
   if (!empresasData.length) { el.innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px;">Nenhuma empresa cadastrada</div>'; return; }
-  el.innerHTML = empresasData.map((e,i) => `
-    <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
-      <div style="min-width:0;flex:1;">
-        <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.empresa||e.nome||'—'}</div>
-        <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px;">${e.cnpj||'—'}</div>
-        <div style="font-size:10px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-top:1px;">Key: ${(e.omie_app_key||'').substring(0,8)}...</div>
+  el.innerHTML = empresasData.map((e,i) => {
+    const temCategoria = e.codigo_categoria && e.codigo_categoria.trim() !== '';
+    const categoriaBadge = temCategoria
+      ? `<span style="font-size:10px;color:var(--green);font-family:'JetBrains Mono',monospace;margin-top:2px;display:block;">✅ Categoria: ${e.codigo_categoria}</span>`
+      : `<span style="font-size:10px;color:var(--amber);margin-top:2px;display:block;">⚠️ Sem categoria configurada</span>`;
+    const btnCategoria = temCategoria
+      ? `<button onclick="setupCategoria('${e.cnpj}', ${i})" style="background:var(--green-dim);border:1px solid rgba(34,197,94,.2);color:var(--green);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;flex-shrink:0;">✅ ${e.codigo_categoria}</button>`
+      : `<button onclick="setupCategoria('${e.cnpj}', ${i})" style="background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);color:var(--amber);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;flex-shrink:0;">⚙️ Setup Categoria</button>`;
+    return `
+    <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div style="min-width:0;flex:1;">
+          <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.empresa||e.nome||'—'}</div>
+          <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px;">${e.cnpj||'—'}</div>
+          <div style="font-size:10px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-top:1px;">Key: ${(e.omie_app_key||'').substring(0,8)}...</div>
+          ${categoriaBadge}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          ${btnCategoria}
+          <button onclick="removeEmpresa(${i})" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">Remover</button>
+        </div>
       </div>
-      <button onclick="removeEmpresa(${i})" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;flex-shrink:0;">Remover</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
+
+const SETUP_CATEGORIA_URL = 'https://default24f64a5704b94099b493b15cb6c1f2.81.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6005e981db8048b68de705cc130f4fd1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6SuuY-5jDwtw6M5oTeyS3-osrEoFdm-A2Sic5-c8IiE';
+
+async function setupCategoria(cnpj, idx) {
+  const emp = empresasData[idx];
+  if (!confirm(`Criar categoria "A Classificar" no Omie para:\n${emp.empresa||emp.nome}\nCNPJ: ${cnpj}\n\nContinuar?`)) return;
+
+  // Mostra loading no botão
+  const btn = event.target;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ Aguarde...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+
+  const errEl = document.getElementById('emp-error');
+
+  try {
+    const resp = await fetch(SETUP_CATEGORIA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ empresa_cnpj: cnpj })
+    });
+
+    const data = await resp.json();
+
+    if (data.codigo_categoria) {
+      errEl.textContent = `✅ Categoria criada com sucesso! Código: ${data.codigo_categoria}`;
+      errEl.style.display = 'block';
+      errEl.style.color = 'var(--green)';
+      setTimeout(() => { errEl.style.display = 'none'; }, 5000);
+      await loadEmpresas2();
+    } else {
+      throw new Error(data.mensagem || 'Resposta inesperada do fluxo');
+    }
+  } catch(e) {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    errEl.textContent = `❌ Erro: ${e.message}`;
+    errEl.style.display = 'block';
+    errEl.style.color = 'var(--red)';
+  }
 }
 
 async function addEmpresa() {
@@ -1544,7 +1602,7 @@ async function saveEmpresas() {
                 <li class="road-item" onclick="toggleRoadItem(this)">💡 Provisões: estratégia B — criar campo "TipoLancamento" na lista Lancamentos (Provisão / Nota Real) e cruzar internamente pelo Fluxo 4</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">💡 Fraude: estratégia A — Claude AI analisa o PDF e retorna score de confiança antes de subir ao Omie</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">💡 Fraude: estratégia B — whitelist de CNPJs por empresa no glip.json — só sobe fornecedores cadastrados</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">💡 Multi-email: estratégia A — um e-mail único por empresa (ex: nf-glip@glip.com.br, nf-nano@glip.com.br)</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">💡 Multi-email: estratégia A — um e-mail único por empresa (ex: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3658501b515a5f4676515a5f461855595b185444">[email&#160;protected]</a>, <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="91fff7bcfff0fffed1f6fdf8e1bff2fefcbff3e3">[email&#160;protected]</a>)</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">💡 Multi-email: estratégia B — um e-mail central que identifica a empresa pelo remetente ou pelo CNPJ tomador da nota</li>
               </ul>
             </div>
@@ -1712,15 +1770,7 @@ async function saveEmpresas() {
 .road-item:hover:not(.road-done){color:var(--text);}
 .road-item.road-done{text-decoration:line-through;opacity:0.5;cursor:default;}
 </style>
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 function toggleRoadItem(el) {
   if (el.classList.contains('road-done')) return;
-  el.classList.add('road-done');
-  const date = new Date().toLocaleDateString('pt-BR');
-  el.textContent = el.textContent + ' (' + date + ')';
-  const done = document.getElementById('road-done');
-  if (done) { const li = document.createElement('li'); li.className='road-item road-done'; li.textContent=el.textContent; done.appendChild(li); }
-}
-</script>
-</body>
-</html>
+  el.classList.add
