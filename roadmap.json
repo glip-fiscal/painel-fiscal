@@ -1,10 +1,6 @@
 {
   "road-high": [
     {
-      "text": "🔴 F3 — Adicionar chamada HTTP para o F7 após sucesso no lançamento",
-      "done": false
-    },
-    {
       "text": "Notas que chegam como link no email — pesquisar solução",
       "done": false
     },
@@ -188,6 +184,10 @@
     },
     {
       "text": "🔴 F7 — Implementar Baixa Automática de Provisões no Power Automate",
+      "done": true
+    },
+    {
+      "text": "🔴 F3 — Adicionar chamada HTTP para o F7 após sucesso no lançamento",
       "done": true
     }
   ]
