@@ -249,7 +249,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
     <div class="nav-section" id="nav-sistema">Sistema</div>
     <a class="nav-item" href="#section-fluxos"><span class="nav-icon">⚙️</span> <span id="nav-fluxos">Fluxos</span></a>
     <a class="nav-item admin-only" href="#" onclick="showUsers()" id="nav-users-btn" style="display:none"><span class="nav-icon">👥</span> <span id="nav-users">Usuários</span></a>
-    <a class="nav-item admin-only" href="#" onclick="showEmpresas()" id="nav-empresas-btn" style="display:none"><span class="nav-icon">🏢</span> <span>Empresas</span></a>
+    <a class="nav-item admin-only" href="#" onclick="showPaginaEmpresas()" id="nav-empresas-btn" style="display:none"><span class="nav-icon">🏢</span> <span>Empresas</span></a>
     <a class="nav-item admin-only" href="#" onclick="showDocs()" id="nav-docs-btn" style="display:none"><span class="nav-icon">📚</span> <span id="nav-docs">Documentação</span></a>
     <div class="sidebar-footer">
       <div class="user-info">
@@ -268,7 +268,53 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 
   <main class="main">
     <div class="error-banner" id="error-banner">⚠️ <span id="error-msg"></span></div>
-    <div class="page-header">
+
+    <!-- PÁGINA EMPRESAS -->
+    <div id="page-empresas" style="display:none;">
+      <div class="page-header">
+        <div class="page-title">
+          <h1>🏢 Empresas</h1>
+          <p>Gerencie as empresas conectadas ao GLIP</p>
+        </div>
+        <div class="header-right">
+          <button class="btn btn-cyan" onclick="loadPaginaEmpresas()">↻ Atualizar</button>
+        </div>
+      </div>
+
+      <!-- Formulário adicionar -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div><div class="card-title" style="color:var(--cyan);">+ Adicionar Empresa</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:12px;">
+          <div style="grid-column:span 2;">
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Nome da Empresa</label>
+            <input id="pg-emp-nome" type="text" placeholder="Razão social completa" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">CNPJ</label>
+            <input id="pg-emp-cnpj" type="text" placeholder="00000000000000" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Omie App Key</label>
+            <input id="pg-emp-appkey" type="text" placeholder="App Key do Omie" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+          </div>
+          <div style="grid-column:span 2;">
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Omie App Secret</label>
+            <input id="pg-emp-appsecret" type="text" placeholder="App Secret do Omie" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+          </div>
+        </div>
+        <div id="pg-emp-error" style="color:var(--red);font-size:11px;margin-bottom:8px;display:none;"></div>
+        <button onclick="addEmpresaPagina()" style="background:var(--cyan);border:none;color:white;border-radius:8px;padding:9px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">Adicionar</button>
+      </div>
+
+      <!-- Lista empresas -->
+      <div class="section-label">Empresas Cadastradas</div>
+      <div id="pg-empresas-list"><div class="empty-msg">Carregando...</div></div>
+    </div>
+
+    <div id="page-main">
+    <div class="page-header" id="main-page-header">
       <div class="page-title">
         <h1 id="page-h1">Painel Fiscal</h1>
         <p id="page-sub">—</p>
@@ -355,8 +401,9 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
         </div>
       </div>
     </div>
+    </div><!-- /page-main fechamento original -->
   </main>
-</div>
+</div><!-- /app -->
 
 <script>
 const GH = 'https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main';
@@ -1280,7 +1327,7 @@ const SETUP_CATEGORIA_URL = 'https://default24f64a5704b94099b493b15cb6c1f2.81.en
 
 function setupCategoria(cnpj, idx) {
   const emp = empresasData[idx];
-  const nome = emp.empresa || emp.nome || '—';
+  const nome = fixEncoding(emp.empresa || emp.nome || '—');
   document.getElementById('setup-cat-nome').textContent = nome;
   document.getElementById('setup-cat-cnpj').textContent = cnpj;
   document.getElementById('setup-cat-modal').style.display = 'flex';
@@ -1317,16 +1364,133 @@ async function confirmarSetupCategoria() {
       errEl.style.display = 'block';
       errEl.style.color = 'var(--green)';
       setTimeout(() => { errEl.style.display = 'none'; }, 5000);
-      await loadEmpresas2();
+      const source = document.getElementById('setup-cat-modal').dataset.source;
+      if (source === 'page') { await loadPaginaEmpresas(); } else { await loadEmpresas2(); }
     } else {
       throw new Error(data.mensagem || 'Resposta inesperada do fluxo');
     }
   } catch(e) {
-    await loadEmpresas2();
+    const source = document.getElementById('setup-cat-modal').dataset.source;
+    if (source === 'page') { await loadPaginaEmpresas(); } else { await loadEmpresas2(); }
     errEl.textContent = `❌ Erro: ${e.message}`;
     errEl.style.display = 'block';
     errEl.style.color = 'var(--red)';
   }
+}
+
+function fixEncoding(str) {
+  try { return decodeURIComponent(escape(str)); } catch(e) { return str; }
+}
+
+function showPaginaEmpresas() {
+  document.getElementById('page-empresas').style.display = 'block';
+  document.getElementById('page-main').style.display = 'none';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-empresas-btn').classList.add('active');
+  loadPaginaEmpresas();
+}
+
+async function loadPaginaEmpresas() {
+  const token = localStorage.getItem(GH_TOKEN_KEY);
+  if (!token) {
+    document.getElementById('pg-empresas-list').innerHTML = '<div style="color:var(--red);font-size:12px;padding:16px;">Token GitHub não configurado. Configure em Usuários primeiro.</div>';
+    return;
+  }
+  document.getElementById('pg-empresas-list').innerHTML = '<div class="empty-msg">Carregando...</div>';
+  try {
+    const resp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/glip.json', {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    const data = await resp.json();
+    empresasSHA = data.sha;
+    empresasData = JSON.parse(atob(data.content.replace(/\n/g,'')));
+    renderPaginaEmpresas();
+  } catch(e) {
+    document.getElementById('pg-empresas-list').innerHTML = '<div style="color:var(--red);font-size:12px;padding:16px;">Erro ao carregar empresas.</div>';
+  }
+}
+
+function renderPaginaEmpresas() {
+  const el = document.getElementById('pg-empresas-list');
+  if (!empresasData.length) { el.innerHTML = '<div class="empty-msg">Nenhuma empresa cadastrada</div>'; return; }
+  el.innerHTML = empresasData.map((e,i) => {
+    const nome = fixEncoding(e.empresa || e.nome || '—');
+    const temCategoria = e.codigo_categoria && e.codigo_categoria.trim() !== '';
+    const statusConexao = temCategoria
+      ? `<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;display:inline-block;"></span>Conectado</span>`
+      : `<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;background:var(--amber);border-radius:50%;display:inline-block;"></span>Não configurado</span>`;
+    const statusCategoria = temCategoria
+      ? `<span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;">✅ ${e.codigo_categoria}</span>`
+      : `<span style="font-size:11px;color:var(--amber);">⚠️ Sem categoria</span>`;
+    const btnCategoria = temCategoria
+      ? `<button onclick="setupCategoriaPage('${e.cnpj}', ${i})" style="background:var(--green-dim);border:1px solid rgba(34,197,94,.2);color:var(--green);border-radius:7px;padding:7px 12px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">✅ ${e.codigo_categoria}</button>`
+      : `<button onclick="setupCategoriaPage('${e.cnpj}', ${i})" style="background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);color:var(--amber);border-radius:7px;padding:7px 12px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">⚙️ Setup Categoria</button>`;
+    return `
+    <div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+            <div style="font-size:14px;font-weight:600;">${nome}</div>
+            ${statusConexao}
+          </div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;">
+            <div style="font-size:10px;color:var(--muted);">CNPJ <span style="color:var(--text);font-family:'JetBrains Mono',monospace;">${e.cnpj||'—'}</span></div>
+            <div style="font-size:10px;color:var(--muted);">App Key <span style="color:var(--cyan);font-family:'JetBrains Mono',monospace;">${(e.omie_app_key||'').substring(0,10)}...</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:10px;color:var(--muted);">Categoria:</span>
+            ${statusCategoria}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          ${btnCategoria}
+          <button onclick="removeEmpresaPagina(${i})" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:7px;padding:7px 12px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;">✕ Remover</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setupCategoriaPage(cnpj, idx) {
+  const emp = empresasData[idx];
+  const nome = fixEncoding(emp.empresa || emp.nome || '—');
+  document.getElementById('setup-cat-nome').textContent = nome;
+  document.getElementById('setup-cat-cnpj').textContent = cnpj;
+  document.getElementById('setup-cat-modal').style.display = 'flex';
+  document.getElementById('setup-cat-modal').dataset.cnpj = cnpj;
+  document.getElementById('setup-cat-modal').dataset.idx = idx;
+  document.getElementById('setup-cat-modal').dataset.source = 'page';
+}
+
+async function addEmpresaPagina() {
+  const nome = document.getElementById('pg-emp-nome').value.trim();
+  const cnpj = document.getElementById('pg-emp-cnpj').value.trim().replace(/\D/g,'');
+  const appKey = document.getElementById('pg-emp-appkey').value.trim();
+  const appSecret = document.getElementById('pg-emp-appsecret').value.trim();
+  const errEl = document.getElementById('pg-emp-error');
+  if (!nome||!cnpj||!appKey||!appSecret) { errEl.textContent='Preencha todos os campos.'; errEl.style.display='block'; return; }
+  if (empresasData.find(e=>e.cnpj===cnpj)) { errEl.textContent='CNPJ já cadastrado.'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+  empresasData.push({ empresa: nome, cnpj, omie_app_key: appKey, omie_app_secret: appSecret, codigo_categoria: '' });
+  await saveEmpresas();
+  document.getElementById('pg-emp-nome').value='';
+  document.getElementById('pg-emp-cnpj').value='';
+  document.getElementById('pg-emp-appkey').value='';
+  document.getElementById('pg-emp-appsecret').value='';
+  await loadEmpresas();
+  renderPaginaEmpresas();
+  errEl.textContent='✅ Empresa adicionada! Configure a categoria.';
+  errEl.style.color='var(--green)';
+  errEl.style.display='block';
+  setTimeout(()=>{ errEl.style.display='none'; }, 4000);
+}
+
+async function removeEmpresaPagina(idx) {
+  if (!confirm('Remover esta empresa?')) return;
+  empresasData.splice(idx, 1);
+  await saveEmpresas();
+  await loadEmpresas();
+  renderPaginaEmpresas();
 }
 
 async function addEmpresa() {
@@ -1381,6 +1545,10 @@ async function saveEmpresas() {
   }
 }
 </script>
+    </div><!-- /page-main -->
+  </main>
+</div><!-- /app -->
+
 <!-- SETUP CATEGORIA MODAL -->
 <div id="setup-cat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:60;align-items:center;justify-content:center;padding:16px;">
   <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:420px;animation:fadeUp .2s ease;">
