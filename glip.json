@@ -123,5 +123,15 @@
     "tipos_aceitos": [
       "NFS-e"
     ]
+  },
+  {
+    "empresa": "PICODE COMERCIO E ENSINO DE ROBOTICA LTDA",
+    "cnpj": "30819927000119",
+    "omie_app_key": "2178044155287",
+    "omie_app_secret": "688632bed6964c121a0ad2df724ffdbb",
+    "codigo_categoria": "",
+    "tipos_aceitos": [
+      "NFS-e"
+    ]
   }
 ]
