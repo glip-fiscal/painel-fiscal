@@ -429,6 +429,8 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
             <div class="status-row"><div class="status-info"><span class="s-num">F4</span><div><div class="s-name" id="f4-name">Reconciliação Horária</div><div class="s-trig" id="f4-trig">a cada 1 hora</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
             <div class="status-row"><div class="status-info"><span class="s-num" style="background:rgba(167,139,250,0.1);color:#A78BFA;">F5</span><div><div class="s-name">Setup Categoria Omie</div><div class="s-trig">trigger HTTP · painel</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
             <div class="status-row"><div class="status-info"><span class="s-num" style="background:rgba(34,197,94,0.1);color:var(--green);">F6</span><div><div class="s-name">Whitelist Anti-Fraude</div><div class="s-trig">integrado ao F1</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
+            <div class="status-row"><div class="status-info"><span class="s-num" style="background:var(--amber-dim);color:var(--amber);">F7</span><div><div class="s-name">Baixa de Provisões</div><div class="s-trig">chamado pelo F3</div></div></div><span class="s-badge" style="background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.2);">📋 Planejado</span></div>
+            <div class="status-row"><div class="status-info"><span class="s-num" style="background:var(--amber-dim);color:var(--amber);">F7</span><div><div class="s-name">Baixa de Provisões</div><div class="s-trig">após sucesso F3</div></div></div><span class="s-badge" style="background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.2);">🗂️ Planejado</span></div>
           </div>
         </div>
         <div class="card" id="section-pendentes">
@@ -1661,7 +1663,7 @@ async function saveEmpresas() {
     <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--panel);z-index:1;border-radius:16px 16px 0 0;gap:12px;">
       <div>
         <div style="font-size:16px;font-weight:600;">📚 Documentação do Projeto</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;">GLIP · Extrator Fiscal Automatizado · v6.0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">GLIP · Extrator Fiscal Automatizado · v7.0</div>
       </div>
       <button onclick="closeDocs()" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:'Sora',sans-serif;">✕ Fechar</button>
     </div>
@@ -1694,7 +1696,7 @@ async function saveEmpresas() {
           <div class="doc-flow-card" style="border-left:3px solid var(--amber);">
             <div class="doc-flow-header"><span class="doc-badge" style="background:var(--amber-dim);color:var(--amber);">F3</span><strong>Integração Omie</strong><span class="doc-status">✅ Ativo</span></div>
             <div class="doc-flow-desc">Ao criar item na lista, busca credenciais no glip.json, faz upsert do fornecedor e lança a conta a pagar no Omie.</div>
-            <div class="doc-flow-detail"><strong>Trigger:</strong> Item criado na lista Lancamentos<br><strong>Fluxo:</strong> UpsertClienteCpfCnpj → 60s atraso → IncluirContaPagar<br><strong>Sucesso:</strong> 200, 425 ou 502 → move para /Processados<br><strong>Erro:</strong> move para /Erro<br><strong>Categoria:</strong> Dinâmica por empresa via <code>codigo_categoria</code> do glip.json — configurada via fluxo F5</div>
+            <div class="doc-flow-detail"><strong>Trigger:</strong> Item criado na lista Lancamentos<br><strong>Fluxo:</strong> UpsertClienteCpfCnpj → 60s atraso → IncluirContaPagar<br><strong>Sucesso:</strong> 200, 425 ou 502 → move para /Processados → chama F7<br><strong>Erro:</strong> move para /Erro<br><strong>Categoria:</strong> Dinâmica por empresa via <code>codigo_categoria</code> do glip.json — configurada via fluxo F5</div>
           </div>
           <div class="doc-flow-card" style="border-left:3px solid var(--blue, #60A5FA);">
             <div class="doc-flow-header"><span class="doc-badge" style="background:rgba(96,165,250,0.1);color:#60A5FA;">F4</span><strong>Reconciliação e Painel</strong><span class="doc-status">✅ Ativo</span></div>
@@ -1710,6 +1712,38 @@ async function saveEmpresas() {
             <div class="doc-flow-header"><span class="doc-badge" style="background:var(--green-dim);color:var(--green);">F6</span><strong>Whitelist de Remetentes — Anti-Fraude</strong><span class="doc-status">✅ Ativo</span><span style="font-size:10px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);padding:2px 8px;border-radius:12px;font-weight:600;">🛡️ Segurança</span></div>
             <div class="doc-flow-desc">Camada de segurança integrada ao Fluxo 1. Antes de processar qualquer PDF, verifica se o remetente está na whitelist do <code>emails.json</code>. E-mails de origens desconhecidas ou golpes são <strong>bloqueados silenciosamente</strong> — sem processamento, sem lançamento no Omie.</div>
             <div class="doc-flow-detail"><strong>Trigger:</strong> Integrado ao Fluxo 1 — roda a cada e-mail recebido<br><strong>Fluxo:</strong> GET emails.json → Loop_Emails → verifica remetente → varRemetenteAutorizado = true/false → Condição: autorizado? → processa ou bloqueia<br><strong>Gestão:</strong> Painel → 📧 E-mails → adicionar/remover remetentes autorizados sem alterar o fluxo<br><strong>Futuro:</strong> Migrar para e-mail centralizado com múltiplas caixas monitoradas</div>
+          </div>
+
+          <!-- F7 — PLANEJADO -->
+          <div class="doc-flow-card" style="border-left:3px solid var(--amber);opacity:0.85;">
+            <div class="doc-flow-header">
+              <span class="doc-badge" style="background:var(--amber-dim);color:var(--amber);">F7</span>
+              <strong>Baixa Automática de Provisões</strong>
+              <span style="font-size:10px;background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.2);padding:2px 8px;border-radius:12px;font-weight:600;">🗂️ Planejado</span>
+            </div>
+            <div class="doc-flow-desc">Quando uma nota real é lançada pelo F3, o F7 é acionado automaticamente para buscar e excluir a provisão correspondente no Omie. Elimina a necessidade de baixar manualmente contratos recorrentes.</div>
+            <div style="background:var(--amber-dim);border:1px solid rgba(245,158,11,.15);border-radius:8px;padding:12px;margin:10px 0;font-size:11px;color:var(--text);line-height:1.8;">
+              <strong style="color:var(--amber);">📋 Lógica de negócio:</strong><br>
+              <strong>1.</strong> F3 lança nota real com sucesso → chama F7 via HTTP<br>
+              <strong>2.</strong> F7 recebe: CNPJ do fornecedor + DataEmissao + Valor + AppKey + AppSecret<br>
+              <strong>3.</strong> F7 chama <code>ListarContasPagar</code> filtrando:<br>
+              &nbsp;&nbsp;&nbsp;• <code>filtrar_por_cpf_cnpj</code> = CNPJ do fornecedor<br>
+              &nbsp;&nbsp;&nbsp;• <code>filtrar_por_data_de</code> = 01/MM/AAAA (mês da DataEmissao da NF)<br>
+              &nbsp;&nbsp;&nbsp;• <code>filtrar_por_data_ate</code> = 30/MM/AAAA<br>
+              &nbsp;&nbsp;&nbsp;• <code>id_origem = "RPTP"</code> (repetição/provisão)<br>
+              <strong>4.</strong> Loop nos resultados → calcula diferença % entre valor da NF e valor da provisão<br>
+              <strong>5.</strong> Diferença ≤ 20%? → provisão candidata. Se múltiplas → pega a de menor diferença<br>
+              <strong>6.</strong> <code>ExcluirContaPagar</code> na provisão encontrada<br>
+              <strong>7.</strong> Retorna <code>{"provisao_encontrada": true/false}</code> para o F3
+            </div>
+            <div class="doc-flow-detail">
+              <strong>Trigger:</strong> HTTP POST chamado pelo F3 após sucesso no lançamento<br>
+              <strong>Body recebido:</strong> <code>{ "cnpj": "...", "data_emissao": "...", "valor": 0, "app_key": "...", "app_secret": "..." }</code><br>
+              <strong>Identificador provisão:</strong> <code>id_origem = "RPTP"</code> (Contas a Pagar por repetição)<br>
+              <strong>Tolerância de valor:</strong> 20% — se diferença maior, não exclui nada<br>
+              <strong>Segurança:</strong> Só roda após nota lançada com sucesso — nunca exclui provisão sem nota correspondente<br>
+              <strong>Sem duplicata:</strong> F3 cria nota real (novo lançamento) · F7 exclui provisão (lançamento diferente) → resultado final: 1 lançamento
+            </div>
           </div>
         </div>
       </div>
@@ -1891,7 +1925,8 @@ async function saveEmpresas() {
             <div class="doc-road-card doc-road-high">
               <div class="doc-road-badge">🔴 Alta prioridade</div>
               <ul class="doc-road-list" id="road-high">
-                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Filtrar boletos — subir apenas notas fiscais (Fluxo 2)</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🔴 F7 — Implementar Baixa Automática de Provisões no Power Automate</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🔴 F3 — Adicionar chamada HTTP para o F7 após sucesso no lançamento</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
                 <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Notas que chegam como link no email — pesquisar solução</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
                 <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Categoria automática por fornecedor no Omie</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
                 <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Conta corrente automática por empresa</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
