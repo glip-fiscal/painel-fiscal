@@ -103,5 +103,15 @@
     "tipos_aceitos": [
       "NFS-e"
     ]
+  },
+  {
+    "empresa": "VOLTA CYCLING COMERCIO DE VESTUARIO LTDA",
+    "cnpj": "22688753000174",
+    "omie_app_key": "2711198955465",
+    "omie_app_secret": "da74c1c500937d0a550f07c456c895ab",
+    "codigo_categoria": "",
+    "tipos_aceitos": [
+      "NFS-e"
+    ]
   }
 ]
