@@ -1665,9 +1665,9 @@ async function saveEmpresas() {
       <div id="doc-fluxos" class="doc-panel">
         <div class="doc-section">
           <div class="doc-flow-card" style="border-left:3px solid var(--cyan);">
-            <div class="doc-flow-header"><span class="doc-badge" style="background:var(--cyan-dim);color:var(--cyan);">F1</span><strong>Salvar PDF no SharePoint</strong><span class="doc-status">✅ Ativo</span></div>
-            <div class="doc-flow-desc">Monitora <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="660b071405030a0926010a0f164805090b480414">[email&#160;protected]</a></code> em tempo real. Ao receber e-mail, verifica os anexos e salva PDFs em <code>/E-mails/Pendentes</code>.</div>
-            <div class="doc-flow-detail"><strong>Trigger:</strong> Novo e-mail recebido (Outlook V3)<br><strong>Ação:</strong> Loop nos anexos → verifica se é PDF → salva com nome original</div>
+            <div class="doc-flow-header"><span class="doc-badge" style="background:var(--cyan-dim);color:var(--cyan);">F1</span><strong>Salvar PDF no SharePoint</strong><span class="doc-status">✅ Ativo</span><span style="font-size:10px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);padding:2px 8px;border-radius:12px;font-weight:600;">🛡️ Anti-Fraude</span></div>
+            <div class="doc-flow-desc">Monitora <code>marcelo@glip.com.br</code> em tempo real. Ao receber e-mail, <strong>verifica o remetente na whitelist</strong> antes de processar. Apenas remetentes autorizados no <code>emails.json</code> têm seus PDFs salvos em <code>/E-mails/Pendentes</code>. E-mails de golpe são bloqueados automaticamente.</div>
+            <div class="doc-flow-detail"><strong>Trigger:</strong> Novo e-mail recebido com anexo (Outlook V3)<br><strong>🛡️ Segurança:</strong> GET emails.json → loop → verifica remetente → autorizado ou bloqueado<br><strong>Ação:</strong> Loop nos anexos → verifica se é PDF → salva com nome original<br><strong>Gestão:</strong> Painel → 📧 E-mails → adicionar/remover remetentes autorizados</div>
           </div>
           <div class="doc-flow-card" style="border-left:3px solid var(--green);">
             <div class="doc-flow-header"><span class="doc-badge" style="background:var(--green-dim);color:var(--green);">F2</span><strong>Extrair Dados com Claude AI</strong><span class="doc-status">✅ Ativo</span></div>
@@ -1814,6 +1814,15 @@ async function saveEmpresas() {
 
           <div style="font-size:10px;font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:2px;margin:16px 0 10px;">Resolvidos em 24/03/2026</div>
 
+          <div class="doc-problem" style="border-left:3px solid var(--green);">
+            <div class="doc-problem-title">🛡️ Fluxo 1 — Qualquer remetente podia lançar notas no Omie (vulnerabilidade crítica)</div>
+            <div class="doc-problem-solution">
+              <strong>Risco:</strong> Sem validação de remetente, qualquer pessoa podia enviar um PDF por e-mail e ter uma conta a pagar lançada automaticamente no Omie — abrindo brecha para fraudes financeiras.<br><br>
+              <strong>Solução:</strong> Implementada <strong>whitelist de remetentes</strong> via <code>emails.json</code> no GitHub. O Fluxo 1 agora consulta a lista antes de processar qualquer anexo. Remetentes não autorizados são ignorados silenciosamente.<br><br>
+              <strong>Gestão:</strong> Administradores gerenciam a lista pelo painel → 📧 E-mails → sem necessidade de alterar o fluxo.
+            </div>
+          </div>
+
           <div class="doc-problem">
             <div class="doc-problem-title">🔧 F5 — Omie exige campo categoria_superior ao criar categoria</div>
             <div class="doc-problem-solution"><strong>Causa:</strong> IncluirCategoria retornava erro <code>SOAP-ENV:Client-103</code> sem o campo <code>categoria_superior</code>.<br><strong>Solução:</strong> Trocar abordagem — em vez de criar categoria nova, usar <code>AlterarCategoria</code> em um slot <code>&lt;Disponível&gt;</code> existente dentro do grupo Despesas (categoria com <code>conta_despesa=S</code>).</div>
@@ -1919,6 +1928,39 @@ async function saveEmpresas() {
 
             <div class="doc-road-card" style="border-color:var(--green);grid-column:span 2;">
               <div class="doc-road-badge" style="color:var(--green);">✅ Concluídos</div>
+
+              <!-- Destaque de segurança -->
+              <div style="background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(0,180,216,0.05));border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:14px;margin-bottom:12px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <span style="font-size:18px;">🛡️</span>
+                  <div>
+                    <div style="font-size:12px;font-weight:700;color:var(--green);">Whitelist de Remetentes — Proteção Anti-Fraude (24/03/2026)</div>
+                    <div style="font-size:10px;color:var(--muted);margin-top:2px;">Fluxo 1 · Segurança crítica</div>
+                  </div>
+                </div>
+                <div style="font-size:11px;color:var(--text);line-height:1.7;margin-bottom:10px;">
+                  O Fluxo 1 agora verifica o <strong>remetente de cada e-mail</strong> antes de processar qualquer PDF. 
+                  Apenas remetentes cadastrados no <code style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:10px;">emails.json</code> são autorizados. 
+                  Qualquer e-mail de origem desconhecida é <strong style="color:var(--red);">bloqueado automaticamente</strong> — sem processamento, sem lançamento no Omie.
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+                  <div style="background:var(--red-dim);border:1px solid rgba(239,68,68,.15);border-radius:8px;padding:10px 12px;">
+                    <div style="font-size:10px;font-weight:600;color:var(--red);margin-bottom:4px;">❌ ANTES — Sem proteção</div>
+                    <div style="font-size:10px;color:var(--muted);line-height:1.6;">Qualquer e-mail com PDF era processado automaticamente. Golpistas podiam enviar notas fiscais falsas que seriam lançadas no Omie.</div>
+                  </div>
+                  <div style="background:var(--green-dim);border:1px solid rgba(34,197,94,.15);border-radius:8px;padding:10px 12px;">
+                    <div style="font-size:10px;font-weight:600;color:var(--green);margin-bottom:4px;">✅ AGORA — Whitelist ativa</div>
+                    <div style="font-size:10px;color:var(--muted);line-height:1.6;">Só remetentes cadastrados no painel (emails.json) têm PDFs processados. E-mails de golpe são ignorados silenciosamente.</div>
+                  </div>
+                </div>
+                <div style="background:var(--panel);border-radius:8px;padding:10px 12px;font-size:10px;color:var(--muted);line-height:1.8;">
+                  <strong style="color:var(--cyan);">Como funciona:</strong> Fluxo 1 recebe e-mail → GET <code style="color:var(--cyan);font-family:'JetBrains Mono',monospace;">emails.json</code> → verifica remetente na lista → 
+                  <span style="color:var(--green);">✅ autorizado → salva PDF</span> · 
+                  <span style="color:var(--red);">❌ não autorizado → ignora</span><br>
+                  <strong style="color:var(--cyan);">Gestão:</strong> Painel → 📧 E-mails → Adicionar/Remover remetentes autorizados
+                </div>
+              </div>
+
               <ul class="doc-road-list" id="road-done">
                 <li class="road-item road-done"><span class="road-text">Suporte multi-empresa no Fluxo 3 (21/03/2026)</span></li>
                 <li class="road-item road-done"><span class="road-text">Limpeza automática de erros — excluir item Erro após reprocessamento (22/03/2026)</span></li>
@@ -1935,6 +1977,7 @@ async function saveEmpresas() {
                 <li class="road-item road-done"><span class="road-text">Criar categoria "A Classificar" automaticamente via Fluxo F5 (24/03/2026)</span></li>
                 <li class="road-item road-done"><span class="road-text">Página dedicada de Empresas no painel com status de conexão (24/03/2026)</span></li>
                 <li class="road-item road-done"><span class="road-text">Categoria automática por empresa — codigo_categoria dinâmico no glip.json (24/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">🛡️ Whitelist de remetentes — proteção anti-fraude no Fluxo 1 (24/03/2026)</span></li>
               </ul>
             </div>
 
