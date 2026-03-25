@@ -93,5 +93,15 @@
     "tipos_aceitos": [
       "NFS-e"
     ]
+  },
+  {
+    "empresa": "SESSION BRASIL IMPORTACAO E EXPORTACAO LTDA",
+    "cnpj": "11100982000290",
+    "omie_app_key": "2711551621779",
+    "omie_app_secret": "5dcaf18ef32ceb0dee58906599d5eed3",
+    "codigo_categoria": "",
+    "tipos_aceitos": [
+      "NFS-e"
+    ]
   }
 ]
