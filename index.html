@@ -243,8 +243,8 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
       <div class="tagline" id="nav-tagline">Automação Fiscal</div>
     </div>
     <div class="nav-section" id="nav-painel">Painel</div>
-    <a class="nav-item active" href="#"><span class="nav-icon">📊</span> <span id="nav-visao">Visão Geral</span></a>
-    <a class="nav-item" href="#section-notas"><span class="nav-icon">📄</span> <span id="nav-notas">Notas Fiscais</span></a>
+    <a class="nav-item active" href="#" onclick="showPaginaPrincipal()"><span class="nav-icon">📊</span> <span id="nav-visao">Visão Geral</span></a>
+    <a class="nav-item" href="#" onclick="showPaginaPrincipal()"><span class="nav-icon">📄</span> <span id="nav-notas">Notas Fiscais</span></a>
     <a class="nav-item" href="#section-pendentes"><span class="nav-icon">⚠️</span> <span id="nav-pendentes">Pendentes</span></a>
     <div class="nav-section" id="nav-sistema">Sistema</div>
     <a class="nav-item" href="#section-fluxos"><span class="nav-icon">⚙️</span> <span id="nav-fluxos">Fluxos</span></a>
@@ -1413,6 +1413,14 @@ async function confirmarSetupCategoria() {
 
 function fixEncoding(str) {
   try { return decodeURIComponent(escape(str)); } catch(e) { return str; }
+}
+
+function showPaginaPrincipal() {
+  document.getElementById('page-main').style.display = 'block';
+  document.getElementById('page-empresas').style.display = 'none';
+  document.getElementById('page-usuarios').style.display = 'none';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector('[onclick="showPaginaPrincipal()"]').classList.add('active');
 }
 
 function showPaginaEmpresas() {
