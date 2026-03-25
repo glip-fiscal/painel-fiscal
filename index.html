@@ -1007,6 +1007,7 @@ function showDocTab(tab) {
     document.getElementById('doc-'+t).style.display = t===tab ? 'block' : 'none';
     document.getElementById('tab-'+t).classList.toggle('active', t===tab);
   });
+  if (tab === 'roadmap') loadRoadmap();
 }
 
 // ── USERS MANAGEMENT ──
@@ -1918,7 +1919,10 @@ async function saveEmpresas() {
           </div>
         </div>
 
-        <div style="font-size:10px;color:var(--muted);margin-bottom:14px;">Clique em um item para finalizar. Clique em ✕ para excluir.</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
+          <span>Clique em um item para finalizar. Clique em ✕ para excluir.</span>
+          <span id="road-save-status" style="font-size:10px;color:var(--muted);"></span>
+        </div>
         <div class="doc-section">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
 
@@ -2187,22 +2191,98 @@ async function saveEmpresas() {
 .road-del:hover{background:var(--red-dim);color:var(--red)!important;opacity:1!important;}
 </style>
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+
+// ── ROADMAP PERSISTENTE ──
+let roadmapSHA = '';
+
+function getRoadmapState() {
+  const lists = ['road-high','road-med','road-low','road-scale','road-ideias','road-done'];
+  const state = {};
+  lists.forEach(id => {
+    const ul = document.getElementById(id);
+    if (!ul) return;
+    state[id] = Array.from(ul.querySelectorAll('li')).map(li => ({
+      text: li.querySelector('.road-text')?.textContent || li.textContent.replace('✕','').trim(),
+      done: li.classList.contains('road-done')
+    }));
+  });
+  return state;
+}
+
+function renderRoadmapFromState(state) {
+  const lists = ['road-high','road-med','road-low','road-scale','road-ideias','road-done'];
+  lists.forEach(id => {
+    const ul = document.getElementById(id);
+    if (!ul || !state[id]) return;
+    ul.innerHTML = '';
+    state[id].forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'road-item' + (item.done ? ' road-done' : '');
+      if (!item.done) {
+        li.onclick = function() { toggleRoadItem(this); };
+        li.innerHTML = `<span class="road-text">${item.text}</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button>`;
+      } else {
+        li.innerHTML = `<span class="road-text">${item.text}</span>`;
+      }
+      ul.appendChild(li);
+    });
+  });
+}
+
+async function loadRoadmap() {
+  try {
+    const resp = await fetch('https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/roadmap.json?t=' + Date.now());
+    if (!resp.ok) return; // usa o HTML padrão se não existir
+    const data = await resp.json();
+    renderRoadmapFromState(data);
+  } catch(e) {
+    console.log('roadmap.json não encontrado, usando padrão do HTML');
+  }
+}
+
+async function saveRoadmap() {
+  const token = localStorage.getItem(GH_TOKEN_KEY);
+  if (!token) return;
+  const statusEl = document.getElementById('road-save-status');
+  if (statusEl) { statusEl.textContent = '💾 Salvando...'; statusEl.style.color = 'var(--muted)'; }
+  const state = getRoadmapState();
+  try {
+    const getResp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/roadmap.json', {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    const body = {
+      message: 'Atualizar roadmap.json',
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(state, null, 2))))
+    };
+    if (getResp.ok) { const d = await getResp.json(); body.sha = d.sha; }
+    await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/roadmap.json', {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (statusEl) { statusEl.textContent = '✅ Salvo!'; statusEl.style.color = 'var(--green)'; setTimeout(()=>{ statusEl.textContent=''; }, 3000); }
+  } catch(e) {
+    if (statusEl) { statusEl.textContent = '❌ Erro ao salvar'; statusEl.style.color = 'var(--red)'; }
+    console.error('Erro ao salvar roadmap:', e);
+  }
+}
+
 function toggleRoadItem(el) {
   if (el.classList.contains('road-done')) return;
   el.classList.add('road-done');
-  // Move to done list
+  el.querySelector('.road-del')?.remove();
+  // Move para concluídos
   const done = document.getElementById('road-done');
   if (done && el.parentElement.id !== 'road-done') {
-    const clone = el.cloneNode(true);
-    clone.querySelector('.road-del')?.remove();
-    done.appendChild(clone);
-    el.remove();
+    done.appendChild(el);
   }
+  saveRoadmap();
 }
 
 function delRoadItem(e, btn) {
   e.stopPropagation();
   btn.closest('li').remove();
+  saveRoadmap();
 }
 
 function addRoadItem() {
@@ -2217,6 +2297,7 @@ function addRoadItem() {
   li.innerHTML = `<span class="road-text">${text}</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button>`;
   list.appendChild(li);
   document.getElementById('road-new-text').value = '';
+  saveRoadmap();
 }
 </script>
 
