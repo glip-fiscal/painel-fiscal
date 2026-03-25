@@ -31,6 +31,10 @@
     {
       "text": "🆕 Multi-email — suporte a vários e-mails monitorados, um por empresa",
       "done": false
+    },
+    {
+      "text": "Testar Provisões - Lançar uma nota que o Fornecedor tenha provisão, para verificar o fluxo",
+      "done": false
     }
   ],
   "road-med": [
