@@ -51,10 +51,6 @@
       "done": false
     },
     {
-      "text": "🆕 Provisões — cruzar nota real recebida com provisão lançada no Omie pelo CNPJ+mês+valor",
-      "done": false
-    },
-    {
       "text": "🆕 Provisões — tela no painel para gerenciar e vincular notas reais a provisões existentes",
       "done": false
     }
@@ -188,6 +184,10 @@
     },
     {
       "text": "🔴 F3 — Adicionar chamada HTTP para o F7 após sucesso no lançamento",
+      "done": true
+    },
+    {
+      "text": "🆕 Provisões — cruzar nota real recebida com provisão lançada no Omie pelo CNPJ+mês+valor",
       "done": true
     }
   ]
