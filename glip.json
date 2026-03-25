@@ -63,5 +63,15 @@
     "tipos_aceitos": [
       "NFS-e"
     ]
+  },
+  {
+    "empresa": "MINHA COLETA TECNOLOGIA LTDA",
+    "cnpj": "27221368000136",
+    "omie_app_key": "2041247958750",
+    "omie_app_secret": "bab2ec663deeae26bb8fe332a964c07d",
+    "codigo_categoria": "",
+    "tipos_aceitos": [
+      "NFS-e"
+    ]
   }
 ]
