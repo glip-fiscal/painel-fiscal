@@ -49,10 +49,6 @@
     {
       "text": "Notificação no Teams em caso de erro",
       "done": false
-    },
-    {
-      "text": "🆕 Provisões — tela no painel para gerenciar e vincular notas reais a provisões existentes",
-      "done": false
     }
   ],
   "road-low": [
@@ -188,6 +184,10 @@
     },
     {
       "text": "🆕 Provisões — cruzar nota real recebida com provisão lançada no Omie pelo CNPJ+mês+valor",
+      "done": true
+    },
+    {
+      "text": "🆕 Provisões — tela no painel para gerenciar e vincular notas reais a provisões existentes",
       "done": true
     }
   ]
