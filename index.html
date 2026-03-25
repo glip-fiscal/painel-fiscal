@@ -1413,42 +1413,55 @@ async function loadPaginaEmpresas() {
 function renderPaginaEmpresas() {
   const el = document.getElementById('pg-empresas-list');
   if (!empresasData.length) { el.innerHTML = '<div class="empty-msg">Nenhuma empresa cadastrada</div>'; return; }
-  el.innerHTML = empresasData.map((e,i) => {
-    const nome = fixEncoding(e.empresa || e.nome || '—');
-    const temCategoria = e.codigo_categoria && e.codigo_categoria.trim() !== '';
-    const statusConexao = temCategoria
-      ? `<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;display:inline-block;"></span>Conectado</span>`
-      : `<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;background:var(--amber);border-radius:50%;display:inline-block;"></span>Não configurado</span>`;
-    const statusCategoria = temCategoria
-      ? `<span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;">✅ ${e.codigo_categoria}</span>`
-      : `<span style="font-size:11px;color:var(--amber);">⚠️ Sem categoria</span>`;
-    const btnCategoria = temCategoria
-      ? `<button onclick="setupCategoriaPage('${e.cnpj}', ${i})" style="background:var(--green-dim);border:1px solid rgba(34,197,94,.2);color:var(--green);border-radius:7px;padding:7px 12px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">✅ ${e.codigo_categoria}</button>`
-      : `<button onclick="setupCategoriaPage('${e.cnpj}', ${i})" style="background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);color:var(--amber);border-radius:7px;padding:7px 12px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">⚙️ Setup Categoria</button>`;
-    return `
-    <div class="card" style="margin-bottom:12px;">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
-            <div style="font-size:14px;font-weight:600;">${nome}</div>
-            ${statusConexao}
+
+  const total = empresasData.length;
+  const conectadas = empresasData.filter(e => e.codigo_categoria && e.codigo_categoria.trim() !== '').length;
+  const semCategoria = total - conectadas;
+
+  el.innerHTML = `
+    <div class="kpi-grid" style="margin-bottom:20px;">
+      <div class="kpi-card valor"><div class="kpi-top"><span class="kpi-icon">🏢</span><span class="kpi-badge">TOTAL</span></div><div class="kpi-value">${total}</div><div class="kpi-label">Empresas cadastradas</div></div>
+      <div class="kpi-card ok"><div class="kpi-top"><span class="kpi-icon">✅</span><span class="kpi-badge">ATIVAS</span></div><div class="kpi-value" style="color:var(--green);">${conectadas}</div><div class="kpi-label">Com categoria configurada</div></div>
+      <div class="kpi-card pend"><div class="kpi-top"><span class="kpi-icon">⚠️</span><span class="kpi-badge">PENDENTES</span></div><div class="kpi-value" style="color:var(--amber);">${semCategoria}</div><div class="kpi-label">Sem categoria</div></div>
+    </div>
+    ${empresasData.map((e,i) => {
+      const nome = fixEncoding(e.empresa || e.nome || '—');
+      const temCategoria = e.codigo_categoria && e.codigo_categoria.trim() !== '';
+      const statusConexao = temCategoria
+        ? `<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;display:inline-block;"></span>Conectado</span>`
+        : `<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;background:var(--amber);border-radius:50%;display:inline-block;"></span>Não configurado</span>`;
+      const statusCategoria = temCategoria
+        ? `<span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;">✅ ${e.codigo_categoria}</span>`
+        : `<span style="font-size:11px;color:var(--amber);">⚠️ Sem categoria</span>`;
+      const btnCategoria = temCategoria
+        ? `<button onclick="setupCategoriaPage('${e.cnpj}', ${i})" style="background:var(--green-dim);border:1px solid rgba(34,197,94,.2);color:var(--green);border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">✅ ${e.codigo_categoria}</button>`
+        : `<button onclick="setupCategoriaPage('${e.cnpj}', ${i})" style="background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);color:var(--amber);border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">⚙️ Setup Categoria</button>`;
+      return `
+      <div class="card" style="margin-bottom:12px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+              <div style="font-size:14px;font-weight:600;">${nome}</div>
+              ${statusConexao}
+            </div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;">
+              <div style="font-size:10px;color:var(--muted);">CNPJ <span style="color:var(--text);font-family:'JetBrains Mono',monospace;">${e.cnpj||'—'}</span></div>
+              <div style="font-size:10px;color:var(--muted);">App Key <span style="color:var(--cyan);font-family:'JetBrains Mono',monospace;">${(e.omie_app_key||'').substring(0,10)}...</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:10px;color:var(--muted);">Categoria:</span>
+              ${statusCategoria}
+            </div>
           </div>
-          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;">
-            <div style="font-size:10px;color:var(--muted);">CNPJ <span style="color:var(--text);font-family:'JetBrains Mono',monospace;">${e.cnpj||'—'}</span></div>
-            <div style="font-size:10px;color:var(--muted);">App Key <span style="color:var(--cyan);font-family:'JetBrains Mono',monospace;">${(e.omie_app_key||'').substring(0,10)}...</span></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:10px;color:var(--muted);">Categoria:</span>
-            ${statusCategoria}
+          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+            ${btnCategoria}
+            <button onclick="openEditCat(${i})" style="background:var(--cyan-dim);border:1px solid var(--border2);color:var(--cyan);border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">🏷️ Editar Cat.</button>
+            <button onclick="openEditEmp(${i})" style="background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">✏️ Editar</button>
+            <button onclick="removeEmpresaPagina(${i})" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">✕ Remover</button>
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
-          ${btnCategoria}
-          <button onclick="removeEmpresaPagina(${i})" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:7px;padding:7px 12px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;">✕ Remover</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+      </div>`;
+    }).join('')}`;
 }
 
 function setupCategoriaPage(cnpj, idx) {
@@ -1778,89 +1791,102 @@ async function saveEmpresas() {
 
       <!-- ROADMAP -->
       <div id="doc-roadmap" class="doc-panel" style="display:none;">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">Clique em um item para marcar como concluído. Items concluídos ficam riscados.</div>
+
+        <!-- Formulário adicionar tarefa -->
+        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:600;color:var(--cyan);margin-bottom:10px;">+ Nova Tarefa</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input id="road-new-text" type="text" placeholder="Descrição da tarefa..." style="flex:1;min-width:200px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+            <select id="road-new-list" style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+              <option value="road-high">🔴 Alta prioridade</option>
+              <option value="road-med">🟡 Médio prazo</option>
+              <option value="road-low">🟢 Qualidade de vida</option>
+              <option value="road-scale">🔵 Escala</option>
+            </select>
+            <button onclick="addRoadItem()" style="background:var(--cyan);border:none;color:white;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">Adicionar</button>
+          </div>
+        </div>
+
+        <div style="font-size:10px;color:var(--muted);margin-bottom:14px;">Clique em um item para finalizar. Clique em ✕ para excluir.</div>
         <div class="doc-section">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
 
             <div class="doc-road-card doc-road-high">
               <div class="doc-road-badge">🔴 Alta prioridade</div>
               <ul class="doc-road-list" id="road-high">
-                <li class="road-item" onclick="toggleRoadItem(this)">Criar fluxo "GLIP - Criar Categoria Omie" + tela no painel</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Tornar codigo_categoria dinâmico no Fluxo 3 via glip.json</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">🔴 Tornar codigo_categoria dinâmico no Fluxo 3 — ler do glip.json em vez de fixo '2.06.98'</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Filtrar boletos — subir apenas notas fiscais (Fluxo 2)</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Notas que chegam como link no email — pesquisar solução</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Categoria automática por fornecedor no Omie</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Conta corrente automática por empresa</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Corrigir chave NF-e — extrair 44 chars corretos</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Filtro de tipo de documento por empresa no glip.json (NF-e, NFS-e, Boleto) — Fluxo 1/2</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Detecção de fraude — validar CNPJ, valor e fornecedor antes de subir para o Omie</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Limites de caracteres Omie — mapear todos os campos e aplicar substring preventivo</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Multi-email — suporte a vários e-mails monitorados, um por empresa (Fluxo 1 robusto)</li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Filtrar boletos — subir apenas notas fiscais (Fluxo 2)</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Notas que chegam como link no email — pesquisar solução</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Categoria automática por fornecedor no Omie</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Conta corrente automática por empresa</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Corrigir chave NF-e — extrair 44 chars corretos</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🆕 Filtro de tipo de documento por empresa no glip.json (NF-e, NFS-e, Boleto)</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🆕 Detecção de fraude — validar CNPJ, valor e fornecedor antes de subir para o Omie</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🆕 Limites de caracteres Omie — mapear todos os campos e aplicar substring preventivo</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🆕 Multi-email — suporte a vários e-mails monitorados, um por empresa</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
               </ul>
             </div>
 
             <div class="doc-road-card doc-road-med">
               <div class="doc-road-badge">🟡 Médio prazo</div>
               <ul class="doc-road-list" id="road-med">
-                <li class="road-item" onclick="toggleRoadItem(this)">Fluxograma interativo e moderno no painel</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Biometria real (migrar para Netlify + Supabase)</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Backup automático mensal da lista Lancamentos</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Notificação no Teams em caso de erro</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Provisões — cruzar nota real recebida com provisão lançada no Omie pelo CNPJ+mês+valor</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Provisões — tela no painel para gerenciar e vincular notas reais a provisões existentes</li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Fluxograma interativo e moderno no painel</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Biometria real (migrar para Netlify + Supabase)</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Backup automático mensal da lista Lancamentos</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Notificação no Teams em caso de erro</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🆕 Provisões — cruzar nota real recebida com provisão lançada no Omie pelo CNPJ+mês+valor</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🆕 Provisões — tela no painel para gerenciar e vincular notas reais a provisões existentes</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
               </ul>
             </div>
 
             <div class="doc-road-card doc-road-low">
               <div class="doc-road-badge">🟢 Qualidade de vida</div>
               <ul class="doc-road-list" id="road-low">
-                <li class="road-item" onclick="toggleRoadItem(this)">Dashboard de KPIs históricos por mês</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Exportar relatório em PDF ou Excel</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Suporte a múltiplos e-mails monitorados</li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Dashboard de KPIs históricos por mês</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Exportar relatório em PDF ou Excel</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Suporte a múltiplos e-mails monitorados</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
               </ul>
             </div>
 
             <div class="doc-road-card doc-road-scale">
               <div class="doc-road-badge">🔵 Escala</div>
               <ul class="doc-road-list" id="road-scale">
-                <li class="road-item" onclick="toggleRoadItem(this)">Multi-tenant — múltiplas empresas independentes</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">App mobile nativo (PWA)</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">Integração com outros ERPs além do Omie</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">🆕 Fluxo 1 multi-email — um endereço central direciona para N empresas automaticamente</li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Multi-tenant — múltiplas empresas independentes</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">App mobile nativo (PWA)</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Integração com outros ERPs além do Omie</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🆕 Fluxo 1 multi-email — um endereço central direciona para N empresas automaticamente</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
               </ul>
             </div>
 
             <div class="doc-road-card" style="border-color:#A78BFA;grid-column:span 2;">
-              <div class="doc-road-badge" style="color:#A78BFA;">🧠 Ideias em discussão — precisam de decisão de arquitetura</div>
-              <ul class="doc-road-list">
-                <li class="road-item" onclick="toggleRoadItem(this)">💡 Provisões: estratégia A — consultar Omie pela API (ConsultarContaPagar por CNPJ+competência) e marcar como "nota real recebida" ao encontrar correspondência</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">💡 Provisões: estratégia B — criar campo "TipoLancamento" na lista Lancamentos (Provisão / Nota Real) e cruzar internamente pelo Fluxo 4</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">💡 Fraude: estratégia A — Claude AI analisa o PDF e retorna score de confiança antes de subir ao Omie</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">💡 Fraude: estratégia B — whitelist de CNPJs por empresa no glip.json — só sobe fornecedores cadastrados</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">💡 Multi-email: estratégia A — um e-mail único por empresa (ex: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3658501b515a5f4676515a5f461855595b185444">[email&#160;protected]</a>, <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="91fff7bcfff0fffed1f6fdf8e1bff2fefcbff3e3">[email&#160;protected]</a>)</li>
-                <li class="road-item" onclick="toggleRoadItem(this)">💡 Multi-email: estratégia B — um e-mail central que identifica a empresa pelo remetente ou pelo CNPJ tomador da nota</li>
+              <div class="doc-road-badge" style="color:#A78BFA;">🧠 Ideias em discussão</div>
+              <ul class="doc-road-list" id="road-ideias">
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">💡 Provisões: estratégia A — consultar Omie pela API e marcar como "nota real recebida"</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">💡 Provisões: estratégia B — criar campo "TipoLancamento" na lista Lancamentos e cruzar internamente pelo Fluxo 4</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">💡 Fraude: estratégia A — Claude AI analisa o PDF e retorna score de confiança antes de subir ao Omie</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">💡 Fraude: estratégia B — whitelist de CNPJs por empresa no glip.json</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">💡 Multi-email: estratégia A — um e-mail único por empresa</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">💡 Multi-email: estratégia B — e-mail central que identifica empresa pelo remetente ou CNPJ tomador</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
               </ul>
             </div>
 
             <div class="doc-road-card" style="border-color:var(--green);grid-column:span 2;">
               <div class="doc-road-badge" style="color:var(--green);">✅ Concluídos</div>
               <ul class="doc-road-list" id="road-done">
-                <li class="road-item road-done">Suporte multi-empresa no Fluxo 3 (21/03/2026)</li>
-                <li class="road-item road-done">Limpeza automática de erros — excluir item Erro após reprocessamento (22/03/2026)</li>
-                <li class="road-item road-done">Correção de duplicata no Omie — política de repetição (22/03/2026)</li>
-                <li class="road-item road-done">Painel — erros.json separado para quadro "Ao vivo" (22/03/2026)</li>
-                <li class="road-item road-done">Painel — pendentes.json separado para quadro "Ao vivo" (22/03/2026)</li>
-                <li class="road-item road-done">Painel — filtro de empresa via glip.json, sempre visível (22/03/2026)</li>
-                <li class="road-item road-done">Painel — borda verde em notas importadas (22/03/2026)</li>
-                <li class="road-item road-done">Painel — gráfico de horas estendido até 23h (22/03/2026)</li>
-                <li class="road-item road-done">Painel — fuso horário Brasília no arquivo diário (22/03/2026)</li>
-                <li class="road-item road-done">Tela de cadastro de empresa no painel (23/03/2026)</li>
-                <li class="road-item road-done">Fluxo 3 — razao_social limitada a 60 chars (23/03/2026)</li>
-                <li class="road-item road-done">Fluxo 3 — leitura do glip.json via GitHub em vez do SharePoint (23/03/2026)</li>
-                <li class="road-item road-done">Criar categoria "A Classificar" automaticamente via Fluxo F5 (24/03/2026)</li>
-                <li class="road-item road-done">Página dedicada de Empresas no painel com status de conexão (24/03/2026)</li>
-                <li class="road-item road-done">Categoria automática por empresa — codigo_categoria dinâmico no glip.json (24/03/2026)</li>
+                <li class="road-item road-done"><span class="road-text">Suporte multi-empresa no Fluxo 3 (21/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Limpeza automática de erros — excluir item Erro após reprocessamento (22/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Correção de duplicata no Omie — política de repetição (22/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Painel — erros.json separado para quadro "Ao vivo" (22/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Painel — pendentes.json separado para quadro "Ao vivo" (22/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Painel — filtro de empresa via glip.json, sempre visível (22/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Painel — borda verde em notas importadas (22/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Painel — gráfico de horas estendido até 23h (22/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Painel — fuso horário Brasília no arquivo diário (22/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Tela de cadastro de empresa no painel (23/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Fluxo 3 — razao_social limitada a 60 chars (23/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Fluxo 3 — leitura do glip.json via GitHub em vez do SharePoint (23/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Criar categoria "A Classificar" automaticamente via Fluxo F5 (24/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Página dedicada de Empresas no painel com status de conexão (24/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Categoria automática por empresa — codigo_categoria dinâmico no glip.json (24/03/2026)</span></li>
               </ul>
             </div>
 
@@ -2004,12 +2030,165 @@ async function saveEmpresas() {
 .doc-road-card{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px;}
 .doc-road-badge{font-size:11px;font-weight:600;margin-bottom:10px;}
 .doc-road-list{list-style:none;display:flex;flex-direction:column;gap:4px;padding:0;margin:0;}
-.road-item{font-size:11px;color:var(--muted);padding:5px 0;border-bottom:1px solid var(--border);line-height:1.5;cursor:pointer;transition:all .15s;user-select:none;list-style:none;}
+.road-item{font-size:11px;color:var(--muted);padding:5px 0;border-bottom:1px solid var(--border);line-height:1.5;cursor:pointer;transition:all .15s;user-select:none;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:6px;}
 .road-item:last-child{border-bottom:none;}
-.road-item:hover:not(.road-done){color:var(--text);}
-.road-item.road-done{text-decoration:line-through;opacity:0.5;cursor:default;}
+.road-item:hover:not(.road-done) .road-text{color:var(--text);}
+.road-item.road-done{opacity:0.5;cursor:default;}
+.road-item.road-done .road-text{text-decoration:line-through;}
+.road-text{flex:1;}
+.road-del{background:none;border:none;color:var(--muted);font-size:10px;cursor:pointer;padding:2px 4px;border-radius:4px;flex-shrink:0;opacity:0;transition:opacity .15s;}
+.road-item:hover .road-del{opacity:1;}
+.road-del:hover{background:var(--red-dim);color:var(--red)!important;opacity:1!important;}
 </style>
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 function toggleRoadItem(el) {
   if (el.classList.contains('road-done')) return;
-  el.classList.add
+  el.classList.add('road-done');
+  // Move to done list
+  const done = document.getElementById('road-done');
+  if (done && el.parentElement.id !== 'road-done') {
+    const clone = el.cloneNode(true);
+    clone.querySelector('.road-del')?.remove();
+    done.appendChild(clone);
+    el.remove();
+  }
+}
+
+function delRoadItem(e, btn) {
+  e.stopPropagation();
+  btn.closest('li').remove();
+}
+
+function addRoadItem() {
+  const text = document.getElementById('road-new-text').value.trim();
+  const listId = document.getElementById('road-new-list').value;
+  if (!text) return;
+  const list = document.getElementById(listId);
+  if (!list) return;
+  const li = document.createElement('li');
+  li.className = 'road-item';
+  li.onclick = function() { toggleRoadItem(this); };
+  li.innerHTML = `<span class="road-text">${text}</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button>`;
+  list.appendChild(li);
+  document.getElementById('road-new-text').value = '';
+}
+</script>
+
+<!-- EDITAR EMPRESA MODAL -->
+<div id="edit-emp-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:60;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:480px;animation:fadeUp .2s ease;">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:14px;font-weight:600;">✏️ Editar Empresa</div>
+      <button onclick="closeEditEmp()" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">✕ Fechar</button>
+    </div>
+    <div style="padding:20px 24px;">
+      <input type="hidden" id="edit-emp-idx">
+      <div style="display:grid;gap:10px;margin-bottom:14px;">
+        <div>
+          <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Nome da Empresa</label>
+          <input id="edit-emp-nome" type="text" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">CNPJ</label>
+          <input id="edit-emp-cnpj" type="text" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Omie App Key</label>
+          <input id="edit-emp-appkey" type="text" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Omie App Secret</label>
+          <input id="edit-emp-appsecret" type="text" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+        </div>
+      </div>
+      <div id="edit-emp-error" style="color:var(--red);font-size:11px;margin-bottom:8px;display:none;"></div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="closeEditEmp()" style="flex:1;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:'Sora',sans-serif;">Cancelar</button>
+        <button onclick="salvarEditEmp()" style="flex:1;background:var(--cyan);border:none;color:white;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">💾 Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDITAR CATEGORIA MODAL -->
+<div id="edit-cat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:60;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:420px;animation:fadeUp .2s ease;">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:14px;font-weight:600;">🏷️ Editar Categoria</div>
+      <button onclick="closeEditCat()" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">✕ Fechar</button>
+    </div>
+    <div style="padding:20px 24px;">
+      <input type="hidden" id="edit-cat-idx">
+      <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Empresa</div>
+        <div style="font-size:13px;font-weight:600;" id="edit-cat-emp-nome">—</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Código da Categoria Omie</label>
+        <input id="edit-cat-codigo" type="text" placeholder="Ex: 2.06.98" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:13px;color:var(--cyan);font-family:'JetBrains Mono',monospace;outline:none;">
+        <div style="font-size:10px;color:var(--muted);margin-top:5px;">O código será salvo no glip.json e usado automaticamente no Fluxo 3.</div>
+      </div>
+      <div id="edit-cat-error" style="color:var(--red);font-size:11px;margin-bottom:8px;display:none;"></div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="closeEditCat()" style="flex:1;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:'Sora',sans-serif;">Cancelar</button>
+        <button onclick="salvarEditCat()" style="flex:1;background:var(--cyan);border:none;color:white;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">💾 Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openEditEmp(idx) {
+  const e = empresasData[idx];
+  document.getElementById('edit-emp-idx').value = idx;
+  document.getElementById('edit-emp-nome').value = fixEncoding(e.empresa || e.nome || '');
+  document.getElementById('edit-emp-cnpj').value = e.cnpj || '';
+  document.getElementById('edit-emp-appkey').value = e.omie_app_key || '';
+  document.getElementById('edit-emp-appsecret').value = e.omie_app_secret || '';
+  document.getElementById('edit-emp-error').style.display = 'none';
+  document.getElementById('edit-emp-modal').style.display = 'flex';
+}
+function closeEditEmp() { document.getElementById('edit-emp-modal').style.display = 'none'; }
+
+async function salvarEditEmp() {
+  const idx = parseInt(document.getElementById('edit-emp-idx').value);
+  const errEl = document.getElementById('edit-emp-error');
+  const nome = document.getElementById('edit-emp-nome').value.trim();
+  const cnpj = document.getElementById('edit-emp-cnpj').value.trim().replace(/\D/g,'');
+  const appKey = document.getElementById('edit-emp-appkey').value.trim();
+  const appSecret = document.getElementById('edit-emp-appsecret').value.trim();
+  if (!nome||!cnpj||!appKey||!appSecret) { errEl.textContent='Preencha todos os campos.'; errEl.style.display='block'; return; }
+  empresasData[idx] = { ...empresasData[idx], empresa: nome, cnpj, omie_app_key: appKey, omie_app_secret: appSecret };
+  await saveEmpresas();
+  closeEditEmp();
+  await loadEmpresas();
+  renderPaginaEmpresas();
+}
+
+function openEditCat(idx) {
+  const e = empresasData[idx];
+  document.getElementById('edit-cat-idx').value = idx;
+  document.getElementById('edit-cat-emp-nome').textContent = fixEncoding(e.empresa || e.nome || '—');
+  document.getElementById('edit-cat-codigo').value = e.codigo_categoria || '';
+  document.getElementById('edit-cat-error').style.display = 'none';
+  document.getElementById('edit-cat-modal').style.display = 'flex';
+}
+function closeEditCat() { document.getElementById('edit-cat-modal').style.display = 'none'; }
+
+async function salvarEditCat() {
+  const idx = parseInt(document.getElementById('edit-cat-idx').value);
+  const codigo = document.getElementById('edit-cat-codigo').value.trim();
+  const errEl = document.getElementById('edit-cat-error');
+  if (!codigo) { errEl.textContent='Informe o código da categoria.'; errEl.style.display='block'; return; }
+  empresasData[idx] = { ...empresasData[idx], codigo_categoria: codigo };
+  await saveEmpresas();
+  closeEditCat();
+  await loadEmpresas();
+  renderPaginaEmpresas();
+  const pgErr = document.getElementById('pg-emp-error');
+  pgErr.textContent = `✅ Categoria atualizada para ${codigo}!`;
+  pgErr.style.color = 'var(--green)';
+  pgErr.style.display = 'block';
+  setTimeout(() => { pgErr.style.display = 'none'; }, 3000);
+}
+</script>
