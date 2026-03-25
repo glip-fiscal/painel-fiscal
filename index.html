@@ -1689,7 +1689,7 @@ async function saveEmpresas() {
     <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--panel);z-index:1;border-radius:16px 16px 0 0;gap:12px;">
       <div>
         <div style="font-size:16px;font-weight:600;">📚 Documentação do Projeto</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;">GLIP · Extrator Fiscal Automatizado · v7.0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">GLIP · Extrator Fiscal Automatizado · v8.0</div>
       </div>
       <button onclick="closeDocs()" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:'Sora',sans-serif;">✕ Fechar</button>
     </div>
@@ -1715,9 +1715,9 @@ async function saveEmpresas() {
             <div class="doc-flow-detail"><strong>Trigger:</strong> Novo e-mail recebido com anexo (Outlook V3)<br><strong>🛡️ Segurança:</strong> GET emails.json → loop → verifica remetente → autorizado ou bloqueado<br><strong>Ação:</strong> Loop nos anexos → verifica se é PDF → salva com nome original<br><strong>Gestão:</strong> Painel → 📧 E-mails → adicionar/remover remetentes autorizados</div>
           </div>
           <div class="doc-flow-card" style="border-left:3px solid var(--green);">
-            <div class="doc-flow-header"><span class="doc-badge" style="background:var(--green-dim);color:var(--green);">F2</span><strong>Extrair Dados com Claude AI</strong><span class="doc-status">✅ Ativo</span></div>
-            <div class="doc-flow-desc">Detecta novo PDF em /Pendentes, envia para Claude API e extrai 15+ campos fiscais. Cria item na lista Lancamentos com Status = Pendente.</div>
-            <div class="doc-flow-detail"><strong>Trigger:</strong> Arquivo criado em /Pendentes<br><strong>Modelo:</strong> claude-sonnet-4-20250514<br><strong>Campos:</strong> tipo, fornecedor, CNPJ, NF, datas, valor, impostos, chave NFe<br><strong>Proteção:</strong> Verifica duplicata por CodigoIntegracao antes de criar</div>
+            <div class="doc-flow-header"><span class="doc-badge" style="background:var(--green-dim);color:var(--green);">F2</span><strong>Extrair Dados com Claude AI</strong><span class="doc-status">✅ Ativo</span><span style="font-size:10px;background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--border2);padding:2px 8px;border-radius:12px;font-weight:600;">🔍 Filtro por Tipo</span></div>
+            <div class="doc-flow-desc">Detecta novo PDF em /Pendentes, envia para Claude API e extrai 15+ campos fiscais. Antes de criar o item na lista, <strong>verifica se o tipo do documento é aceito pela empresa</strong> via <code>tipos_aceitos</code> no glip.json. Documentos não aceitos são movidos para <code>/Boletos</code> automaticamente.</div>
+            <div class="doc-flow-detail"><strong>Trigger:</strong> Arquivo criado em /Pendentes<br><strong>Modelo:</strong> claude-sonnet-4-20250514<br><strong>Campos:</strong> tipo, fornecedor, CNPJ, NF, datas, valor, impostos, chave NFe<br><strong>Proteção duplicata:</strong> Verifica CodigoIntegracao antes de criar<br><strong>🔍 Filtro tipo:</strong> GET glip.json → busca empresa pelo CNPJTomador → verifica tipos_aceitos → aceito? → cria item · não aceito? → move para /Boletos<br><strong>Tipos possíveis:</strong> NF-e, NFS-e, Boleto — configurados por empresa no painel → 🏢 Empresas</div>
           </div>
           <div class="doc-flow-card" style="border-left:3px solid var(--amber);">
             <div class="doc-flow-header"><span class="doc-badge" style="background:var(--amber-dim);color:var(--amber);">F3</span><strong>Integração Omie</strong><span class="doc-status">✅ Ativo</span></div>
@@ -1892,7 +1892,20 @@ async function saveEmpresas() {
             <div class="doc-problem-solution"><strong>Causa:</strong> Empresas cadastradas no painel salvavam no GitHub mas o Fluxo 3 lia do SharePoint — dois arquivos diferentes.<br><strong>Solução:</strong> Substituir "Enviar uma solicitação HTTP ao SharePoint" por HTTP GET simples para <code>https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/glip.json</code>. Atualizar Analisar JSON 1 para usar <code>body('HTTP')</code>.</div>
           </div>
 
-          <div style="font-size:10px;font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:2px;margin:16px 0 10px;">Resolvidos em 24/03/2026</div>
+          <div style="font-size:10px;font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:2px;margin:16px 0 10px;">Resolvidos em 25/03/2026</div>
+
+          <div class="doc-problem" style="border-left:3px solid var(--cyan);">
+            <div class="doc-problem-title">🔍 F2 — Boletos e documentos não desejados eram processados e lançados no Omie</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> O F2 processava qualquer PDF independente do tipo — boletos, NF-e e NFS-e eram todos lançados no Omie sem distinção.<br><strong>Solução:</strong> Adicionado filtro de tipos por empresa via campo <code>tipos_aceitos</code> no glip.json. O F2 consulta o glip.json, verifica se o tipo do documento está na lista aceita pela empresa — se não estiver, move o PDF para <code>/Boletos</code> e encerra sem criar item na lista.<br><strong>Configuração:</strong> Painel → 🏢 Empresas → ✏️ Editar → checkboxes NF-e / NFS-e / Boleto</div>
+          </div>
+          <div class="doc-problem" style="border-left:3px solid #A78BFA;">
+            <div class="doc-problem-title">🗂️ F7 — Planejamento completo da Baixa Automática de Provisões</div>
+            <div class="doc-problem-solution"><strong>Contexto:</strong> Fornecedores com contratos recorrentes geram provisões no Omie (id_origem = "RPTP"). Quando a nota real chega, a provisão do mesmo mês precisa ser baixada.<br><strong>Solução planejada:</strong> F7 chamado pelo F3 após sucesso — busca provisão pelo CNPJ + mês da DataEmissao + id_origem RPTP — tolerância de 20% no valor — exclui a provisão de menor diferença.<br><strong>Status:</strong> Fluxo criado no Power Automate, aguardando integração com F3.</div>
+          </div>
+          <div class="doc-problem" style="border-left:3px solid var(--amber);">
+            <div class="doc-problem-title">📊 Roadmap — Tarefas não persistiam após fechar o painel</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> O estado do Roadmap era apenas visual — ao recarregar a página, voltava ao HTML original.<br><strong>Solução:</strong> Implementado <code>roadmap.json</code> no GitHub. Ao finalizar, excluir ou adicionar tarefas, o estado é salvo automaticamente. Ao abrir a aba Roadmap, carrega o estado salvo.</div>
+          </div>
 
           <div class="doc-problem" style="border-left:3px solid var(--green);">
             <div class="doc-problem-title">🛡️ Fluxo 1 — Qualquer remetente podia lançar notas no Omie (vulnerabilidade crítica)</div>
@@ -1954,13 +1967,13 @@ async function saveEmpresas() {
             <div class="doc-road-card doc-road-high">
               <div class="doc-road-badge">🔴 Alta prioridade</div>
               <ul class="doc-road-list" id="road-high">
-                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🔴 F7 — Implementar Baixa Automática de Provisões no Power Automate</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
-                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🔴 F3 — Adicionar chamada HTTP para o F7 após sucesso no lançamento</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
+                <li class="road-item road-done"><span class="road-text">🔴 F7 — Implementar Baixa Automática de Provisões no Power Automate (25/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">🔴 F3 — Adicionar chamada HTTP para o F7 após sucesso no lançamento (25/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">🔍 Filtro de tipo de documento por empresa no glip.json — NF-e/NFS-e/Boleto (25/03/2026)</span></li>
                 <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Notas que chegam como link no email — pesquisar solução</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
                 <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Categoria automática por fornecedor no Omie</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
                 <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Conta corrente automática por empresa</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
                 <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">Corrigir chave NF-e — extrair 44 chars corretos</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
-                <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🆕 Filtro de tipo de documento por empresa no glip.json (NF-e, NFS-e, Boleto)</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
                 <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🆕 Detecção de fraude — validar CNPJ, valor e fornecedor antes de subir para o Omie</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
                 <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🆕 Limites de caracteres Omie — mapear todos os campos e aplicar substring preventivo</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
                 <li class="road-item" onclick="toggleRoadItem(this)"><span class="road-text">🆕 Multi-email — suporte a vários e-mails monitorados, um por empresa</span><button class="road-del" onclick="delRoadItem(event,this)">✕</button></li>
@@ -2062,6 +2075,14 @@ async function saveEmpresas() {
                 <li class="road-item road-done"><span class="road-text">Página dedicada de Empresas no painel com status de conexão (24/03/2026)</span></li>
                 <li class="road-item road-done"><span class="road-text">Categoria automática por empresa — codigo_categoria dinâmico no glip.json (24/03/2026)</span></li>
                 <li class="road-item road-done"><span class="road-text">🛡️ Whitelist de remetentes — proteção anti-fraude no Fluxo 1 (24/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Página dedicada de Usuários com cards Total/Admins/Visualizadores (25/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Modal de E-mails Monitorados com persistência no emails.json (25/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Roadmap persistente — salva estado no roadmap.json do GitHub (25/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Cards da página principal com visual gradient — novo design (25/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">F7 — Baixa automática de provisões — fluxo criado no Power Automate (25/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">F3 → F7 integração — chamada HTTP após sucesso no lançamento (25/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">🔍 F2 — Filtro de tipos por empresa via tipos_aceitos no glip.json (25/03/2026)</span></li>
+                <li class="road-item road-done"><span class="road-text">Tipos aceitos por empresa — checkboxes NF-e/NFS-e/Boleto no painel (25/03/2026)</span></li>
               </ul>
             </div>
 
