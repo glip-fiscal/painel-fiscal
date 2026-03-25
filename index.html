@@ -419,7 +419,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
             <div class="status-row"><div class="status-info"><span class="s-num">F3</span><div><div class="s-name" id="f3-name">Integração Omie</div><div class="s-trig" id="f3-trig">item na lista</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
             <div class="status-row"><div class="status-info"><span class="s-num">F4</span><div><div class="s-name" id="f4-name">Reconciliação Horária</div><div class="s-trig" id="f4-trig">a cada 1 hora</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
             <div class="status-row"><div class="status-info"><span class="s-num" style="background:rgba(167,139,250,0.1);color:#A78BFA;">F5</span><div><div class="s-name">Setup Categoria Omie</div><div class="s-trig">trigger HTTP · painel</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
-            <div class="status-row"><div class="status-info"><span class="s-num" style="background:rgba(34,197,94,0.1);color:var(--green);">F6</span><div><div class="s-name">Multi-Email Monitor</div><div class="s-trig">e-mails cadastrados</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
+            <div class="status-row"><div class="status-info"><span class="s-num" style="background:rgba(34,197,94,0.1);color:var(--green);">F6</span><div><div class="s-name">Whitelist Anti-Fraude</div><div class="s-trig">integrado ao F1</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
           </div>
         </div>
         <div class="card" id="section-pendentes">
@@ -1689,10 +1689,13 @@ async function saveEmpresas() {
             <div class="doc-flow-desc">Cria a categoria "A Classificar" no Omie para uma nova empresa. Busca um slot disponível nas categorias de Despesa, renomeia e ativa. Salva o código no glip.json automaticamente.</div>
             <div class="doc-flow-detail"><strong>Trigger:</strong> HTTP POST via painel (página Empresas)<br><strong>Body:</strong> <code>{ "empresa_cnpj": "..." }</code><br><strong>Fluxo:</strong> GET glip.json → busca credenciais → ListarCategorias Omie → acha slot &lt;Disponível&gt; em Despesas → AlterarCategoria (renomeia + ativa) → monta array atualizado → PUT glip.json GitHub<br><strong>Retorno:</strong> <code>{ "codigo_categoria": "2.xx.xx", "mensagem": "...", "empresa_cnpj": "..." }</code></div>
           </div>
+          <div class="doc-flow-card" style="border-left:3px solid var(--green);">
+            <div class="doc-flow-header"><span class="doc-badge" style="background:var(--green-dim);color:var(--green);">F6</span><strong>Whitelist de Remetentes — Anti-Fraude</strong><span class="doc-status">✅ Ativo</span><span style="font-size:10px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);padding:2px 8px;border-radius:12px;font-weight:600;">🛡️ Segurança</span></div>
+            <div class="doc-flow-desc">Camada de segurança integrada ao Fluxo 1. Antes de processar qualquer PDF, verifica se o remetente está na whitelist do <code>emails.json</code>. E-mails de origens desconhecidas ou golpes são <strong>bloqueados silenciosamente</strong> — sem processamento, sem lançamento no Omie.</div>
+            <div class="doc-flow-detail"><strong>Trigger:</strong> Integrado ao Fluxo 1 — roda a cada e-mail recebido<br><strong>Fluxo:</strong> GET emails.json → Loop_Emails → verifica remetente → varRemetenteAutorizado = true/false → Condição: autorizado? → processa ou bloqueia<br><strong>Gestão:</strong> Painel → 📧 E-mails → adicionar/remover remetentes autorizados sem alterar o fluxo<br><strong>Futuro:</strong> Migrar para e-mail centralizado com múltiplas caixas monitoradas</div>
+          </div>
         </div>
       </div>
-
-      <!-- CONFIG -->
       <div id="doc-config" class="doc-panel" style="display:none;">
         <div class="doc-section">
           <div class="doc-group">
