@@ -337,6 +337,20 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
             <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Omie App Secret</label>
             <input id="pg-emp-appsecret" type="text" placeholder="App Secret do Omie" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
           </div>
+          <div style="grid-column:span 2;">
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Tipos de Documento Aceitos</label>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;">
+                <input type="checkbox" id="pg-emp-nfe" value="NF-e" checked style="accent-color:var(--cyan);width:14px;height:14px;"> NF-e
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;">
+                <input type="checkbox" id="pg-emp-nfse" value="NFS-e" checked style="accent-color:var(--cyan);width:14px;height:14px;"> NFS-e
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;">
+                <input type="checkbox" id="pg-emp-boleto" value="Boleto" style="accent-color:var(--cyan);width:14px;height:14px;"> Boleto
+              </label>
+            </div>
+          </div>
         </div>
         <div id="pg-emp-error" style="color:var(--red);font-size:11px;margin-bottom:8px;display:none;"></div>
         <button onclick="addEmpresaPagina()" style="background:var(--cyan);border:none;color:white;border-radius:8px;padding:9px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">Adicionar</button>
@@ -1518,9 +1532,15 @@ function renderPaginaEmpresas() {
           </div>
           ${catBadge}
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;background:var(--panel2);border-radius:8px;padding:10px 12px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;background:var(--panel2);border-radius:8px;padding:10px 12px;">
           <div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">CNPJ</div><div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text);">${e.cnpj||'—'}</div></div>
           <div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">App Key</div><div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--cyan);">${(e.omie_app_key||'').substring(0,12)}...</div></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+          ${['NF-e','NFS-e','Boleto'].map(t => {
+            const aceito = (e.tipos_aceitos||['NF-e','NFS-e']).includes(t);
+            return `<span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:6px;${aceito ? 'background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);' : 'background:var(--panel2);color:var(--muted);border:1px solid var(--border);opacity:0.5;'}">${aceito ? '✅' : '✕'} ${t}</span>`;
+          }).join('')}
         </div>
         <div style="display:flex;gap:6px;">
           ${btnSetup}
@@ -1549,15 +1569,20 @@ async function addEmpresaPagina() {
   const appKey = document.getElementById('pg-emp-appkey').value.trim();
   const appSecret = document.getElementById('pg-emp-appsecret').value.trim();
   const errEl = document.getElementById('pg-emp-error');
+  const tipos_aceitos = ['NF-e','NFS-e','Boleto'].filter(t => document.getElementById(`pg-emp-${t.toLowerCase().replace('-','').replace('-','')}`).checked);
   if (!nome||!cnpj||!appKey||!appSecret) { errEl.textContent='Preencha todos os campos.'; errEl.style.display='block'; return; }
+  if (tipos_aceitos.length === 0) { errEl.textContent='Selecione pelo menos um tipo de documento.'; errEl.style.color='var(--red)'; errEl.style.display='block'; return; }
   if (empresasData.find(e=>e.cnpj===cnpj)) { errEl.textContent='CNPJ já cadastrado.'; errEl.style.display='block'; return; }
   errEl.style.display='none';
-  empresasData.push({ empresa: nome, cnpj, omie_app_key: appKey, omie_app_secret: appSecret, codigo_categoria: '' });
+  empresasData.push({ empresa: nome, cnpj, omie_app_key: appKey, omie_app_secret: appSecret, codigo_categoria: '', tipos_aceitos });
   await saveEmpresas();
   document.getElementById('pg-emp-nome').value='';
   document.getElementById('pg-emp-cnpj').value='';
   document.getElementById('pg-emp-appkey').value='';
   document.getElementById('pg-emp-appsecret').value='';
+  document.getElementById('pg-emp-nfe').checked=true;
+  document.getElementById('pg-emp-nfse').checked=true;
+  document.getElementById('pg-emp-boleto').checked=false;
   await loadEmpresas();
   renderPaginaEmpresas();
   errEl.textContent='✅ Empresa adicionada! Configure a categoria.';
@@ -2327,6 +2352,20 @@ function addRoadItem() {
           <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Omie App Secret</label>
           <input id="edit-emp-appsecret" type="text" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
         </div>
+        <div>
+          <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Tipos de Documento Aceitos</label>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;">
+              <input type="checkbox" id="edit-emp-nfe" style="accent-color:var(--cyan);width:14px;height:14px;"> NF-e
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;">
+              <input type="checkbox" id="edit-emp-nfse" style="accent-color:var(--cyan);width:14px;height:14px;"> NFS-e
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;">
+              <input type="checkbox" id="edit-emp-boleto" style="accent-color:var(--cyan);width:14px;height:14px;"> Boleto
+            </label>
+          </div>
+        </div>
       </div>
       <div id="edit-emp-error" style="color:var(--red);font-size:11px;margin-bottom:8px;display:none;"></div>
       <div style="display:flex;gap:10px;">
@@ -2372,6 +2411,10 @@ function openEditEmp(idx) {
   document.getElementById('edit-emp-cnpj').value = e.cnpj || '';
   document.getElementById('edit-emp-appkey').value = e.omie_app_key || '';
   document.getElementById('edit-emp-appsecret').value = e.omie_app_secret || '';
+  const tipos = e.tipos_aceitos || ['NF-e', 'NFS-e'];
+  document.getElementById('edit-emp-nfe').checked = tipos.includes('NF-e');
+  document.getElementById('edit-emp-nfse').checked = tipos.includes('NFS-e');
+  document.getElementById('edit-emp-boleto').checked = tipos.includes('Boleto');
   document.getElementById('edit-emp-error').style.display = 'none';
   document.getElementById('edit-emp-modal').style.display = 'flex';
 }
@@ -2384,8 +2427,13 @@ async function salvarEditEmp() {
   const cnpj = document.getElementById('edit-emp-cnpj').value.trim().replace(/\D/g,'');
   const appKey = document.getElementById('edit-emp-appkey').value.trim();
   const appSecret = document.getElementById('edit-emp-appsecret').value.trim();
+  const tipos_aceitos = ['NF-e','NFS-e','Boleto'].filter(t => {
+    const id = 'edit-emp-' + t.toLowerCase().replace('-e','e').replace('-','');
+    return document.getElementById(id)?.checked;
+  });
   if (!nome||!cnpj||!appKey||!appSecret) { errEl.textContent='Preencha todos os campos.'; errEl.style.display='block'; return; }
-  empresasData[idx] = { ...empresasData[idx], empresa: nome, cnpj, omie_app_key: appKey, omie_app_secret: appSecret };
+  if (tipos_aceitos.length === 0) { errEl.textContent='Selecione pelo menos um tipo.'; errEl.style.display='block'; return; }
+  empresasData[idx] = { ...empresasData[idx], empresa: nome, cnpj, omie_app_key: appKey, omie_app_secret: appSecret, tipos_aceitos };
   await saveEmpresas();
   closeEditEmp();
   await loadEmpresas();
