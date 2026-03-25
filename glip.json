@@ -83,5 +83,15 @@
     "tipos_aceitos": [
       "NFS-e"
     ]
+  },
+  {
+    "empresa": "VIW TECNOLOGIA E SEGURANCA LTDA",
+    "cnpj": "03257026000108",
+    "omie_app_key": "5947364719296",
+    "omie_app_secret": "1a94ce63c626565d13603707651ecb81",
+    "codigo_categoria": "",
+    "tipos_aceitos": [
+      "NFS-e"
+    ]
   }
 ]
