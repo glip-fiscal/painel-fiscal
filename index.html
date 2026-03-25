@@ -1583,7 +1583,7 @@ async function saveEmpresas() {
     <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--panel);z-index:1;border-radius:16px 16px 0 0;gap:12px;">
       <div>
         <div style="font-size:16px;font-weight:600;">📚 Documentação do Projeto</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;">GLIP · Extrator Fiscal Automatizado · v3.0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">GLIP · Extrator Fiscal Automatizado · v6.0</div>
       </div>
       <button onclick="closeDocs()" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:'Sora',sans-serif;">✕ Fechar</button>
     </div>
@@ -1616,12 +1616,17 @@ async function saveEmpresas() {
           <div class="doc-flow-card" style="border-left:3px solid var(--amber);">
             <div class="doc-flow-header"><span class="doc-badge" style="background:var(--amber-dim);color:var(--amber);">F3</span><strong>Integração Omie</strong><span class="doc-status">✅ Ativo</span></div>
             <div class="doc-flow-desc">Ao criar item na lista, busca credenciais no glip.json, faz upsert do fornecedor e lança a conta a pagar no Omie.</div>
-            <div class="doc-flow-detail"><strong>Trigger:</strong> Item criado na lista Lancamentos<br><strong>Fluxo:</strong> UpsertClienteCpfCnpj → 60s atraso → IncluirContaPagar<br><strong>Sucesso:</strong> 200, 425 ou 502 → move para /Processados<br><strong>Erro:</strong> move para /Erro<br><strong>Pendências manuais:</strong> Categoria (2.06.98) e Conta Corrente</div>
+            <div class="doc-flow-detail"><strong>Trigger:</strong> Item criado na lista Lancamentos<br><strong>Fluxo:</strong> UpsertClienteCpfCnpj → 60s atraso → IncluirContaPagar<br><strong>Sucesso:</strong> 200, 425 ou 502 → move para /Processados<br><strong>Erro:</strong> move para /Erro<br><strong>Categoria:</strong> Dinâmica por empresa via <code>codigo_categoria</code> do glip.json — configurada via fluxo F5</div>
           </div>
           <div class="doc-flow-card" style="border-left:3px solid var(--blue, #60A5FA);">
             <div class="doc-flow-header"><span class="doc-badge" style="background:rgba(96,165,250,0.1);color:#60A5FA;">F4</span><strong>Reconciliação e Painel</strong><span class="doc-status">✅ Ativo</span></div>
             <div class="doc-flow-desc">Roda a cada hora. Lê notas da lista Lancamentos, detecta PDFs travados em /Pendentes e gera o arquivo diário no GitHub para o painel.</div>
             <div class="doc-flow-detail"><strong>Trigger:</strong> Recorrência — a cada 1 hora<br><strong>Filtro:</strong> DataRegistroHora1 da última hora<br><strong>Saída:</strong> YYYY-MM-DD.json no GitHub com notas + pendentes<br><strong>Deduplicação:</strong> por NF + CNPJ + DataEmissao</div>
+          </div>
+          <div class="doc-flow-card" style="border-left:3px solid #A78BFA;">
+            <div class="doc-flow-header"><span class="doc-badge" style="background:rgba(167,139,250,0.1);color:#A78BFA;">F5</span><strong>Setup Categoria Omie</strong><span class="doc-status">✅ Ativo</span></div>
+            <div class="doc-flow-desc">Cria a categoria "A Classificar" no Omie para uma nova empresa. Busca um slot disponível nas categorias de Despesa, renomeia e ativa. Salva o código no glip.json automaticamente.</div>
+            <div class="doc-flow-detail"><strong>Trigger:</strong> HTTP POST via painel (página Empresas)<br><strong>Body:</strong> <code>{ "empresa_cnpj": "..." }</code><br><strong>Fluxo:</strong> GET glip.json → busca credenciais → ListarCategorias Omie → acha slot &lt;Disponível&gt; em Despesas → AlterarCategoria (renomeia + ativa) → monta array atualizado → PUT glip.json GitHub<br><strong>Retorno:</strong> <code>{ "codigo_categoria": "2.xx.xx", "mensagem": "...", "empresa_cnpj": "..." }</code></div>
           </div>
         </div>
       </div>
@@ -1643,9 +1648,11 @@ async function saveEmpresas() {
             <div class="doc-group-title">🟠 Omie ERP</div>
             <div class="doc-table">
               <div class="doc-row"><span>URL</span><code>app.omie.com.br</code></div>
-              <div class="doc-row"><span>API</span><code>https://app.omie.com.br/api/v1/financas/contapagar/</code></div>
-              <div class="doc-row"><span>Credenciais</span><code>/Cadastros/Empresas/glip.json</code></div>
-              <div class="doc-row"><span>Categoria padrão</span><code>2.06.98 (genérica)</code></div>
+              <div class="doc-row"><span>API Contas</span><code>https://app.omie.com.br/api/v1/financas/contapagar/</code></div>
+              <div class="doc-row"><span>API Categorias</span><code>https://app.omie.com.br/api/v1/geral/categorias/</code></div>
+              <div class="doc-row"><span>Credenciais</span><code>glip.json no GitHub (omie_app_key, omie_app_secret)</code></div>
+              <div class="doc-row"><span>Categoria</span><code>Dinâmica por empresa — campo codigo_categoria no glip.json</code></div>
+              <div class="doc-row"><span>Setup categoria</span><code>Fluxo F5 — busca slot &lt;Disponível&gt; em Despesas e renomeia para "A Classificar"</code></div>
             </div>
           </div>
           <div class="doc-group">
@@ -1743,6 +1750,29 @@ async function saveEmpresas() {
             <div class="doc-problem-title">🔧 Fluxo 3 — glip.json no SharePoint não sincronizado com painel (23/03/2026)</div>
             <div class="doc-problem-solution"><strong>Causa:</strong> Empresas cadastradas no painel salvavam no GitHub mas o Fluxo 3 lia do SharePoint — dois arquivos diferentes.<br><strong>Solução:</strong> Substituir "Enviar uma solicitação HTTP ao SharePoint" por HTTP GET simples para <code>https://raw.githubusercontent.com/glip-fiscal/painel-fiscal/main/glip.json</code>. Atualizar Analisar JSON 1 para usar <code>body('HTTP')</code>.</div>
           </div>
+
+          <div style="font-size:10px;font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:2px;margin:16px 0 10px;">Resolvidos em 24/03/2026</div>
+
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 F5 — Omie exige campo categoria_superior ao criar categoria</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> IncluirCategoria retornava erro <code>SOAP-ENV:Client-103</code> sem o campo <code>categoria_superior</code>.<br><strong>Solução:</strong> Trocar abordagem — em vez de criar categoria nova, usar <code>AlterarCategoria</code> em um slot <code>&lt;Disponível&gt;</code> existente dentro do grupo Despesas (categoria com <code>conta_despesa=S</code>).</div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 F5 — Categoria criada ficava inativa no Omie</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> Slots <code>&lt;Disponível&gt;</code> têm <code>conta_inativa=S</code> por padrão. A categoria renomeada ficava inativa e não podia ser usada no lançamento.<br><strong>Solução:</strong> Adicionar <code>"conta_inativa": "N"</code> no body do AlterarCategoria junto com a nova descrição.</div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 F5 — Loop de categorias percorria 50+ itens e causava timeout no Postman</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> O "Aplicar a cada" percorria todas as categorias mesmo após encontrar o slot, tornando o fluxo muito lento.<br><strong>Solução:</strong> Comportamento esperado do Power Automate — o loop completa todas as iterações. O fluxo funciona corretamente ao aguardar a conclusão.</div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 F5 — Compor usava items() fora do loop (InvalidTemplate)</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> A ação Compor tentava referenciar <code>items('Aplicar_a_cada')</code> fora do escopo do loop.<br><strong>Solução:</strong> Criar um terceiro loop (<code>Loop_Monta_Json</code>) após o AlterarCategoria para reconstruir o array do glip.json com o <code>codigo_categoria</code> atualizado usando <code>setProperty()</code>.</div>
+          </div>
+          <div class="doc-problem">
+            <div class="doc-problem-title">🔧 Painel — nome de empresas com caracteres especiais aparecia corrompido</div>
+            <div class="doc-problem-solution"><strong>Causa:</strong> Nomes com acentos (ex: "Participações") eram exibidos como "ParticipaÃ§Ãµes" — problema de encoding UTF-8/Latin1 no atob() do GitHub.<br><strong>Solução:</strong> Criar função <code>fixEncoding(str)</code> usando <code>decodeURIComponent(escape(str))</code> em todos os locais que exibem nomes de empresas.</div>
+          </div>
         </div>
       </div>
 
@@ -1757,6 +1787,7 @@ async function saveEmpresas() {
               <ul class="doc-road-list" id="road-high">
                 <li class="road-item" onclick="toggleRoadItem(this)">Criar fluxo "GLIP - Criar Categoria Omie" + tela no painel</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Tornar codigo_categoria dinâmico no Fluxo 3 via glip.json</li>
+                <li class="road-item" onclick="toggleRoadItem(this)">🔴 Tornar codigo_categoria dinâmico no Fluxo 3 — ler do glip.json em vez de fixo '2.06.98'</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Filtrar boletos — subir apenas notas fiscais (Fluxo 2)</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Notas que chegam como link no email — pesquisar solução</li>
                 <li class="road-item" onclick="toggleRoadItem(this)">Categoria automática por fornecedor no Omie</li>
@@ -1827,6 +1858,9 @@ async function saveEmpresas() {
                 <li class="road-item road-done">Tela de cadastro de empresa no painel (23/03/2026)</li>
                 <li class="road-item road-done">Fluxo 3 — razao_social limitada a 60 chars (23/03/2026)</li>
                 <li class="road-item road-done">Fluxo 3 — leitura do glip.json via GitHub em vez do SharePoint (23/03/2026)</li>
+                <li class="road-item road-done">Criar categoria "A Classificar" automaticamente via Fluxo F5 (24/03/2026)</li>
+                <li class="road-item road-done">Página dedicada de Empresas no painel com status de conexão (24/03/2026)</li>
+                <li class="road-item road-done">Categoria automática por empresa — codigo_categoria dinâmico no glip.json (24/03/2026)</li>
               </ul>
             </div>
 
