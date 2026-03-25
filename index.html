@@ -250,6 +250,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
     <a class="nav-item" href="#section-fluxos"><span class="nav-icon">⚙️</span> <span id="nav-fluxos">Fluxos</span></a>
     <a class="nav-item admin-only" href="#" onclick="showPaginaUsuarios()" id="nav-users-btn" style="display:none"><span class="nav-icon">👥</span> <span id="nav-users">Usuários</span></a>
     <a class="nav-item admin-only" href="#" onclick="showPaginaEmpresas()" id="nav-empresas-btn" style="display:none"><span class="nav-icon">🏢</span> <span>Empresas</span></a>
+    <a class="nav-item admin-only" href="#" onclick="showEmails()" id="nav-emails-btn" style="display:none"><span class="nav-icon">📧</span> <span>E-mails</span></a>
     <a class="nav-item admin-only" href="#" onclick="showDocs()" id="nav-docs-btn" style="display:none"><span class="nav-icon">📚</span> <span id="nav-docs">Documentação</span></a>
     <div class="sidebar-footer">
       <div class="user-info">
@@ -417,6 +418,8 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
             <div class="status-row"><div class="status-info"><span class="s-num">F2</span><div><div class="s-name" id="f2-name">Extrair com Claude AI</div><div class="s-trig" id="f2-trig">PDF em /Pendentes</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
             <div class="status-row"><div class="status-info"><span class="s-num">F3</span><div><div class="s-name" id="f3-name">Integração Omie</div><div class="s-trig" id="f3-trig">item na lista</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
             <div class="status-row"><div class="status-info"><span class="s-num">F4</span><div><div class="s-name" id="f4-name">Reconciliação Horária</div><div class="s-trig" id="f4-trig">a cada 1 hora</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
+            <div class="status-row"><div class="status-info"><span class="s-num" style="background:rgba(167,139,250,0.1);color:#A78BFA;">F5</span><div><div class="s-name">Setup Categoria Omie</div><div class="s-trig">trigger HTTP · painel</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
+            <div class="status-row"><div class="status-info"><span class="s-num" style="background:rgba(34,197,94,0.1);color:var(--green);">F6</span><div><div class="s-name">Multi-Email Monitor</div><div class="s-trig">e-mails cadastrados</div></div></div><span class="s-badge ok">● <span class="f-ativo-ref">Ativo</span></span></div>
           </div>
         </div>
         <div class="card" id="section-pendentes">
@@ -742,6 +745,8 @@ function showApp() {
     if (docsBtn) docsBtn.style.display = 'flex';
     const empBtn = document.getElementById('nav-empresas-btn');
     if (empBtn) empBtn.style.display = 'flex';
+    const emailsBtn = document.getElementById('nav-emails-btn');
+    if (emailsBtn) emailsBtn.style.display = 'flex';
   }
   document.getElementById('user-avatar').textContent = u.nome.charAt(0).toUpperCase();
   applyTranslations();
@@ -2370,5 +2375,200 @@ async function pgRemoveUser(idx) {
   usersData.splice(idx, 1);
   await saveUsers();
   renderPaginaUsuarios();
+}
+</script>
+
+<!-- EMAILS MODAL -->
+<div id="emails-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:50;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+  <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:600px;margin:0 auto;">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:15px;font-weight:600;">📧 E-mails Monitorados</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">E-mails que o Fluxo 1 e F6 monitoram</div>
+      </div>
+      <button onclick="closeEmails()" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'Sora',sans-serif;">✕ Fechar</button>
+    </div>
+    <div style="padding:24px;">
+      <!-- Formulário -->
+      <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:600;margin-bottom:14px;color:var(--cyan);">+ Adicionar E-mail</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Endereço de E-mail</label>
+            <input id="email-new-addr" type="email" placeholder="financeiro@empresa.com" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Nome Descritivo</label>
+            <input id="email-new-nome" type="text" placeholder="Ex: Financeiro GLIP" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+          </div>
+        </div>
+        <div id="email-error" style="font-size:11px;margin-bottom:8px;display:none;"></div>
+        <button onclick="addEmail()" style="background:var(--cyan);border:none;color:white;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">Adicionar</button>
+      </div>
+
+      <!-- Lista -->
+      <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">E-mails Cadastrados</div>
+      <div id="emails-list"><div class="empty-msg">Carregando...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- EDITAR EMAIL MODAL -->
+<div id="edit-email-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:60;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:420px;animation:fadeUp .2s ease;">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:14px;font-weight:600;">✏️ Editar E-mail</div>
+      <button onclick="closeEditEmail()" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">✕</button>
+    </div>
+    <div style="padding:20px 24px;">
+      <input type="hidden" id="edit-email-idx">
+      <div style="display:grid;gap:10px;margin-bottom:14px;">
+        <div>
+          <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Endereço de E-mail</label>
+          <input id="edit-email-addr" type="email" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Nome Descritivo</label>
+          <input id="edit-email-nome" type="text" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;">
+        </div>
+      </div>
+      <div id="edit-email-error" style="font-size:11px;margin-bottom:8px;display:none;"></div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="closeEditEmail()" style="flex:1;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:'Sora',sans-serif;">Cancelar</button>
+        <button onclick="salvarEditEmail()" style="flex:1;background:var(--cyan);border:none;color:white;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">💾 Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let emailsData = [];
+let emailsSHA = '';
+
+async function showEmails() {
+  document.getElementById('emails-modal').style.display = 'flex';
+  await loadEmails();
+}
+
+function closeEmails() {
+  document.getElementById('emails-modal').style.display = 'none';
+}
+
+async function loadEmails() {
+  const token = localStorage.getItem(GH_TOKEN_KEY);
+  if (!token) {
+    document.getElementById('emails-list').innerHTML = '<div style="color:var(--red);font-size:12px;">Token GitHub não configurado.</div>';
+    return;
+  }
+  document.getElementById('emails-list').innerHTML = '<div class="empty-msg">Carregando...</div>';
+  try {
+    const resp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/emails.json', {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (resp.status === 404) {
+      emailsData = [];
+      emailsSHA = '';
+      renderEmailsList();
+      return;
+    }
+    const data = await resp.json();
+    emailsSHA = data.sha;
+    emailsData = JSON.parse(atob(data.content.replace(/\n/g,'')));
+    renderEmailsList();
+  } catch(e) {
+    document.getElementById('emails-list').innerHTML = '<div style="color:var(--red);font-size:12px;">Erro ao carregar e-mails.</div>';
+  }
+}
+
+function renderEmailsList() {
+  const el = document.getElementById('emails-list');
+  if (!emailsData.length) {
+    el.innerHTML = '<div class="empty-msg">Nenhum e-mail cadastrado</div>';
+    return;
+  }
+  el.innerHTML = emailsData.map((e,i) => `
+    <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:600;">${e.nome||'—'}</div>
+          <div style="font-size:11px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-top:3px;">${e.email||'—'}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="openEditEmail(${i})" style="background:var(--cyan-dim);border:1px solid var(--border2);color:var(--cyan);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">✏️ Editar</button>
+          <button onclick="removeEmail(${i})" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">✕</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+async function addEmail() {
+  const addr = document.getElementById('email-new-addr').value.trim();
+  const nome = document.getElementById('email-new-nome').value.trim();
+  const errEl = document.getElementById('email-error');
+  if (!addr||!nome) { errEl.textContent='Preencha e-mail e nome.'; errEl.style.color='var(--red)'; errEl.style.display='block'; return; }
+  if (emailsData.find(e=>e.email===addr)) { errEl.textContent='E-mail já cadastrado.'; errEl.style.color='var(--red)'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+  emailsData.push({ email: addr, nome });
+  await saveEmails();
+  document.getElementById('email-new-addr').value='';
+  document.getElementById('email-new-nome').value='';
+  renderEmailsList();
+  errEl.textContent='✅ E-mail adicionado!';
+  errEl.style.color='var(--green)';
+  errEl.style.display='block';
+  setTimeout(()=>{ errEl.style.display='none'; }, 3000);
+}
+
+async function removeEmail(idx) {
+  if (!confirm(`Remover ${emailsData[idx].email}?`)) return;
+  emailsData.splice(idx,1);
+  await saveEmails();
+  renderEmailsList();
+}
+
+function openEditEmail(idx) {
+  document.getElementById('edit-email-idx').value = idx;
+  document.getElementById('edit-email-addr').value = emailsData[idx].email||'';
+  document.getElementById('edit-email-nome').value = emailsData[idx].nome||'';
+  document.getElementById('edit-email-error').style.display='none';
+  document.getElementById('edit-email-modal').style.display='flex';
+}
+
+function closeEditEmail() {
+  document.getElementById('edit-email-modal').style.display='none';
+}
+
+async function salvarEditEmail() {
+  const idx = parseInt(document.getElementById('edit-email-idx').value);
+  const addr = document.getElementById('edit-email-addr').value.trim();
+  const nome = document.getElementById('edit-email-nome').value.trim();
+  const errEl = document.getElementById('edit-email-error');
+  if (!addr||!nome) { errEl.textContent='Preencha todos os campos.'; errEl.style.color='var(--red)'; errEl.style.display='block'; return; }
+  emailsData[idx] = { email: addr, nome };
+  await saveEmails();
+  closeEditEmail();
+  renderEmailsList();
+}
+
+async function saveEmails() {
+  const token = localStorage.getItem(GH_TOKEN_KEY);
+  if (!token) return;
+  const errEl = document.getElementById('email-error');
+  try {
+    // GET SHA atual
+    const getResp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/emails.json', {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    const body = { message: 'Atualizar emails.json', content: btoa(unescape(encodeURIComponent(JSON.stringify(emailsData, null, 2)))) };
+    if (getResp.ok) { const d = await getResp.json(); body.sha = d.sha; }
+    const putResp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/emails.json', {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!putResp.ok) throw new Error('Erro ao salvar');
+  } catch(e) {
+    if (errEl) { errEl.textContent=`❌ Erro: ${e.message}`; errEl.style.color='var(--red)'; errEl.style.display='block'; }
+  }
 }
 </script>
