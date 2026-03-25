@@ -1,0 +1,194 @@
+{
+  "road-high": [
+    {
+      "text": "🔴 F3 — Adicionar chamada HTTP para o F7 após sucesso no lançamento",
+      "done": false
+    },
+    {
+      "text": "Notas que chegam como link no email — pesquisar solução",
+      "done": false
+    },
+    {
+      "text": "Categoria automática por fornecedor no Omie",
+      "done": false
+    },
+    {
+      "text": "Conta corrente automática por empresa",
+      "done": false
+    },
+    {
+      "text": "Corrigir chave NF-e — extrair 44 chars corretos",
+      "done": false
+    },
+    {
+      "text": "🆕 Filtro de tipo de documento por empresa no glip.json (NF-e, NFS-e, Boleto)",
+      "done": false
+    },
+    {
+      "text": "🆕 Detecção de fraude — validar CNPJ, valor e fornecedor antes de subir para o Omie",
+      "done": false
+    },
+    {
+      "text": "🆕 Limites de caracteres Omie — mapear todos os campos e aplicar substring preventivo",
+      "done": false
+    },
+    {
+      "text": "🆕 Multi-email — suporte a vários e-mails monitorados, um por empresa",
+      "done": false
+    }
+  ],
+  "road-med": [
+    {
+      "text": "Fluxograma interativo e moderno no painel",
+      "done": false
+    },
+    {
+      "text": "Biometria real (migrar para Netlify + Supabase)",
+      "done": false
+    },
+    {
+      "text": "Backup automático mensal da lista Lancamentos",
+      "done": false
+    },
+    {
+      "text": "Notificação no Teams em caso de erro",
+      "done": false
+    },
+    {
+      "text": "🆕 Provisões — cruzar nota real recebida com provisão lançada no Omie pelo CNPJ+mês+valor",
+      "done": false
+    },
+    {
+      "text": "🆕 Provisões — tela no painel para gerenciar e vincular notas reais a provisões existentes",
+      "done": false
+    }
+  ],
+  "road-low": [
+    {
+      "text": "Dashboard de KPIs históricos por mês",
+      "done": false
+    },
+    {
+      "text": "Exportar relatório em PDF ou Excel",
+      "done": false
+    },
+    {
+      "text": "Suporte a múltiplos e-mails monitorados",
+      "done": false
+    }
+  ],
+  "road-scale": [
+    {
+      "text": "Multi-tenant — múltiplas empresas independentes",
+      "done": false
+    },
+    {
+      "text": "App mobile nativo (PWA)",
+      "done": false
+    },
+    {
+      "text": "Integração com outros ERPs além do Omie",
+      "done": false
+    },
+    {
+      "text": "🆕 Fluxo 1 multi-email — um endereço central direciona para N empresas automaticamente",
+      "done": false
+    }
+  ],
+  "road-ideias": [
+    {
+      "text": "💡 Provisões: estratégia A — consultar Omie pela API e marcar como \"nota real recebida\"",
+      "done": false
+    },
+    {
+      "text": "💡 Provisões: estratégia B — criar campo \"TipoLancamento\" na lista Lancamentos e cruzar internamente pelo Fluxo 4",
+      "done": false
+    },
+    {
+      "text": "💡 Fraude: estratégia A — Claude AI analisa o PDF e retorna score de confiança antes de subir ao Omie",
+      "done": false
+    },
+    {
+      "text": "💡 Fraude: estratégia B — whitelist de CNPJs por empresa no glip.json",
+      "done": false
+    },
+    {
+      "text": "💡 Multi-email: estratégia A — um e-mail único por empresa",
+      "done": false
+    },
+    {
+      "text": "💡 Multi-email: estratégia B — e-mail central que identifica empresa pelo remetente ou CNPJ tomador",
+      "done": false
+    }
+  ],
+  "road-done": [
+    {
+      "text": "Suporte multi-empresa no Fluxo 3 (21/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Limpeza automática de erros — excluir item Erro após reprocessamento (22/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Correção de duplicata no Omie — política de repetição (22/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Painel — erros.json separado para quadro \"Ao vivo\" (22/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Painel — pendentes.json separado para quadro \"Ao vivo\" (22/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Painel — filtro de empresa via glip.json, sempre visível (22/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Painel — borda verde em notas importadas (22/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Painel — gráfico de horas estendido até 23h (22/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Painel — fuso horário Brasília no arquivo diário (22/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Tela de cadastro de empresa no painel (23/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Fluxo 3 — razao_social limitada a 60 chars (23/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Fluxo 3 — leitura do glip.json via GitHub em vez do SharePoint (23/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Criar categoria \"A Classificar\" automaticamente via Fluxo F5 (24/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Página dedicada de Empresas no painel com status de conexão (24/03/2026)",
+      "done": true
+    },
+    {
+      "text": "Categoria automática por empresa — codigo_categoria dinâmico no glip.json (24/03/2026)",
+      "done": true
+    },
+    {
+      "text": "🛡️ Whitelist de remetentes — proteção anti-fraude no Fluxo 1 (24/03/2026)",
+      "done": true
+    },
+    {
+      "text": "🔴 F7 — Implementar Baixa Automática de Provisões no Power Automate",
+      "done": true
+    }
+  ]
+}
