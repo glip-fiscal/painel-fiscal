@@ -113,5 +113,15 @@
     "tipos_aceitos": [
       "NFS-e"
     ]
+  },
+  {
+    "empresa": "NIKKO COMERCIO E SERVICOS DE PRODUTOS DE HIGIENE LTDA",
+    "cnpj": "42434392000147",
+    "omie_app_key": "6661038672288",
+    "omie_app_secret": "371e06409b2f33614653c1cd90de5293",
+    "codigo_categoria": "",
+    "tipos_aceitos": [
+      "NFS-e"
+    ]
   }
 ]
