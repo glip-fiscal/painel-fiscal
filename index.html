@@ -248,7 +248,7 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
     <a class="nav-item" href="#section-pendentes"><span class="nav-icon">⚠️</span> <span id="nav-pendentes">Pendentes</span></a>
     <div class="nav-section" id="nav-sistema">Sistema</div>
     <a class="nav-item" href="#section-fluxos"><span class="nav-icon">⚙️</span> <span id="nav-fluxos">Fluxos</span></a>
-    <a class="nav-item admin-only" href="#" onclick="showUsers()" id="nav-users-btn" style="display:none"><span class="nav-icon">👥</span> <span id="nav-users">Usuários</span></a>
+    <a class="nav-item admin-only" href="#" onclick="showPaginaUsuarios()" id="nav-users-btn" style="display:none"><span class="nav-icon">👥</span> <span id="nav-users">Usuários</span></a>
     <a class="nav-item admin-only" href="#" onclick="showPaginaEmpresas()" id="nav-empresas-btn" style="display:none"><span class="nav-icon">🏢</span> <span>Empresas</span></a>
     <a class="nav-item admin-only" href="#" onclick="showDocs()" id="nav-docs-btn" style="display:none"><span class="nav-icon">📚</span> <span id="nav-docs">Documentação</span></a>
     <div class="sidebar-footer">
@@ -268,6 +268,34 @@ body{background:var(--navy);color:var(--text);font-family:'Sora',sans-serif;min-
 
   <main class="main">
     <div class="error-banner" id="error-banner">⚠️ <span id="error-msg"></span></div>
+
+    <!-- PÁGINA USUÁRIOS -->
+    <div id="page-usuarios" style="display:none;">
+      <div class="page-header">
+        <div class="page-title">
+          <h1>👥 Usuários</h1>
+          <p>Gerencie os usuários do painel GLIP</p>
+        </div>
+        <div class="header-right">
+          <button class="btn btn-cyan" onclick="loadPaginaUsuarios()">↻ Atualizar</button>
+        </div>
+      </div>
+      <div id="pg-users-kpi" style="margin-bottom:20px;"></div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div><div class="card-title" style="color:var(--cyan);">+ Adicionar Usuário</div></div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:10px;">
+          <div><label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Nome</label><input id="pg-new-nome" type="text" placeholder="Nome completo" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;"></div>
+          <div><label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">E-mail</label><input id="pg-new-email" type="email" placeholder="email@empresa.com" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;"></div>
+          <div><label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Senha</label><input id="pg-new-senha" type="password" placeholder="Senha inicial" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;"></div>
+          <div><label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Perfil</label><select id="pg-new-perfil" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;"><option value="visualizador">Visualizador</option><option value="admin">Admin</option></select></div>
+          <div style="grid-column:span 2;"><label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Empresa</label><select id="pg-new-empresa" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Sora',sans-serif;outline:none;"><option value="todas">Todas as empresas</option></select></div>
+        </div>
+        <div id="pg-users-error" style="font-size:11px;margin-bottom:8px;display:none;"></div>
+        <button onclick="addUsuarioPagina()" style="background:var(--cyan);border:none;color:white;border-radius:8px;padding:9px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">Adicionar</button>
+      </div>
+      <div class="section-label">Usuários Cadastrados</div>
+      <div id="pg-users-list"><div class="empty-msg">Carregando...</div></div>
+    </div>
 
     <!-- PÁGINA EMPRESAS -->
     <div id="page-empresas" style="display:none;">
@@ -1384,6 +1412,7 @@ function fixEncoding(str) {
 
 function showPaginaEmpresas() {
   document.getElementById('page-empresas').style.display = 'block';
+  document.getElementById('page-usuarios').style.display = 'none';
   document.getElementById('page-main').style.display = 'none';
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('nav-empresas-btn').classList.add('active');
@@ -1419,46 +1448,60 @@ function renderPaginaEmpresas() {
   const semCategoria = total - conectadas;
 
   el.innerHTML = `
-    <div class="kpi-grid" style="margin-bottom:20px;">
-      <div class="kpi-card valor"><div class="kpi-top"><span class="kpi-icon">🏢</span><span class="kpi-badge">TOTAL</span></div><div class="kpi-value">${total}</div><div class="kpi-label">Empresas cadastradas</div></div>
-      <div class="kpi-card ok"><div class="kpi-top"><span class="kpi-icon">✅</span><span class="kpi-badge">ATIVAS</span></div><div class="kpi-value" style="color:var(--green);">${conectadas}</div><div class="kpi-label">Com categoria configurada</div></div>
-      <div class="kpi-card pend"><div class="kpi-top"><span class="kpi-icon">⚠️</span><span class="kpi-badge">PENDENTES</span></div><div class="kpi-value" style="color:var(--amber);">${semCategoria}</div><div class="kpi-label">Sem categoria</div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:24px;">
+      <div style="background:linear-gradient(135deg,var(--cyan-dim),transparent);border:1px solid var(--border2);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;">
+        <div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;">Total</div>
+        <div style="font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--cyan);line-height:1;">${total}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Empresas cadastradas</div>
+        <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:0.15;">🏢</div>
+      </div>
+      <div style="background:linear-gradient(135deg,var(--green-dim),transparent);border:1px solid rgba(34,197,94,.2);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;">
+        <div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Conectadas</div>
+        <div style="font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--green);line-height:1;">${conectadas}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Com categoria configurada</div>
+        <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:0.15;">✅</div>
+      </div>
+      <div style="background:linear-gradient(135deg,var(--amber-dim),transparent);border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;">
+        <div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:8px;">Pendentes</div>
+        <div style="font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--amber);line-height:1;">${semCategoria}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Sem categoria configurada</div>
+        <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:0.15;">⚠️</div>
+      </div>
     </div>
     ${empresasData.map((e,i) => {
       const nome = fixEncoding(e.empresa || e.nome || '—');
       const temCategoria = e.codigo_categoria && e.codigo_categoria.trim() !== '';
-      const statusConexao = temCategoria
-        ? `<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;display:inline-block;"></span>Conectado</span>`
-        : `<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;background:var(--amber);border-radius:50%;display:inline-block;"></span>Não configurado</span>`;
-      const statusCategoria = temCategoria
-        ? `<span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;">✅ ${e.codigo_categoria}</span>`
-        : `<span style="font-size:11px;color:var(--amber);">⚠️ Sem categoria</span>`;
-      const btnCategoria = temCategoria
-        ? `<button onclick="setupCategoriaPage('${e.cnpj}', ${i})" style="background:var(--green-dim);border:1px solid rgba(34,197,94,.2);color:var(--green);border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">✅ ${e.codigo_categoria}</button>`
-        : `<button onclick="setupCategoriaPage('${e.cnpj}', ${i})" style="background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);color:var(--amber);border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">⚙️ Setup Categoria</button>`;
+      const statusDot = temCategoria
+        ? `<span style="width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;display:inline-block;flex-shrink:0;"></span>`
+        : `<span style="width:8px;height:8px;background:var(--amber);border-radius:50%;display:inline-block;flex-shrink:0;"></span>`;
+      const statusText = temCategoria ? `<span style="font-size:10px;color:var(--green);">Conectado</span>` : `<span style="font-size:10px;color:var(--amber);">Não configurado</span>`;
+      const catBadge = temCategoria
+        ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);padding:3px 8px;border-radius:6px;">✅ ${e.codigo_categoria}</span>`
+        : `<span style="font-size:11px;background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.2);padding:3px 8px;border-radius:6px;">⚠️ Sem categoria</span>`;
+      const btnSetup = temCategoria
+        ? `<button onclick="setupCategoriaPage('${e.cnpj}', ${i})" style="flex:1;background:var(--green-dim);border:1px solid rgba(34,197,94,.2);color:var(--green);border-radius:8px;padding:8px 6px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;font-weight:500;">✅ ${e.codigo_categoria}</button>`
+        : `<button onclick="setupCategoriaPage('${e.cnpj}', ${i})" style="flex:1;background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);color:var(--amber);border-radius:8px;padding:8px 6px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;font-weight:500;">⚙️ Setup</button>`;
       return `
       <div class="card" style="margin-bottom:12px;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:12px;">
           <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
-              <div style="font-size:14px;font-weight:600;">${nome}</div>
-              ${statusConexao}
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+              ${statusDot}
+              <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nome}</div>
             </div>
-            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;">
-              <div style="font-size:10px;color:var(--muted);">CNPJ <span style="color:var(--text);font-family:'JetBrains Mono',monospace;">${e.cnpj||'—'}</span></div>
-              <div style="font-size:10px;color:var(--muted);">App Key <span style="color:var(--cyan);font-family:'JetBrains Mono',monospace;">${(e.omie_app_key||'').substring(0,10)}...</span></div>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span style="font-size:10px;color:var(--muted);">Categoria:</span>
-              ${statusCategoria}
-            </div>
+            ${statusText}
           </div>
-          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
-            ${btnCategoria}
-            <button onclick="openEditCat(${i})" style="background:var(--cyan-dim);border:1px solid var(--border2);color:var(--cyan);border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">🏷️ Editar Cat.</button>
-            <button onclick="openEditEmp(${i})" style="background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">✏️ Editar</button>
-            <button onclick="removeEmpresaPagina(${i})" style="background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">✕ Remover</button>
-          </div>
+          ${catBadge}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;background:var(--panel2);border-radius:8px;padding:10px 12px;">
+          <div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">CNPJ</div><div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text);">${e.cnpj||'—'}</div></div>
+          <div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">App Key</div><div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--cyan);">${(e.omie_app_key||'').substring(0,12)}...</div></div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          ${btnSetup}
+          <button onclick="openEditCat(${i})" style="flex:1;background:var(--cyan-dim);border:1px solid var(--border2);color:var(--cyan);border-radius:8px;padding:8px 6px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;font-weight:500;">🏷️ Categoria</button>
+          <button onclick="openEditEmp(${i})" style="flex:1;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 6px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;font-weight:500;">✏️ Editar</button>
+          <button onclick="removeEmpresaPagina(${i})" style="flex:1;background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:8px 6px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;font-weight:500;">✕ Remover</button>
         </div>
       </div>`;
     }).join('')}`;
@@ -2190,5 +2233,142 @@ async function salvarEditCat() {
   pgErr.style.color = 'var(--green)';
   pgErr.style.display = 'block';
   setTimeout(() => { pgErr.style.display = 'none'; }, 3000);
+}
+</script>
+
+<script>
+function showPaginaUsuarios() {
+  document.getElementById('page-usuarios').style.display = 'block';
+  document.getElementById('page-empresas').style.display = 'none';
+  document.getElementById('page-main').style.display = 'none';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-users-btn').classList.add('active');
+  // Popula select de empresas
+  const empSel = document.getElementById('pg-new-empresa');
+  empSel.innerHTML = '<option value="todas">Todas as empresas</option>';
+  empresasData.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e.cnpj;
+    opt.textContent = fixEncoding(e.empresa||e.nome||e.cnpj).substring(0,35);
+    empSel.appendChild(opt);
+  });
+  loadPaginaUsuarios();
+}
+
+async function loadPaginaUsuarios() {
+  const token = localStorage.getItem(GH_TOKEN_KEY);
+  if (!token) {
+    document.getElementById('pg-users-list').innerHTML = '<div style="color:var(--red);font-size:12px;padding:16px;">Token GitHub não configurado. Configure em Usuários primeiro.</div>';
+    return;
+  }
+  document.getElementById('pg-users-list').innerHTML = '<div class="empty-msg">Carregando...</div>';
+  try {
+    const resp = await fetch('https://api.github.com/repos/glip-fiscal/painel-fiscal/contents/users.json', {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    const data = await resp.json();
+    usersSHA = data.sha;
+    usersData = JSON.parse(atob(data.content.replace(/\n/g,'')));
+    renderPaginaUsuarios();
+  } catch(e) {
+    document.getElementById('pg-users-list').innerHTML = '<div style="color:var(--red);font-size:12px;padding:16px;">Erro ao carregar usuários.</div>';
+  }
+}
+
+function renderPaginaUsuarios() {
+  const total = usersData.length;
+  const admins = usersData.filter(u => u.perfil === 'admin').length;
+  const viewers = usersData.filter(u => u.perfil !== 'admin').length;
+
+  const kpiEl = document.getElementById('pg-users-kpi');
+  kpiEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:8px;">
+      <div style="background:linear-gradient(135deg,var(--cyan-dim),transparent);border:1px solid var(--border2);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;">
+        <div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;">Total</div>
+        <div style="font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--cyan);line-height:1;">${total}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Usuários cadastrados</div>
+        <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:0.15;">👥</div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(167,139,250,0.1),transparent);border:1px solid rgba(167,139,250,0.2);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;">
+        <div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#A78BFA;margin-bottom:8px;">Admins</div>
+        <div style="font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#A78BFA;line-height:1;">${admins}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Acesso total ao sistema</div>
+        <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:0.15;">🔑</div>
+      </div>
+      <div style="background:linear-gradient(135deg,var(--amber-dim),transparent);border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;">
+        <div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:8px;">Visualizadores</div>
+        <div style="font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--amber);line-height:1;">${viewers}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Somente leitura</div>
+        <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:0.15;">👁️</div>
+      </div>
+    </div>`;
+
+  const el = document.getElementById('pg-users-list');
+  if (!usersData.length) { el.innerHTML = '<div class="empty-msg">Nenhum usuário cadastrado</div>'; return; }
+  el.innerHTML = usersData.map((u,i) => {
+    const isMe = u.usuario === currentUser?.usuario;
+    const perfilColor = u.perfil === 'admin' ? 'background:rgba(167,139,250,0.12);color:#A78BFA;border:1px solid rgba(167,139,250,0.2);' : 'background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.2);';
+    const criado = u.criado ? new Date(u.criado).toLocaleDateString('pt-BR') : '—';
+    const empNome = u.empresa === 'todas' ? 'Todas as empresas' : (empresasData.find(e=>e.cnpj===u.empresa) ? fixEncoding(empresasData.find(e=>e.cnpj===u.empresa).empresa||u.empresa) : u.empresa);
+    return `
+    <div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <div style="width:40px;height:40px;background:var(--cyan-dim);border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--cyan);flex-shrink:0;">${u.nome.charAt(0).toUpperCase()}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;">${u.nome} ${isMe ? '<span style="font-size:9px;color:var(--muted);">(você)</span>' : ''}</div>
+          <div style="font-size:10px;color:var(--muted);font-family:\'JetBrains Mono\',monospace;margin-top:1px;">${u.usuario}</div>
+        </div>
+        <span style="font-size:10px;padding:3px 9px;border-radius:12px;font-weight:600;${perfilColor}">${u.perfil}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--panel2);border-radius:8px;padding:10px 12px;margin-bottom:12px;">
+        <div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Empresa</div><div style="font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${empNome}</div></div>
+        <div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Criado em</div><div style="font-size:11px;color:var(--text);">${criado}</div></div>
+      </div>
+      ${!isMe ? `
+      <div style="display:flex;gap:6px;">
+        <button onclick="pgResetSenha(${i})" style="flex:1;background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);color:var(--amber);border-radius:8px;padding:8px 6px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;font-weight:500;">🔑 Senha</button>
+        <button onclick="pgRemoveUser(${i})" style="flex:1;background:var(--red-dim);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:8px 6px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;font-weight:500;">✕ Remover</button>
+      </div>` : '<div style="font-size:10px;color:var(--muted);text-align:center;">Sua conta</div>'}
+    </div>`;
+  }).join('');
+}
+
+async function addUsuarioPagina() {
+  const nome = document.getElementById('pg-new-nome').value.trim();
+  const email = document.getElementById('pg-new-email').value.trim();
+  const senha = document.getElementById('pg-new-senha').value;
+  const perfil = document.getElementById('pg-new-perfil').value;
+  const empresa = document.getElementById('pg-new-empresa').value || 'todas';
+  const errEl = document.getElementById('pg-users-error');
+  if (!nome||!email||!senha) { errEl.textContent='Preencha todos os campos.'; errEl.style.color='var(--red)'; errEl.style.display='block'; return; }
+  if (usersData.find(u=>u.usuario===email)) { errEl.textContent='E-mail já cadastrado.'; errEl.style.color='var(--red)'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+  const hash = await sha256(senha);
+  usersData.push({ usuario:email, senha:hash, nome, perfil, empresa, criado: new Date().toISOString() });
+  await saveUsers();
+  document.getElementById('pg-new-nome').value='';
+  document.getElementById('pg-new-email').value='';
+  document.getElementById('pg-new-senha').value='';
+  renderPaginaUsuarios();
+  errEl.textContent='✅ Usuário adicionado com sucesso!';
+  errEl.style.color='var(--green)';
+  errEl.style.display='block';
+  setTimeout(()=>{ errEl.style.display='none'; }, 3000);
+}
+
+async function pgResetSenha(idx) {
+  const novaSenha = prompt(`Nova senha para ${usersData[idx].nome}:`);
+  if (!novaSenha || novaSenha.length < 6) { alert('Senha deve ter pelo menos 6 caracteres.'); return; }
+  const hash = await sha256(novaSenha);
+  usersData[idx].senha = hash;
+  await saveUsers();
+  renderPaginaUsuarios();
+}
+
+async function pgRemoveUser(idx) {
+  if (!confirm(`Remover ${usersData[idx].nome}?`)) return;
+  usersData.splice(idx, 1);
+  await saveUsers();
+  renderPaginaUsuarios();
 }
 </script>
