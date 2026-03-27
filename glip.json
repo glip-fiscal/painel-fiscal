@@ -173,5 +173,15 @@
     "tipos_aceitos": [
       "NFS-e"
     ]
+  },
+  {
+    "empresa": "EXATO DIGITAL LTDA",
+    "cnpj": "12387530000113",
+    "omie_app_key": "3424550908779",
+    "omie_app_secret": "e1f21d9c5bfab644e333d489b3661330",
+    "codigo_categoria": "",
+    "tipos_aceitos": [
+      "NFS-e"
+    ]
   }
 ]
