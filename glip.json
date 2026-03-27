@@ -213,5 +213,15 @@
       "NFS-e"
     ],
     "codigo_categoria": "2.02.98"
+  },
+  {
+    "empresa": "BRL - CAMPO BELLO II",
+    "cnpj": "22846761000363",
+    "omie_app_key": "5300551699443",
+    "omie_app_secret": "70f7a67e7b08dbe30c50ce2f1614a379",
+    "codigo_categoria": "",
+    "tipos_aceitos": [
+      "NFS-e"
+    ]
   }
 ]
