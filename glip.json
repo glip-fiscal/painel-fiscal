@@ -143,5 +143,15 @@
     "tipos_aceitos": [
       "NFS-e"
     ]
+  },
+  {
+    "empresa": "EKKOA COMERCIO PRODUTOS DE LIMPEZA LTDA",
+    "cnpj": "40705199000178",
+    "omie_app_key": "3424558575438",
+    "omie_app_secret": "224541d023b1d9c68a702c6454b445d7",
+    "codigo_categoria": "",
+    "tipos_aceitos": [
+      "NFS-e"
+    ]
   }
 ]
