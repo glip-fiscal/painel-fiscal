@@ -30,16 +30,6 @@
     "codigo_categoria": "2.03.97"
   },
   {
-    "empresa": "PICODE COMERCIO E ENSINO DE ROBOTICA LTDA",
-    "cnpj": "30819927000119",
-    "omie_app_key": "2178044155287",
-    "omie_app_secret": "688632bed6964c121a0ad2df724ffdbb",
-    "tipos_aceitos": [
-      "NFS-e"
-    ],
-    "codigo_categoria": "2.03.96"
-  },
-  {
     "empresa": "BOUREAL CONSULTORIA DE NEGOCIOS E INVESTIMENTOS LTDA",
     "cnpj": "64714709000131",
     "omie_app_key": "7253065746927",
