@@ -40,16 +40,6 @@
     "codigo_categoria": "2.04.98"
   },
   {
-    "empresa": "FUNKBOL CLUBE LTDA",
-    "cnpj": "59652943000141",
-    "omie_app_key": "5854567478760",
-    "omie_app_secret": "707cb5fe31d538705fad154b564d992f",
-    "tipos_aceitos": [
-      "NFS-e"
-    ],
-    "codigo_categoria": "2.02.96"
-  },
-  {
     "empresa": "COLETIVO CONSULTORIA LTDA",
     "cnpj": "5913079400015",
     "omie_app_key": "7315012351647",
