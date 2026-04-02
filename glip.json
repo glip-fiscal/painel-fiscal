@@ -30,16 +30,6 @@
     "codigo_categoria": "2.03.97"
   },
   {
-    "empresa": "BOUREAL CONSULTORIA DE NEGOCIOS E INVESTIMENTOS LTDA",
-    "cnpj": "64714709000131",
-    "omie_app_key": "7253065746927",
-    "omie_app_secret": "af51856aa55e956e3bebed9c24aac83c",
-    "codigo_categoria": "2.04.95",
-    "tipos_aceitos": [
-      "NFS-e"
-    ]
-  },
-  {
     "empresa": "EKKOA COMERCIO PRODUTOS DE LIMPEZA LTDA",
     "cnpj": "40705199000178",
     "omie_app_key": "3424558575438",
