@@ -48,5 +48,15 @@
     "tipos_aceitos": [
       "NFS-e"
     ]
+  },
+  {
+    "empresa": "NANOFERT INOVACAO EM FERTILIZANTES FOLIARES COMERCIAL LTDA",
+    "cnpj": "49647171000104",
+    "omie_app_key": "3424566242097",
+    "omie_app_secret": "226720542e0fa4589059e4f51e77f9f6",
+    "codigo_categoria": "",
+    "tipos_aceitos": [
+      "NFS-e"
+    ]
   }
 ]
