@@ -10,18 +10,6 @@
     ]
   },
   {
-    "empresa": "VESTA PARTICIPACOES",
-    "cnpj": "50812636000106",
-    "omie_app_key": "2368790631207",
-    "omie_app_secret": "1e673a0a1afebe892dde9ea20268034f",
-    "codigo_categoria": "2.03.96",
-    "tipos_aceitos": [
-      "NF-e",
-      "NFS-e",
-      "Boleto"
-    ]
-  },
-  {
     "empresa": "TABOAO REFLORESTAMENTO S/A",
     "cnpj": "10520499000111",
     "omie_app_key": "762863237136",
