@@ -10,16 +10,6 @@
     ]
   },
   {
-    "empresa": "BRL INCORPORACAO DE EMPREENDIMENTOS IMOBILIARIOS SPE LTDA",
-    "cnpj": "22846761000100",
-    "omie_app_key": "762901570431",
-    "omie_app_secret": "52bea7dd2b36cfca793134a1ab711023",
-    "codigo_categoria": "2.16.99",
-    "tipos_aceitos": [
-      "NFS-e"
-    ]
-  },
-  {
     "empresa": "MINHA COLETA TECNOLOGIA LTDA",
     "cnpj": "27221368000136",
     "omie_app_key": "2041247958750",
