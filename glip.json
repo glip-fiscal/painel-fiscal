@@ -40,16 +40,6 @@
     "codigo_categoria": "2.04.98"
   },
   {
-    "empresa": "EF2 TECNOLOGIA LTDA",
-    "cnpj": "63799312000127",
-    "omie_app_key": "6564507768819",
-    "omie_app_secret": "734108e19d1835503e36813ddb26d13f",
-    "tipos_aceitos": [
-      "NFS-e"
-    ],
-    "codigo_categoria": "2.02.97"
-  },
-  {
     "empresa": "EXATO DIGITAL LTDA",
     "cnpj": "12387530000113",
     "omie_app_key": "3424550908779",
